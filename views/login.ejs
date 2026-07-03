@@ -1,0 +1,84 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-head">
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-sub">Sign in to your AgriConnect KE account.</p>
+    </div>
+
+    <!-- Error / success banner -->
+    <div id="auth-banner" class="auth-banner" style="display:none;"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label class="form-label">Phone Number or Email</label>
+        <input id="identifier" type="text" class="form-input" placeholder="07XX XXX XXX or email" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input id="password" type="password" class="form-input" placeholder="Your password" required>
+      </div>
+
+      <button type="submit" id="login-btn" class="btn btn-fill btn-full">Sign In</button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="/register">Register free →</a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/scripts') %>
+
+<script>
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn    = document.getElementById('login-btn');
+    const banner = document.getElementById('auth-banner');
+
+    btn.disabled    = true;
+    btn.textContent = 'Signing in…';
+    banner.style.display = 'none';
+
+    const identifier = document.getElementById('identifier').value.trim();
+    const password   = document.getElementById('password').value;
+
+    // Decide whether identifier is email or phone
+    const isEmail = identifier.includes('@');
+    const body = isEmail
+      ? { email: identifier, password }
+      : { phone_number: identifier, password };
+
+    try {
+      const res  = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        banner.className = 'auth-banner error';
+        banner.textContent = data.message || 'Login failed.';
+        banner.style.display = 'block';
+        btn.disabled    = false;
+        btn.textContent = 'Sign In';
+        return;
+      }
+
+      // Store JWT and redirect
+      localStorage.setItem('agri_token', data.token);
+      localStorage.setItem('agri_user',  JSON.stringify(data.user));
+      window.location.href = '/dashboard';
+    } catch (err) {
+      banner.className = 'auth-banner error';
+      banner.textContent = 'Network error. Please try again.';
+      banner.style.display = 'block';
+      btn.disabled    = false;
+      btn.textContent = 'Sign In';
+    }
+  });
+</script>

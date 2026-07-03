@@ -1,0 +1,145 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="dash-main">
+
+  <!-- Sidebar -->
+  <aside class="dash-sidebar">
+    <div class="dash-avatar" id="dash-avatar">?</div>
+    <div class="dash-user-name" id="dash-user-name">Loading…</div>
+    <div class="dash-user-role" id="dash-user-role"></div>
+
+    <nav class="dash-nav">
+      <a href="/dashboard" class="dash-link active">
+        <i data-lucide="layout-dashboard"></i> Overview
+      </a>
+      <a href="/produce" class="dash-link">
+        <i data-lucide="wheat"></i> My Produce
+      </a>
+      <a href="/services" class="dash-link">
+        <i data-lucide="wrench"></i> Services
+      </a>
+      <a href="/profile" class="dash-link">
+        <i data-lucide="user"></i> Profile
+      </a>
+    </nav>
+
+    <button class="dash-logout" id="dash-logout">
+      <i data-lucide="log-out"></i> Sign out
+    </button>
+  </aside>
+
+  <!-- Content -->
+  <div class="dash-content">
+
+    <!-- Header row -->
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-greeting" id="dash-greeting">Welcome back!</h1>
+        <p class="dash-sub">Here's what's happening on your farm today.</p>
+      </div>
+      <a href="/produce/new" class="btn btn-amber">
+        <i data-lucide="plus"></i> Post Produce
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="dash-stats">
+      <div class="stat-card">
+        <div class="stat-icon emerald"><i data-lucide="package"></i></div>
+        <div class="stat-info">
+          <div class="stat-num" id="stat-produce">—</div>
+          <div class="stat-label">Active Listings</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon gold"><i data-lucide="shopping-bag"></i></div>
+        <div class="stat-info">
+          <div class="stat-num" id="stat-orders">—</div>
+          <div class="stat-label">Purchase Requests</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><i data-lucide="message-circle"></i></div>
+        <div class="stat-info">
+          <div class="stat-num" id="stat-messages">—</div>
+          <div class="stat-label">Messages</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple"><i data-lucide="star"></i></div>
+        <div class="stat-info">
+          <div class="stat-num">—</div>
+          <div class="stat-label">Avg. Rating</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="dash-section">
+      <h2 class="dash-section-title">Quick Actions</h2>
+      <div class="dash-actions">
+        <a href="/produce/new" class="action-card">
+          <div class="action-icon"><i data-lucide="plus-circle"></i></div>
+          <div class="action-label">Post Produce</div>
+        </a>
+        <a href="/marketplace" class="action-card">
+          <div class="action-icon"><i data-lucide="store"></i></div>
+          <div class="action-label">Browse Market</div>
+        </a>
+        <a href="/services" class="action-card">
+          <div class="action-icon"><i data-lucide="tractor"></i></div>
+          <div class="action-label">Find Services</div>
+        </a>
+        <a href="/profile" class="action-card">
+          <div class="action-icon"><i data-lucide="settings"></i></div>
+          <div class="action-label">Edit Profile</div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<%- include('partials/footer') %>
+<%- include('partials/scripts') %>
+
+<script>
+  // ── Auth guard ──────────────────────────────────────────────────────────────
+  const token = localStorage.getItem('agri_token');
+  const user  = JSON.parse(localStorage.getItem('agri_user') || 'null');
+
+  if (!token || !user) {
+    window.location.href = '/login';
+  } else {
+    // Populate UI from stored user object
+    const firstName = user.full_name.split(' ')[0];
+    const initial   = user.full_name.charAt(0).toUpperCase();
+    const roleLabel = { farmer: '🌾 Farmer', buyer: '🛒 Buyer', provider: '🔧 Service Provider' }[user.role] || user.role;
+
+    document.getElementById('dash-avatar').textContent    = initial;
+    document.getElementById('dash-user-name').textContent = user.full_name;
+    document.getElementById('dash-user-role').textContent = roleLabel;
+    document.getElementById('dash-greeting').textContent  = `Welcome back, ${firstName}!`;
+
+    // Logout
+    document.getElementById('dash-logout').addEventListener('click', () => {
+      localStorage.removeItem('agri_token');
+      localStorage.removeItem('agri_user');
+      window.location.href = '/';
+    });
+
+    // Fetch real stats (optional — falls back gracefully if API not ready)
+    fetch('/api/dashboard/stats', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data) return;
+      if (data.produce  !== undefined) document.getElementById('stat-produce').textContent   = data.produce;
+      if (data.orders   !== undefined) document.getElementById('stat-orders').textContent    = data.orders;
+      if (data.messages !== undefined) document.getElementById('stat-messages').textContent  = data.messages;
+    })
+    .catch(() => {}); // Silent fail — stats stay as —
+  }
+</script>

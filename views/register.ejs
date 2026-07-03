@@ -1,0 +1,115 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-head">
+      <h1 class="auth-title">Create an Account</h1>
+      <p class="auth-sub">Join Kenya's leading direct-trade agricultural network.</p>
+    </div>
+
+    <!-- Error / success banner -->
+    <div id="auth-banner" class="auth-banner" style="display:none;"></div>
+
+    <form id="register-form">
+      <div class="form-group">
+        <label class="form-label">I am registering as a:</label>
+        <div class="role-options">
+          <label class="role-label">
+            <input type="radio" name="role" value="farmer" checked>
+            <div class="role-icon"><i data-lucide="tractor"></i></div>
+            <div class="role-text">Farmer / Producer</div>
+          </label>
+          <label class="role-label">
+            <input type="radio" name="role" value="buyer">
+            <div class="role-icon"><i data-lucide="shopping-cart"></i></div>
+            <div class="role-text">Buyer / Vendor</div>
+          </label>
+          <label class="role-label">
+            <input type="radio" name="role" value="provider">
+            <div class="role-icon"><i data-lucide="wrench"></i></div>
+            <div class="role-text">Service Provider</div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input id="full_name" type="text" class="form-input" placeholder="e.g. John Kamau" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input id="phone_number" type="tel" class="form-input" placeholder="07XX XXX XXX" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address <span style="opacity:.5">(Optional)</span></label>
+        <input id="email" type="email" class="form-input" placeholder="john@example.com">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input id="password" type="password" class="form-input" placeholder="Create a secure password" required>
+      </div>
+
+      <button type="submit" id="reg-btn" class="btn btn-fill btn-full">Register Account</button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="/login">Sign in here</a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/scripts') %>
+
+<script>
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('reg-btn');
+    const banner = document.getElementById('auth-banner');
+
+    btn.disabled = true;
+    btn.textContent = 'Creating account…';
+    banner.style.display = 'none';
+
+    const role = document.querySelector('input[name="role"]:checked').value;
+    const body = {
+      full_name:    document.getElementById('full_name').value.trim(),
+      phone_number: document.getElementById('phone_number').value.trim(),
+      email:        document.getElementById('email').value.trim() || undefined,
+      password:     document.getElementById('password').value,
+      role,
+    };
+
+    try {
+      const res  = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        banner.className = 'auth-banner error';
+        banner.textContent = data.message || 'Registration failed.';
+        banner.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Register Account';
+        return;
+      }
+
+      // Store JWT and redirect
+      localStorage.setItem('agri_token', data.token);
+      localStorage.setItem('agri_user',  JSON.stringify(data.user));
+      window.location.href = '/dashboard';
+    } catch (err) {
+      banner.className = 'auth-banner error';
+      banner.textContent = 'Network error. Please try again.';
+      banner.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Register Account';
+    }
+  });
+</script>

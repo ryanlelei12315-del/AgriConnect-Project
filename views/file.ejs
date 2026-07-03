@@ -1,0 +1,310 @@
+<%- include('partials/header') %>
+
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">🌾</div>
+    <span class="logo-text">Agri<span>Connect</span> KE</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="marketplace.html">Marketplace</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="login.html" class="btn btn-ghost">Login</a>
+    <a href="register.html" class="btn btn-primary">Join Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-badge">🇰🇪 Built for Kenyan Farmers</div>
+    <h1 class="hero-h1">
+      Sell direct.<br>
+      Source <span class="accent">fresh</span>.<br>
+      Farm <span class="underline">smarter</span>.
+    </h1>
+    <p class="hero-sub">
+      AgriConnect KE connects farmers directly with buyers and trusted agricultural service providers across Kenya — no brokers, no delays.
+    </p>
+    <div class="hero-btns">
+      <a href="marketplace.html" class="btn btn-harvest">Browse Produce →</a>
+      <a href="services.html" class="btn btn-ghost">Find Services</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-val">47</div>
+        <div class="stat-label">Counties covered</div>
+      </div>
+      <div>
+        <div class="stat-val">3</div>
+        <div class="stat-label">User types</div>
+      </div>
+      <div>
+        <div class="stat-val">4</div>
+        <div class="stat-label">Service categories</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-pattern"></div>
+    <div class="hero-visual">
+      <div class="float-card">
+        <div class="fc-icon">🍅</div>
+        <div>
+          <div class="fc-name">Fresh Tomatoes</div>
+          <div class="fc-detail">Uasin Gishu · 120 kg available</div>
+        </div>
+        <div class="fc-price">KES 90/kg</div>
+      </div>
+      <div class="float-card">
+        <div class="fc-icon">🚜</div>
+        <div>
+          <div class="fc-name">Tractor Repair</div>
+          <div class="fc-detail">Eldoret · Available today</div>
+        </div>
+        <div class="fc-price">KES 3,500</div>
+      </div>
+      <div class="float-card">
+        <div class="fc-icon">🌽</div>
+        <div>
+          <div class="fc-name">White Maize</div>
+          <div class="fc-detail">Nakuru · 500 kg available</div>
+        </div>
+        <div class="fc-price">KES 55/kg</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCE -->
+<section>
+  <div class="section-head">
+    <div>
+      <div class="section-label">Fresh from the farm</div>
+      <h2 class="section-title">Featured Produce</h2>
+      <p class="section-sub">Directly listed by farmers across Kenya. No middlemen.</p>
+    </div>
+    <a href="marketplace.html" class="btn btn-ghost">View all →</a>
+  </div>
+
+  <div class="card-grid" id="produce-grid">
+    <!-- Seeded cards -->
+    <div class="produce-card">
+      <div class="card-img tomato">
+        🍅
+        <span class="card-county">Uasin Gishu</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Cherry Tomatoes</div>
+        <div class="card-meta">
+          <span class="card-qty">120 kg available</span>
+          <span class="card-price">KES 90<span>/kg</span></span>
+        </div>
+        <button class="card-btn" onclick="goTo('marketplace.html')">Request to Buy</button>
+      </div>
+    </div>
+
+    <div class="produce-card">
+      <div class="card-img maize">
+        🌽
+        <span class="card-county">Nakuru</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">White Maize</div>
+        <div class="card-meta">
+          <span class="card-qty">500 kg available</span>
+          <span class="card-price">KES 55<span>/kg</span></span>
+        </div>
+        <button class="card-btn" onclick="goTo('marketplace.html')">Request to Buy</button>
+      </div>
+    </div>
+
+    <div class="produce-card">
+      <div class="card-img potato">
+        🥔
+        <span class="card-county">Meru</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Irish Potatoes</div>
+        <div class="card-meta">
+          <span class="card-qty">300 kg available</span>
+          <span class="card-price">KES 70<span>/kg</span></span>
+        </div>
+        <button class="card-btn" onclick="goTo('marketplace.html')">Request to Buy</button>
+      </div>
+    </div>
+
+    <div class="produce-card">
+      <div class="card-img onion">
+        🧅
+        <span class="card-county">Kajiado</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">Red Onions</div>
+        <div class="card-meta">
+          <span class="card-qty">200 kg available</span>
+          <span class="card-price">KES 65<span>/kg</span></span>
+        </div>
+        <button class="card-btn" onclick="goTo('marketplace.html')">Request to Buy</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services-section">
+  <div class="section-head">
+    <div>
+      <div class="section-label">Agricultural Services</div>
+      <h2 class="section-title">Trusted Farm Services</h2>
+      <p class="section-sub">Connect with verified service providers in your county.</p>
+    </div>
+    <a href="services.html" class="btn btn-ghost">View all →</a>
+  </div>
+
+  <div class="service-grid">
+    <div class="service-card" onclick="goTo('services.html')">
+      <div class="sc-icon">🚜</div>
+      <div class="sc-name">Tractor Repair</div>
+      <div class="sc-county">Eldoret, Uasin Gishu</div>
+      <div class="sc-avail">Available today</div>
+      <div class="sc-price">From KES 3,500</div>
+    </div>
+    <div class="service-card" onclick="goTo('services.html')">
+      <div class="sc-icon">🚚</div>
+      <div class="sc-name">Farm Transport</div>
+      <div class="sc-county">Nakuru, Naivasha</div>
+      <div class="sc-avail">Available today</div>
+      <div class="sc-price">From KES 2,000</div>
+    </div>
+    <div class="service-card" onclick="goTo('services.html')">
+      <div class="sc-icon">💧</div>
+      <div class="sc-name">Irrigation Setup</div>
+      <div class="sc-county">Meru, Embu</div>
+      <div class="sc-avail">Book in advance</div>
+      <div class="sc-price">From KES 5,000</div>
+    </div>
+    <div class="service-card" onclick="goTo('services.html')">
+      <div class="sc-icon">👷</div>
+      <div class="sc-name">Harvest Labor</div>
+      <div class="sc-county">All counties</div>
+      <div class="sc-avail">Available today</div>
+      <div class="sc-price">From KES 800/day</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why">
+  <div class="section-label">Why choose us</div>
+  <h2 class="section-title">Everything farmers need. One place.</h2>
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-num">01</div>
+      <div class="why-title">No brokers</div>
+      <div class="why-desc">Sell your produce directly to buyers and keep more of your earnings.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-num">02</div>
+      <div class="why-title">Trusted providers</div>
+      <div class="why-desc">All service providers are verified and reviewed by the community.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-num">03</div>
+      <div class="why-title">County-based</div>
+      <div class="why-desc">Search by your county — connect with people and markets near you.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-num">04</div>
+      <div class="why-title">Mobile-first</div>
+      <div class="why-desc">Designed for the phone in your pocket, not just a desktop.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="about">
+  <h2 class="section-title">Ready to connect with Kenya's farmers?</h2>
+  <p class="section-sub">Join as a farmer, buyer, or service provider. It's free to get started.</p>
+  <div class="cta-btns">
+    <a href="register.html" class="btn btn-harvest">Create Free Account →</a>
+    <a href="marketplace.html" class="btn" style="background:rgba(255,255,255,0.12);color:white;border:1.5px solid rgba(255,255,255,0.3);">Browse Without Signing Up</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo logo">
+    <div class="logo-icon">🌾</div>
+    <span class="logo-text">Agri<span style="color:var(--harvest)">Connect</span> KE</span>
+  </div>
+  <p>Connecting Kenyan farmers with buyers and farm services.</p>
+  <p style="font-size:0.78rem; opacity:0.5;">© 2025 AgriConnect KE · Eldohub AI & Tech Academy Final Project</p>
+</footer>
+
+<!-- AI CHATBOT -->
+<button class="ai-fab" onclick="toggleAI()" title="AI Farm Assistant">🤖</button>
+
+<div class="ai-panel" id="ai-panel">
+  <div class="ai-head">🌾 AgriConnect AI Assistant</div>
+  <div class="ai-msgs" id="ai-msgs">
+    <div class="msg bot">Hi! I'm your farm assistant. Tell me what you need and I'll guide you. 👋</div>
+  </div>
+  <div class="ai-input-row">
+    <input class="ai-input" id="ai-input" placeholder="e.g. I need irrigation help..." onkeydown="if(event.key==='Enter')sendAI()"/>
+    <button class="ai-send" onclick="sendAI()">→</button>
+  </div>
+</div>
+
+<script>
+  function goTo(page) { window.location.href = page; }
+
+  function toggleAI() {
+    const p = document.getElementById('ai-panel');
+    p.classList.toggle('open');
+  }
+
+  function sendAI() {
+    const input = document.getElementById('ai-input');
+    const text = input.value.trim();
+    if (!text) return;
+    addMsg(text, 'user');
+    input.value = '';
+    setTimeout(() => addMsg(respond(text), 'bot'), 500);
+  }
+
+  function addMsg(text, type) {
+    const msgs = document.getElementById('ai-msgs');
+    const d = document.createElement('div');
+    d.className = 'msg ' + type;
+    d.textContent = text;
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function respond(text) {
+    text = text.toLowerCase();
+    if (text.includes('irrigat') || text.includes('pump') || text.includes('water'))
+      return '💧 Search "Irrigation Setup" in our Services section. Providers in Meru and Embu are available this week.';
+    if (text.includes('transport') || text.includes('deliver') || text.includes('truck'))
+      return '🚚 We have farm transport providers in Nakuru and Naivasha. Browse the Services page.';
+    if (text.includes('sell') || text.includes('price') || text.includes('market'))
+      return '📦 Go to the Marketplace and click "Post Produce". Set your own price — no broker needed!';
+    if (text.includes('tractor') || text.includes('repair') || text.includes('machine'))
+      return '🚜 Tractor repair services are listed in Eldoret/Uasin Gishu. View Services for contacts.';
+    if (text.includes('buy') || text.includes('tomato') || text.includes('maize') || text.includes('potato'))
+      return '🛒 Browse the Marketplace to find fresh produce from farmers across Kenya. Filter by county and price.';
+    if (text.includes('register') || text.includes('join') || text.includes('sign up'))
+      return '✅ Registration is free! Click "Join Free" in the top right. Choose your role: Farmer, Buyer, or Provider.';
+    return '🌾 I can help with produce listings, service bookings, and getting started. What specifically do you need?';
+  }
+</script>
+
+</body>
+</html>

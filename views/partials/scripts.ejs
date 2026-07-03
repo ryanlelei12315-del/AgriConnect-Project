@@ -1,0 +1,78 @@
+  <!-- ══ AI CHATBOT ══ -->
+  <button class="ai-fab" onclick="toggleAI()" title="Farm AI Assistant">🤖</button>
+
+  <div class="ai-panel" id="ai-panel">
+    <div class="ai-head">
+      <div>
+        <div class="ai-head-text">Farm Assistant</div>
+        <div class="ai-head-sub">AgriConnect AI · Ask me anything</div>
+      </div>
+      <div class="ai-online"></div>
+    </div>
+    <div class="ai-msgs" id="ai-msgs">
+      <div class="msg bot">Habari! I'm your AgriConnect assistant. What do you need — selling produce, finding services,
+        or getting started? 👋</div>
+    </div>
+    <div class="ai-footer">
+      <input class="ai-input" id="ai-input" placeholder="e.g. I need irrigation help…"
+        onkeydown="if(event.key==='Enter')sendAI()" />
+      <button class="ai-send" onclick="sendAI()">→</button>
+    </div>
+  </div>
+
+  <script>
+    // County pills
+    document.querySelectorAll('.county-pill').forEach(p => {
+      p.addEventListener('click', () => {
+        document.querySelectorAll('.county-pill').forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+      });
+    });
+
+    // AI
+    function toggleAI() {
+      document.getElementById('ai-panel').classList.toggle('open');
+    }
+    function sendAI() {
+      const inp = document.getElementById('ai-input');
+      const txt = inp.value.trim();
+      if (!txt) return;
+      addMsg(txt, 'user');
+      inp.value = '';
+      setTimeout(() => addMsg(reply(txt), 'bot'), 420);
+    }
+    function addMsg(text, type) {
+      const box = document.getElementById('ai-msgs');
+      const d = document.createElement('div');
+      d.className = 'msg ' + type;
+      d.textContent = text;
+      box.appendChild(d);
+      box.scrollTop = box.scrollHeight;
+    }
+    function reply(t) {
+      t = t.toLowerCase();
+      if (t.includes('irrigat') || t.includes('pump') || t.includes('water'))
+        return '💧 We have irrigation technicians in Meru and Embu available this week. Browse the Services page and filter by "Irrigation".';
+      if (t.includes('transport') || t.includes('deliver') || t.includes('truck') || t.includes('lorry'))
+        return '🚚 Farm transport providers are listed in Nakuru and Naivasha. Head to Services → Transport.';
+      if (t.includes('sell') || t.includes('price') || t.includes('list') || t.includes('post'))
+        return '📦 Register as a Farmer, go to your Dashboard, then click "Post Produce". Set your own price — no broker takes a cut!';
+      if (t.includes('tractor') || t.includes('repair') || t.includes('machine') || t.includes('broke'))
+        return '🚜 Tractor and equipment repair services are listed in Eldoret and Uasin Gishu. View Services for details and contacts.';
+      if (t.includes('buy') || t.includes('maize') || t.includes('tomato') || t.includes('potato') || t.includes('onion'))
+        return '<i data-lucide="shopping-cart"></i> Browse the Marketplace to find fresh produce from farmers across Kenya. Filter by county and crop type.';
+      if (t.includes('register') || t.includes('join') || t.includes('sign') || t.includes('start'))
+        return '✅ Click "Join Free" at the top right. Choose your role: Farmer, Buyer, or Service Provider. It\'s completely free!';
+      if (t.includes('price') || t.includes('ksh') || t.includes('kes') || t.includes('cost'))
+        return '📊 Check our Market Prices section on this page for current farm-gate prices across counties.';
+      if (t.includes('payment') || t.includes('mpesa') || t.includes('pay'))
+        return '💳 M-PESA payment integration is on our roadmap. For now, buyers and farmers connect directly and agree on payment.';
+      return '🌾 I can help with produce listings, farm services, pricing, and getting started. What specifically do you need help with?';
+    }
+  </script>
+
+  <script>
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+  </script>
+</body>
+</html>
