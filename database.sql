@@ -1,8 +1,8 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP DATABASE IF EXISTS Kilimo_Management_System;
-CREATE DATABASE Kilimo_Management_System;
-USE Kilimo_Management_System;
+CREATE DATABASE Smart_Kilimo;
+USE Smart_Kilimo;
 
 -- ============================================
 -- Users: farmers, buyers, service providers, admins
@@ -110,6 +110,7 @@ CREATE TABLE weather_and_soil_logs (
     FOREIGN KEY (field_id) REFERENCES farm_fields(id) ON DELETE CASCADE,
     INDEX idx_field_id (field_id)
 );
+
 
 -- ============================================
 -- Livestock manager (animals owned by user)

@@ -185,6 +185,7 @@ nav {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   background: linear-gradient(135deg, var(--cream) 0%, var(--linen) 100%);
+  position: relative;
 }
 .hero-left {
   padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
@@ -192,6 +193,7 @@ nav {
   flex-direction: column;
   justify-content: center;
   position: relative;
+  z-index: 10;
 }
 .hero-left::after {
   content: '';
@@ -202,33 +204,40 @@ nav {
   width: 1px;
   background: linear-gradient(to bottom, transparent, var(--stone), transparent);
 }
-.hero-badge {
+.hero-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--white);
-  border: 1px solid var(--stone);
-  border-radius: 30px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--emerald);
+  gap: 12px;
   margin-bottom: 2rem;
-  align-self: flex-start;
-  box-shadow: var(--shadow-sm);
 }
-.hero-title {
+.eyebrow-line {
+  width: 40px;
+  height: 1px;
+  background: var(--emerald);
+}
+.eyebrow-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--emerald);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.hero-headline {
   font-family: 'Playfair Display', serif;
   font-weight: 900;
-  font-size: clamp(3rem, 5vw, 5rem);
+  font-size: clamp(2.5rem, 5vw, 4rem);
   line-height: 1.1;
   color: var(--emerald-dark);
   margin-bottom: 1.5rem;
   letter-spacing: -0.01em;
 }
-.hero-title em {
-  color: var(--gold);
-  font-style: italic;
+.hero-headline .green {
+  color: var(--emerald);
+}
+.hero-headline .mark {
+  background: var(--gold-glow);
+  padding: 0 4px;
+  border-radius: 4px;
 }
 .hero-desc {
   font-size: 1.15rem;
@@ -242,7 +251,6 @@ nav {
   gap: 16px;
   margin-bottom: 4rem;
 }
-
 .hero-proof {
   display: flex;
   gap: 3rem;
@@ -250,17 +258,21 @@ nav {
   padding-top: 2rem;
   border-top: 1px solid var(--stone);
 }
-.proof-item h4 {
+.proof-num {
   font-family: 'Playfair Display', serif;
   font-size: 1.75rem;
   color: var(--emerald-dark);
   margin-bottom: 4px;
 }
-.proof-item p {
+.proof-label {
   font-size: 0.8rem;
   color: var(--ink-soft);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+.proof-divider {
+  width: 1px;
+  background: var(--stone);
 }
 
 /* ══ HERO RIGHT (Live Market) ══ */
@@ -273,39 +285,26 @@ nav {
   position: relative;
   overflow: hidden;
 }
-.live-prices {
-  width: 100%;
-  max-width: 380px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
-  padding: 32px;
-  box-shadow: var(--shadow-lg);
-  z-index: 10;
+.hero-bg-image {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  z-index: 0;
 }
-.lp-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-.lp-title {
+.hero-cards-label {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--ink-mid);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin-bottom: 1.5rem;
 }
-.pulse {
-  width: 8px;
-  height: 8px;
-  background: #4caf50;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+.live-cards {
+  width: 100%;
+  max-width: 380px;
+  z-index: 10;
 }
-.lp-card {
+.lc {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -317,7 +316,7 @@ nav {
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
 }
-.lp-card:hover {
+.lc:hover {
   transform: translateX(4px);
   box-shadow: var(--shadow-md);
   border-color: rgba(15, 59, 33, 0.15);
@@ -332,29 +331,24 @@ nav {
   border-radius: 10px;
   font-size: 1.2rem;
 }
-.lc-info h4 {
+.lc-info {
+  flex: 1;
+}
+.lc-name {
   font-size: 1rem;
   color: var(--ink);
   margin-bottom: 4px;
   font-weight: 600;
 }
-.lc-info p {
+.lc-sub {
   font-size: 0.8rem;
   color: var(--ink-soft);
 }
 .lc-price {
-  margin-left: auto;
-  text-align: right;
-}
-.lc-price strong {
-  display: block;
   font-size: 1.1rem;
+  font-weight: 600;
   color: var(--emerald-dark);
   font-family: 'Playfair Display', serif;
-}
-.lc-price span {
-  font-size: 0.8rem;
-  color: var(--gold);
 }
 
 /* ══ SECTION ══ */
