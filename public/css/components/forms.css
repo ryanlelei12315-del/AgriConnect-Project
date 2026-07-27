@@ -1,0 +1,70 @@
+/* ── Form Controls ── */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink-mid);
+  margin-bottom: 8px;
+}
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--stone);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-family: 'Outfit', sans-serif;
+  background: var(--linen);
+  color: var(--ink);
+  outline: none;
+  transition: var(--transition);
+}
+.form-input:focus {
+  border-color: var(--emerald);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(27, 74, 46, 0.08);
+}
+.form-input::placeholder {
+  color: var(--ink-soft);
+}
+
+/* ── Role Picker ── */
+.role-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+.role-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border: 1px solid var(--stone);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+.role-label:hover {
+  border-color: var(--emerald);
+  background: var(--linen);
+}
+.role-label input[type='radio'] {
+  display: none;
+}
+.role-label:has(input:checked) {
+  border-color: var(--emerald);
+  background: rgba(27, 74, 46, 0.05);
+}
+.role-icon {
+  color: var(--emerald);
+}
+.role-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink);
+}

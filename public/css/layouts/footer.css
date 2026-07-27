@@ -1,0 +1,30 @@
+/* ══ FOOTER ══ */
+footer {
+  background: var(--ink);
+  color: var(--white);
+  padding: 5rem clamp(1.5rem, 5vw, 4rem) 2rem;
+}
+.footer-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.75rem;
+  margin-bottom: 16px;
+}
+.footer-logo-text em {
+  color: var(--gold);
+  font-style: normal;
+}
+.footer-tagline {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 320px;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+footer p {
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 2rem;
+  margin-top: 4rem;
+}

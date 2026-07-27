@@ -1,0 +1,123 @@
+/* ══ AI WIDGET ══ */
+.ai-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 500;
+  width: 56px;
+  height: 56px;
+  background: var(--emerald-dark);
+  border-radius: 50%;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--white);
+  transition: var(--transition);
+  font-size: 1.5rem;
+  border: none;
+}
+.ai-fab:hover {
+  transform: scale(1.05);
+  background: var(--emerald);
+}
+.ai-panel {
+  position: fixed;
+  bottom: 6rem;
+  right: 2rem;
+  z-index: 500;
+  width: 340px;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--stone);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ai-panel.open {
+  display: flex;
+  animation: fadeUp 0.3s ease forwards;
+}
+.ai-head {
+  background: var(--emerald-dark);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--white);
+}
+.ai-head-text {
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+}
+.ai-head-sub {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+.ai-msgs {
+  flex: 1;
+  padding: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--cream);
+}
+.msg {
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  max-width: 85%;
+  border-radius: 12px;
+}
+.msg.bot {
+  background: var(--white);
+  color: var(--ink);
+  align-self: flex-start;
+  border: 1px solid var(--stone);
+  border-bottom-left-radius: 4px;
+}
+.msg.user {
+  background: var(--emerald);
+  color: var(--white);
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.ai-footer {
+  padding: 12px;
+  border-top: 1px solid var(--stone);
+  display: flex;
+  gap: 8px;
+  background: var(--white);
+}
+.ai-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--stone);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  outline: none;
+  transition: var(--transition);
+  background: var(--linen);
+}
+.ai-input:focus {
+  border-color: var(--emerald);
+  background: var(--white);
+}
+.ai-send {
+  padding: 10px 16px;
+  background: var(--emerald-dark);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.ai-send:hover {
+  background: var(--emerald);
+}

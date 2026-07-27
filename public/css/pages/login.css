@@ -1,0 +1,66 @@
+/* ══ AUTH PAGES ══ */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.5rem 3rem;
+  background: var(--linen);
+}
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--white);
+  border-radius: 20px;
+  border: 1px solid var(--stone);
+  padding: 3rem;
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.6s ease forwards;
+}
+.auth-head {
+  margin-bottom: 2.5rem;
+}
+.auth-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: var(--emerald-dark);
+  margin-bottom: 8px;
+}
+.auth-sub {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.auth-footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.auth-footer a {
+  color: var(--emerald);
+  font-weight: 500;
+  text-decoration: none;
+}
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ── Auth Banner ── */
+.auth-banner {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+.auth-banner.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+.auth-banner.success {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
