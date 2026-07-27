@@ -32,6 +32,10 @@ const User = sequelize.define('User', {
     allowNull: false,
     defaultValue: 'farmer',
   },
+  county: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+  },
 }, {
   tableName: 'users',
   timestamps: true,
