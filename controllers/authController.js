@@ -9,7 +9,7 @@ const TOKEN_EXPIRY = '7d';
 // ── Register ────────────────────────────────────────────────────────────────
 exports.register = async (req, res) => {
   try {
-    const { full_name, email, phone_number, password, role } = req.body;
+    const { full_name, email, phone_number, password, role, county } = req.body;
 
     // Basic validation
     if (!full_name || !password || (!email && !phone_number)) {
@@ -40,15 +40,16 @@ exports.register = async (req, res) => {
     }
 
     // Hash password
-    const hashed = await bcrypt.hash(password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     // Create user
     const user = await User.create({
       full_name,
       email: email || null,
       phone_number: phone_number || null,
-      password: hashed,
+      password: hashedPassword,
       role: userRole,
+      county: county || null,
     });
 
     // Sign JWT
@@ -66,7 +67,9 @@ exports.register = async (req, res) => {
         id: user.id,
         full_name: user.full_name,
         email: user.email,
+        phone_number: user.phone_number,
         role: user.role,
+        county: user.county,
       },
     });
   } catch (err) {
@@ -116,11 +119,48 @@ exports.login = async (req, res) => {
         id: user.id,
         full_name: user.full_name,
         email: user.email,
+        phone_number: user.phone_number,
         role: user.role,
+        county: user.county,
       },
     });
   } catch (err) {
     console.error('Login error:', err.message);
     return res.status(500).json({ success: false, message: 'Server error during login.' });
+  }
+};
+
+// ── Update Profile ───────────────────────────────────────────────────────────
+exports.updateProfile = async (req, res) => {
+  try {
+    const { full_name, phone_number, county } = req.body;
+
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Update fields if provided
+    if (full_name) user.full_name = full_name;
+    if (phone_number) user.phone_number = phone_number;
+    if (county) user.county = county;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully.',
+      user: {
+        id: user.id,
+        full_name: user.full_name,
+        email: user.email,
+        phone_number: user.phone_number,
+        role: user.role,
+        county: user.county,
+      },
+    });
+  } catch (err) {
+    console.error('Profile update error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error during profile update.' });
   }
 };

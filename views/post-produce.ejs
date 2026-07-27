@@ -1,0 +1,170 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="auth-wrapper" style="background: var(--cream);">
+  <div class="auth-card" style="max-width: 600px;">
+    <div class="auth-head">
+      <h1 class="auth-title">Post New Produce</h1>
+      <p class="auth-sub">List your harvest on the AgriConnect KE marketplace to connect directly with buyers.</p>
+    </div>
+
+    <div id="form-banner" class="auth-banner" style="display:none;"></div>
+
+    <form id="post-produce-form">
+      <div class="form-group">
+        <label class="form-label">Crop / Produce Name</label>
+        <select id="crop-name" class="form-input" required style="background: var(--linen); cursor: pointer;">
+          <option value="" disabled selected>Select a crop type</option>
+          <option value="Cherry Tomatoes">Cherry Tomatoes</option>
+          <option value="White Maize">White Maize</option>
+          <option value="Irish Potatoes">Irish Potatoes</option>
+          <option value="Red Onions">Red Onions</option>
+          <option value="Dry Beans">Dry Beans</option>
+          <option value="Green Cabbages">Green Cabbages</option>
+          <option value="Sukuma Wiki">Sukuma Wiki (Collard Greens)</option>
+          <option value="Avocados">Avocados</option>
+          <option value="Carrots">Carrots</option>
+          <option value="Wheat">Wheat</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="custom-crop-group" style="display: none;">
+        <label class="form-label">Custom Crop Name</label>
+        <input type="text" id="custom-crop-name" class="form-input" placeholder="e.g. Butternut, Garlic" style="background: var(--linen);">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label">Available Quantity (in kg)</label>
+          <input type="number" id="quantity" class="form-input" placeholder="e.g. 150" required min="1" style="background: var(--linen);">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Price per kg (in KES)</label>
+          <input type="number" id="price" class="form-input" placeholder="e.g. 80" required min="1" style="background: var(--linen);">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">County</label>
+        <select id="county" class="form-input" required style="background: var(--linen); cursor: pointer;">
+          <option value="" disabled selected>Select your farm county</option>
+          <option value="Uasin Gishu">Uasin Gishu</option>
+          <option value="Nakuru">Nakuru</option>
+          <option value="Meru">Meru</option>
+          <option value="Kajiado">Kajiado</option>
+          <option value="Trans Nzoia">Trans Nzoia</option>
+          <option value="Nairobi">Nairobi</option>
+          <option value="Kisumu">Kisumu</option>
+          <option value="Kiambu">Kiambu</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description / Quality details <span style="opacity: .5;">(Optional)</span></label>
+        <textarea id="description" class="form-input" placeholder="e.g., Freshly harvested this morning, organic, well-packaged in 50kg bags." style="background: var(--linen); height: 100px; resize: none; font-family: inherit;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mock Image URL / Crop Category <span style="opacity: .5;">(Optional)</span></label>
+        <select id="crop-image" class="form-input" style="background: var(--linen); cursor: pointer;">
+          <option value="/images/designarena_image_ni9bxflg.png">🍅 Tomatoes (Cherry/Red)</option>
+          <option value="/images/designarena_image_17f603s0.png">🌽 Maize (White/Yellow)</option>
+          <option value="/images/designarena_image_fgwrwznp.png">🥔 Potatoes (Irish/Shangi)</option>
+          <option value="/images/designarena_image_llkqsdn3.png">🧅 Onions (Red/Dry)</option>
+          <option value="/images/designarena_image_bg0xwpdn.png">🥬 Green Vegetables</option>
+        </select>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn btn-fill btn-full" style="margin-top: 1rem;">Post Listing to Marketplace</button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/scripts') %>
+
+<script>
+  // Redirect guest or non-farmer
+  (function() {
+    const token = localStorage.getItem('agri_token');
+    const user = JSON.parse(localStorage.getItem('agri_user') || 'null');
+    if (!token || !user) {
+      window.location.href = '/login';
+    } else if (user.role !== 'farmer' && user.role !== 'admin') {
+      alert('Only registered farmers can access the "Post Produce" page.');
+      window.location.href = '/dashboard';
+    }
+  })();
+
+  // Handle select custom crop logic (can extend later if needed)
+  document.getElementById('crop-name').addEventListener('change', function() {
+    const customGroup = document.getElementById('custom-crop-group');
+    if (this.value === 'custom') {
+      customGroup.style.display = 'block';
+      document.getElementById('custom-crop-name').setAttribute('required', 'required');
+    } else {
+      customGroup.style.display = 'none';
+      document.getElementById('custom-crop-name').removeAttribute('required');
+    }
+  });
+
+  document.getElementById('post-produce-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('agri_token');
+    const btn = document.getElementById('submit-btn');
+    const banner = document.getElementById('form-banner');
+
+    btn.disabled = true;
+    btn.textContent = 'Posting listing...';
+    banner.style.display = 'none';
+
+    let name = document.getElementById('crop-name').value;
+    if (name === 'custom') {
+      name = document.getElementById('custom-crop-name').value.trim();
+    }
+
+    const body = {
+      name,
+      quantity: document.getElementById('quantity').value,
+      price: document.getElementById('price').value,
+      county: document.getElementById('county').value,
+      description: document.getElementById('description').value.trim() || undefined,
+      image: document.getElementById('crop-image').value
+    };
+
+    try {
+      const res = await fetch('/api/produce', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        banner.className = 'auth-banner error';
+        banner.textContent = data.message || 'Failed to list produce.';
+        banner.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Post Listing to Marketplace';
+        return;
+      }
+
+      banner.className = 'auth-banner success';
+      banner.textContent = 'Produce listed successfully! Redirecting to marketplace...';
+      banner.style.display = 'block';
+
+      setTimeout(() => {
+        window.location.href = '/marketplace';
+      }, 1500);
+    } catch (err) {
+      banner.className = 'auth-banner error';
+      banner.textContent = 'Network error. Please try again.';
+      banner.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Post Listing to Marketplace';
+    }
+  });
+</script>

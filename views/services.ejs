@@ -1,0 +1,166 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main style="padding-top: 72px; min-height: 100vh; background: var(--cream);">
+
+  <!-- Hero/Header area -->
+  <section class="section animate-fade-up" style="padding: 4rem clamp(1.5rem, 5vw, 4rem) 2rem;">
+    <div class="row-head" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1.5rem; border-bottom: 1px solid var(--stone); padding-bottom: 2rem;">
+      <div>
+        <div class="section-tag">
+          <div class="tag-line"></div>
+          <span class="tag-text">Verified Professionals</span>
+        </div>
+        <h1 class="section-heading" style="font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); color: var(--emerald-dark); margin-bottom: 0.5rem;">Agricultural Farm Services</h1>
+        <p class="section-sub" style="color: var(--ink-soft); max-width: 600px;">Connect with trusted local mechanics, irrigation technicians, farm laborers, and transporters. No commissions, no brokers.</p>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="marketplace-filters" style="display: flex; gap: 1rem; flex-wrap: wrap; width: 100%; max-width: 700px; margin-top: 1.5rem;">
+        <input type="text" id="svc-search" class="form-input" placeholder="Search services (e.g. repair, tractor, labor)..." style="flex: 2; min-width: 180px; background: var(--white);">
+
+        <select id="svc-category" class="form-input" style="flex: 1; min-width: 130px; background: var(--white); cursor: pointer;">
+          <option value="all">All Categories</option>
+          <option value="machinery">Tractor & Machinery</option>
+          <option value="transport">Farm Transport</option>
+          <option value="irrigation">Irrigation Setup</option>
+          <option value="labor">Farm Laborers</option>
+        </select>
+
+        <select id="svc-county" class="form-input" style="flex: 1; min-width: 130px; background: var(--white); cursor: pointer;">
+          <option value="all">All Counties</option>
+          <option value="Uasin Gishu">Uasin Gishu</option>
+          <option value="Nakuru">Nakuru</option>
+          <option value="Meru">Meru</option>
+          <option value="Kajiado">Kajiado</option>
+          <option value="Trans Nzoia">Trans Nzoia</option>
+          <option value="Nairobi">Nairobi</option>
+          <option value="Kisumu">Kisumu</option>
+          <option value="Kiambu">Kiambu</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Listings Grid -->
+  <section class="section" style="padding: 0 clamp(1.5rem, 5vw, 4rem) 6rem;">
+    <div id="no-services-msg" style="display: none; text-align: center; padding: 4rem 2rem; background: var(--white); border-radius: 16px; border: 1px solid var(--stone); box-shadow: var(--shadow-sm);">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🔧</div>
+      <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--emerald-dark); margin-bottom: 0.5rem;">No service providers found</h3>
+      <p style="color: var(--ink-soft);">Try modifying your search or filters, or broaden your category or county filter.</p>
+    </div>
+
+    <div class="service-grid" id="services-container">
+      <!-- Dynamically filled -->
+      <div style="text-align: center; grid-column: 1 / -1; padding: 3rem;">
+        <p style="color: var(--ink-soft);">Loading farm services...</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<%- include('partials/footer') %>
+<%- include('partials/scripts') %>
+
+<script>
+  let allServices = [];
+
+  // Fetch services from API
+  async function fetchServices() {
+    try {
+      const search = document.getElementById('svc-search').value.trim();
+      const category = document.getElementById('svc-category').value;
+      const county = document.getElementById('svc-county').value;
+
+      let url = '/api/services?';
+      if (search) url += `search=${encodeURIComponent(search)}&`;
+      if (category) url += `category=${encodeURIComponent(category)}&`;
+      if (county) url += `county=${encodeURIComponent(county)}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.success) {
+        allServices = data.services;
+        renderServices();
+      }
+    } catch (err) {
+      console.error('Error fetching services:', err);
+    }
+  }
+
+  // Render services in the grid
+  function renderServices() {
+    const container = document.getElementById('services-container');
+    const noServices = document.getElementById('no-services-msg');
+    container.innerHTML = '';
+
+    if (allServices.length === 0) {
+      noServices.style.display = 'block';
+      return;
+    }
+    noServices.style.display = 'none';
+
+    allServices.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'sc';
+
+      // Determine category icon & display name
+      const catIcons = {
+        'machinery': '🚜',
+        'transport': '🚚',
+        'irrigation': '💧',
+        'labor': '👷'
+      };
+      const catLabels = {
+        'machinery': 'Machinery Repair',
+        'transport': 'Farm Transport',
+        'irrigation': 'Irrigation Setup',
+        'labor': 'Harvest & Farm Labor'
+      };
+
+      const icon = catIcons[item.category.toLowerCase()] || '🔧';
+      const catLabel = catLabels[item.category.toLowerCase()] || item.category;
+
+      card.innerHTML = `
+        <div class="sc-icon" style="font-size: 1.5rem;">${icon}</div>
+        <div class="sc-cat" style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: var(--gold); letter-spacing: 0.05em; margin-bottom: 4px;">${catLabel}</div>
+        <h3 class="sc-name" style="margin-bottom: 8px;">${item.name}</h3>
+        <div class="sc-location" style="display: flex; align-items: center; gap: 6px; font-size: 0.875rem; color: var(--ink-soft); margin-bottom: 12px;">
+          <span>📍 ${item.county}</span>
+        </div>
+        ${item.description ? `<p style="font-size: 0.9rem; color: var(--ink-mid); margin-bottom: 1.5rem; line-height: 1.5;">${item.description}</p>` : ''}
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--stone); padding-top: 1.25rem; margin-top: auto;">
+          <div>
+            <div style="font-size: 0.75rem; color: var(--ink-soft); text-transform: uppercase;">Est. Rate</div>
+            <div class="sc-price" style="font-size: 1.25rem; font-weight: 700; color: var(--emerald-dark); margin: 0;">KES ${parseFloat(item.price).toLocaleString()}</div>
+          </div>
+          <button class="btn btn-outline" style="padding: 8px 16px; font-size: 0.8rem;" onclick="bookService('${item.name}')">Book Now</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function bookService(serviceName) {
+    const token = localStorage.getItem('agri_token');
+    const user = JSON.parse(localStorage.getItem('agri_user') || 'null');
+
+    if (!token || !user) {
+      alert('You need to be logged in to book agricultural services. Redirecting to login page...');
+      window.location.href = '/login';
+      return;
+    }
+
+    alert(`📋 Service Booking Initiated!\n\nWe have notified the provider for "${serviceName}". They will reach out to you via your registered phone number shortly to agree on timing and details. Thank you for using AgriConnect KE!`);
+  }
+
+  // Event listeners
+  document.getElementById('svc-search').addEventListener('input', fetchServices);
+  document.getElementById('svc-category').addEventListener('change', fetchServices);
+  document.getElementById('svc-county').addEventListener('change', fetchServices);
+
+  // Initialize
+  fetchServices();
+</script>

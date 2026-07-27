@@ -1,0 +1,128 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="auth-wrapper" style="background: var(--cream);">
+  <div class="auth-card" style="max-width: 600px;">
+    <div class="auth-head">
+      <h1 class="auth-title">Add Your Farm Service</h1>
+      <p class="auth-sub">List your professional agricultural services to reach farmers in need across your county.</p>
+    </div>
+
+    <div id="form-banner" class="auth-banner" style="display:none;"></div>
+
+    <form id="add-service-form">
+      <div class="form-group">
+        <label class="form-label">Service Category</label>
+        <select id="category" class="form-input" required style="background: var(--linen); cursor: pointer;">
+          <option value="" disabled selected>Select category</option>
+          <option value="machinery">🚜 Tractor & Farm Machinery Repair</option>
+          <option value="transport">🚚 Farm Produce Transport & Delivery</option>
+          <option value="irrigation">💧 Drip & Sprinkler Irrigation Setup</option>
+          <option value="labor">👷 Planting & Harvest Manual Labor</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Service Title / Business Name</label>
+        <input type="text" id="service-name" class="form-input" placeholder="e.g. Kamau Tractor Repair & Parts" required style="background: var(--linen);">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Starting Price Rate (in KES)</label>
+        <input type="number" id="price" class="form-input" placeholder="e.g. 3500" required min="1" style="background: var(--linen);">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Primary Service County</label>
+        <select id="county" class="form-input" required style="background: var(--linen); cursor: pointer;">
+          <option value="" disabled selected>Select service area</option>
+          <option value="Uasin Gishu">Uasin Gishu</option>
+          <option value="Nakuru">Nakuru</option>
+          <option value="Meru">Meru</option>
+          <option value="Kajiado">Kajiado</option>
+          <option value="Trans Nzoia">Trans Nzoia</option>
+          <option value="Nairobi">Nairobi</option>
+          <option value="Kisumu">Kisumu</option>
+          <option value="Kiambu">Kiambu</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description of Service & Experience</label>
+        <textarea id="description" class="form-input" placeholder="e.g., Over 5 years repairing Massey Ferguson and John Deere tractors. Prompt service. We bring our own tools to your farm." required style="background: var(--linen); height: 120px; resize: none; font-family: inherit;"></textarea>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn btn-fill btn-full" style="margin-top: 1rem;">Add Service Listing</button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/scripts') %>
+
+<script>
+  // Redirect guest or non-provider
+  (function() {
+    const token = localStorage.getItem('agri_token');
+    const user = JSON.parse(localStorage.getItem('agri_user') || 'null');
+    if (!token || !user) {
+      window.location.href = '/login';
+    } else if (user.role !== 'provider' && user.role !== 'admin') {
+      alert('Only registered service providers can access the "Add Service" page.');
+      window.location.href = '/dashboard';
+    }
+  })();
+
+  document.getElementById('add-service-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('agri_token');
+    const btn = document.getElementById('submit-btn');
+    const banner = document.getElementById('form-banner');
+
+    btn.disabled = true;
+    btn.textContent = 'Listing service...';
+    banner.style.display = 'none';
+
+    const body = {
+      category: document.getElementById('category').value,
+      name: document.getElementById('service-name').value.trim(),
+      price: document.getElementById('price').value,
+      county: document.getElementById('county').value,
+      description: document.getElementById('description').value.trim()
+    };
+
+    try {
+      const res = await fetch('/api/services', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        banner.className = 'auth-banner error';
+        banner.textContent = data.message || 'Failed to list service.';
+        banner.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Add Service Listing';
+        return;
+      }
+
+      banner.className = 'auth-banner success';
+      banner.textContent = 'Service listed successfully! Redirecting to services page...';
+      banner.style.display = 'block';
+
+      setTimeout(() => {
+        window.location.href = '/services';
+      }, 1500);
+    } catch (err) {
+      banner.className = 'auth-banner error';
+      banner.textContent = 'Network error. Please try again.';
+      banner.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Add Service Listing';
+    }
+  });
+</script>
