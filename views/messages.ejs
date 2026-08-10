@@ -15,6 +15,15 @@
     <div class="chat-layout">
       <!-- ── Conversation List ─────────────────────────────────── -->
       <div class="chat-threads" id="conversationList">
+        <div class="chat-list-header">
+          <span class="chat-list-title">Chats</span>
+          <button class="chat-list-icon" title="New chat"><i data-lucide="square-pen"></i></button>
+        </div>
+        <div class="chat-search">
+          <i data-lucide="search" class="chat-search-icon"></i>
+          <input type="text" class="chat-search-input" id="chatSearch" placeholder="Search or start a new chat" />
+        </div>
+
         <% if (conversations && conversations.length > 0) { %>
           <% conversations.forEach(c => { %>
             <a href="/messages/<%= c.user.id %>" class="chat-thread-item <%= (activeUserId && Number(activeUserId) === Number(c.user.id)) ? 'active' : '' %>">
@@ -24,11 +33,13 @@
                   <span><%= c.user.fullName %></span>
                   <span class="chat-thread-time"><%= new Date(c.lastAt).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' }) %></span>
                 </div>
-                <div class="chat-thread-preview"><%= c.lastMessage %></div>
+                <div class="chat-thread-preview-row">
+                  <span class="chat-thread-preview"><%= c.lastMessage %></span>
+                  <% if (Number(c.unread) > 0) { %>
+                    <span class="chat-unread-badge"><%= c.unread %></span>
+                  <% } %>
+                </div>
               </div>
-              <% if (Number(c.unread) > 0) { %>
-                <span class="sidebar-badge sidebar-badge-green" style="flex-shrink:0;"><%= c.unread %></span>
-              <% } %>
             </a>
           <% }) %>
         <% } else { %>
@@ -45,20 +56,30 @@
         <% if (activeUser && activeThread) { %>
           <div class="chat-header">
             <div class="chat-thread-avatar"><%= (activeUser.fullName || '?').charAt(0).toUpperCase() %></div>
-            <div>
+            <div class="chat-header-info">
               <div class="chat-header-name"><%= activeUser.fullName %></div>
-              <div class="chat-header-status">● Direct Message</div>
+              <div class="chat-header-status">online</div>
+            </div>
+            <div class="chat-header-actions">
+              <button class="chat-header-icon" title="Search"><i data-lucide="search"></i></button>
+              <button class="chat-header-icon" title="More"><i data-lucide="more-vertical"></i></button>
             </div>
           </div>
 
           <div class="chat-messages" id="chatMessages">
+            <div class="chat-date-separator">Today</div>
             <% if (activeThread.length > 0) { %>
               <% activeThread.forEach(m => {
                 const mine = Number(m.senderId) === Number(user.id);
               %>
-                <div class="chat-msg-bubble <%= mine ? 'outgoing' : 'incoming' %>">
-                  <%= m.content %>
-                  <div class="chat-msg-time"><%= new Date(m.createdAt).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' }) %></div>
+                <div class="chat-msg-row <%= mine ? 'outgoing' : 'incoming' %>">
+                  <div class="chat-msg-bubble">
+                    <span class="chat-msg-text"><%= m.content %></span>
+                    <span class="chat-msg-time">
+                      <%= new Date(m.createdAt).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' }) %>
+                      <% if (mine) { %><i data-lucide="check-check" class="chat-msg-tick"></i><% } %>
+                    </span>
+                  </div>
                 </div>
               <% }) %>
             <% } else { %>
@@ -70,8 +91,10 @@
           </div>
 
           <div class="chat-input-area">
-            <input type="text" class="chat-input-field" id="chatInput" placeholder="Type a message…" autocomplete="off" />
-            <button class="chat-send-btn" id="sendBtn">Send</button>
+            <button class="chat-input-icon" title="Emoji"><i data-lucide="smile"></i></button>
+            <input type="text" class="chat-input-field" id="chatInput" placeholder="Type a message" autocomplete="off" />
+            <button class="chat-input-icon" title="Attach"><i data-lucide="paperclip"></i></button>
+            <button class="chat-send-btn" id="sendBtn" title="Send"><i data-lucide="send"></i></button>
           </div>
         <% } else { %>
           <div class="chat-empty-msg" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:3rem 1rem;text-align:center;color:var(--ink-soft);">
@@ -107,11 +130,16 @@
         if (data.success) {
           chatInput.value = '';
           if (chatMessages) {
-            const d = document.createElement('div');
-            d.className = 'chat-msg-bubble outgoing';
-            d.innerHTML = content + '<div class="chat-msg-time">Just now</div>';
-            chatMessages.appendChild(d);
+            const row = document.createElement('div');
+            row.className = 'chat-msg-row outgoing';
+            row.innerHTML = `
+              <div class="chat-msg-bubble">
+                <span class="chat-msg-text">${content}</span>
+                <span class="chat-msg-time">Just now <i data-lucide="check-check" class="chat-msg-tick"></i></span>
+              </div>`;
+            chatMessages.appendChild(row);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
           }
         }
       })
@@ -125,6 +153,18 @@
     });
   }
 
+  // ── Search conversations ─────────────────────────────────────
+  const chatSearch = document.getElementById('chatSearch');
+  if (chatSearch) {
+    chatSearch.addEventListener('input', () => {
+      const q = chatSearch.value.toLowerCase();
+      document.querySelectorAll('.chat-thread-item').forEach(item => {
+        const name = item.querySelector('.chat-thread-name span').textContent.toLowerCase();
+        item.style.display = name.includes(q) ? '' : 'none';
+      });
+    });
+  }
+
   // Scroll to bottom on load
   if (chatMessages) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -133,4 +173,5 @@
   if (typeof lucide !== 'undefined') lucide.createIcons();
 </script>
 
+<%- include('partials/chatbot') %>
 <%- include('partials/footer') %>

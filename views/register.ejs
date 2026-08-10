@@ -92,7 +92,13 @@
 
       <div class="form-group">
         <label class="form-label">Confirm Password</label>
-        <input type="password" class="form-input" placeholder="Confirm your password" required />
+        <input
+          id="confirm_password"
+          type="password"
+          class="form-input"
+          placeholder="Confirm your password"
+          required
+        />
       </div>
 
       <button type="submit" id="reg-btn" class="btn btn-fill btn-full">Register Account</button>
@@ -109,6 +115,17 @@
     e.preventDefault();
     const btn = document.getElementById('reg-btn');
     const banner = document.getElementById('auth-banner');
+
+    // ── Confirm password validation ──────────────────────────────
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    if (password !== confirmPassword) {
+      banner.className = 'auth-banner error';
+      banner.textContent = 'Passwords do not match. Please re-enter your password.';
+      banner.style.display = 'block';
+      document.getElementById('confirm_password').focus();
+      return;
+    }
 
     btn.disabled = true;
     btn.textContent = 'Creating account…';

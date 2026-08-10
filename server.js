@@ -63,7 +63,10 @@ app.get('/why-us', (req, res) => res.render('why-us'));
 
 // ── Page routes (server-side guarded) ───────────────────────────────────────
 app.get('/', redirectIfAuthed, (req, res) => res.render('index'));
-
+app.get('/marketplace', (req, res) => {
+  // Render the marketplace page
+  res.render('marketplace');
+});
 // Auth pages (redirect authed users to dashboard)
 app.get('/login', redirectIfAuthed, (req, res) => res.render('login'));
 app.get('/register', redirectIfAuthed, (req, res) => res.render('register'));

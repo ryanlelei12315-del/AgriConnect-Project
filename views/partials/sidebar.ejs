@@ -122,6 +122,12 @@
     </form>
   </div>
 
+  <!-- ── Collapse Toggle (desktop) ──────────────────────────────── -->
+  <button class="sidebar-collapse-toggle" id="sidebarCollapseToggle" aria-label="Toggle sidebar">
+    <i data-lucide="panel-left-close"></i>
+    <span>Collapse</span>
+  </button>
+
 </aside>
 
 <script>
@@ -149,5 +155,19 @@
     window.addEventListener('resize', () => {
       if (window.innerWidth > 900) closeSidebar();
     });
+
+    // Desktop collapse/expand toggle
+    const collapseToggle = document.getElementById('sidebarCollapseToggle');
+    if (collapseToggle) {
+      collapseToggle.addEventListener('click', () => {
+        const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+        sidebar.classList.toggle('collapsed', isCollapsed);
+        const icon = collapseToggle.querySelector('i');
+        if (icon) {
+          icon.setAttribute('data-lucide', isCollapsed ? 'panel-left-open' : 'panel-left-close');
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      });
+    }
   })();
 </script>
