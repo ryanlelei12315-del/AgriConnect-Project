@@ -1,15 +1,55 @@
+/* eslint-env node */
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/User');
+const { TOKEN_COOKIE } = require('../middlewares/pageAuth');
 require('dotenv').config();
 
 const SALT_ROUNDS = 10;
 const TOKEN_EXPIRY = '7d';
 
+/** Set the JWT as an httpOnly cookie (XSS-safe) + return it in the body for API clients. */
+function setAuthCookie(res, token) {
+  res.cookie(TOKEN_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: '/',
+  });
+}
+
+/** Sign a JWT for a user. */
+function signToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      full_name: user.fullName,
+      role: user.role,
+      county: user.county || null,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: TOKEN_EXPIRY }
+  );
+}
+
+/** Public user shape (never expose password hash). */
+function publicUser(user) {
+  return {
+    id: user.id,
+    full_name: user.fullName,
+    email: user.email,
+    phone_number: user.phoneNumber,
+    county: user.county,
+    role: user.role,
+  };
+}
+
 // ── Register ────────────────────────────────────────────────────────────────
 exports.register = async (req, res) => {
   try {
-    const { full_name, email, phone_number, password, role } = req.body;
+    const { full_name, email, phone_number, password, role, county } = req.body;
 
     // Basic validation
     if (!full_name || !password || (!email && !phone_number)) {
@@ -44,30 +84,23 @@ exports.register = async (req, res) => {
 
     // Create user
     const user = await User.create({
-      full_name,
+      fullName: full_name,
       email: email || null,
-      phone_number: phone_number || null,
+      phoneNumber: phone_number || null,
+      county: county || null,
       password: hashed,
       role: userRole,
     });
 
-    // Sign JWT
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: TOKEN_EXPIRY }
-    );
+    // Sign JWT + set httpOnly cookie
+    const token = signToken(user);
+    setAuthCookie(res, token);
 
     return res.status(201).json({
       success: true,
       message: 'Account created successfully.',
       token,
-      user: {
-        id: user.id,
-        full_name: user.full_name,
-        email: user.email,
-        role: user.role,
-      },
+      user: publicUser(user),
     });
   } catch (err) {
     console.error('Register error:', err.message);
@@ -101,26 +134,38 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
 
-    // Sign JWT
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: TOKEN_EXPIRY }
-    );
+    // Sign JWT + set httpOnly cookie
+    const token = signToken(user);
+    setAuthCookie(res, token);
 
     return res.status(200).json({
       success: true,
       message: 'Login successful.',
       token,
-      user: {
-        id: user.id,
-        full_name: user.full_name,
-        email: user.email,
-        role: user.role,
-      },
+      user: publicUser(user),
     });
   } catch (err) {
     console.error('Login error:', err.message);
     return res.status(500).json({ success: false, message: 'Server error during login.' });
+  }
+};
+
+// ── Logout ───────────────────────────────────────────────────────────────────
+exports.logout = (req, res) => {
+  res.clearCookie(TOKEN_COOKIE, { path: '/' });
+  return res.json({ success: true, message: 'Logged out.' });
+};
+
+// ── Me ───────────────────────────────────────────────────────────────────────
+exports.me = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+    return res.json({ success: true, user: publicUser(user) });
+  } catch (err) {
+    console.error('Me error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error.' });
   }
 };

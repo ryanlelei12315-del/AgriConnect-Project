@@ -1,0 +1,153 @@
+<!-- ══ SIDEBAR ══ -->
+<!-- Mobile hamburger toggle -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation">
+  <i data-lucide="menu"></i>
+</button>
+<!-- Overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="dash-sidebar" id="dashSidebar">
+
+  <!-- ── User Profile Section ──────────────────────────────────── -->
+  <div class="sidebar-user">
+    <div class="sidebar-avatar">
+      <% if (typeof user !== 'undefined' && user && user.profileImage) { %>
+        <img src="<%= user.profileImage %>" alt="Profile" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+      <% } else { %>
+        <span><%= (typeof user !== 'undefined' && user) ? (user.fullName || user.full_name || '?').charAt(0).toUpperCase() : '?' %></span>
+      <% } %>
+    </div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <%= user.fullName || user.full_name || 'User' %>
+        <% } %>
+      </div>
+      <div class="sidebar-user-role">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <%= user.role === 'farmer' ? 'Farmer' : user.role === 'buyer' ? 'Buyer' : user.role === 'provider' ? 'Service Provider' : user.role %>
+        <% } %>
+      </div>
+      <% if (typeof user !== 'undefined' && user && (user.county || user.location)) { %>
+        <div class="sidebar-user-location">
+          <i data-lucide="map-pin" style="width:12px;height:12px;"></i>
+          <%= user.county || user.location %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- ── Navigation ────────────────────────────────────────────── -->
+  <nav class="sidebar-nav" aria-label="Application Navigation">
+
+    <!-- MAIN section -->
+    <div class="sidebar-section-label">Main</div>
+
+    <a href="/dashboard" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'dashboard') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span>
+      <span class="sidebar-link-text">Dashboard</span>
+    </a>
+
+    <% if (typeof user !== 'undefined' && user && user.role === 'farmer') { %>
+    <a href="/produce" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'produce') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="box"></i></span>
+      <span class="sidebar-link-text">My Produce</span>
+    </a>
+    <% } %>
+
+    <a href="/orders" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'orders') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="shopping-bag"></i></span>
+      <span class="sidebar-link-text">Orders</span>
+      <% if (typeof pendingOrdersCount !== 'undefined' && pendingOrdersCount > 0) { %>
+        <span class="sidebar-badge sidebar-badge-amber"><%= pendingOrdersCount %></span>
+      <% } %>
+    </a>
+
+    <a href="/messages" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'messages') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="message-square"></i></span>
+      <span class="sidebar-link-text">Messages</span>
+      <% if (typeof unreadMessagesCount !== 'undefined' && unreadMessagesCount > 0) { %>
+        <span class="sidebar-badge sidebar-badge-green"><%= unreadMessagesCount %></span>
+      <% } %>
+    </a>
+
+    <a href="/notifications" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'notifications') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="bell"></i></span>
+      <span class="sidebar-link-text">Notifications</span>
+      <% if (typeof unreadNotificationsCount !== 'undefined' && unreadNotificationsCount > 0) { %>
+        <span class="sidebar-badge sidebar-badge-red"><%= unreadNotificationsCount %></span>
+      <% } %>
+    </a>
+
+    <!-- MARKET section -->
+    <div class="sidebar-section-label">Market</div>
+
+    <a href="/marketplace" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'marketplace') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="store"></i></span>
+      <span class="sidebar-link-text">Marketplace</span>
+    </a>
+
+    <a href="/services" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'services') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="tractor"></i></span>
+      <span class="sidebar-link-text">Services</span>
+    </a>
+
+    <a href="/market-prices" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'market-prices') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span>
+      <span class="sidebar-link-text">Market Prices</span>
+    </a>
+
+    <!-- ACCOUNT section -->
+    <div class="sidebar-section-label">Account</div>
+
+    <a href="/profile" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'profile') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="user"></i></span>
+      <span class="sidebar-link-text">Profile</span>
+    </a>
+
+    <a href="/settings" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'settings') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="settings"></i></span>
+      <span class="sidebar-link-text">Settings</span>
+    </a>
+
+  </nav>
+
+  <!-- ── Sign Out ────────────────────────────────────────────────── -->
+  <div class="sidebar-footer">
+    <form action="/api/auth/logout" method="POST">
+      <button type="submit" class="sidebar-signout-btn">
+        <i data-lucide="log-out"></i>
+        <span>Sign Out</span>
+      </button>
+    </form>
+  </div>
+
+</aside>
+
+<script>
+  // Mobile sidebar drawer
+  (function () {
+    const toggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('dashSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      document.body.classList.add('sidebar-open');
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.classList.remove('sidebar-open');
+    }
+
+    if (toggle) toggle.addEventListener('click', openSidebar);
+    if (overlay) overlay.addEventListener('click', closeSidebar);
+
+    // Close on resize to desktop
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900) closeSidebar();
+    });
+  })();
+</script>

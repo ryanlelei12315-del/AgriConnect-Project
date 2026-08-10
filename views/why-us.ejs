@@ -1,0 +1,103 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="page-container" style="padding-top:72px;">
+  <!-- Hero Section -->
+  <section style="background:var(--emerald-dark); color:var(--white); padding:6rem 2rem; text-align:center;">
+    <div style="max-width:800px; margin:0 auto;">
+      <h1 style="font-size:3.5rem; margin-bottom:1.5rem; color:var(--gold);">Connecting Kenya's Farmers to Better Markets</h1>
+      <p style="font-size:1.2rem; color:var(--cream); opacity:0.9; margin-bottom:2.5rem; line-height:1.6;">
+        AgriConnect KE empowers farmers by providing direct market access, transparent pricing, and essential agricultural services. We eliminate the middlemen so farmers earn more and buyers get fresh produce faster.
+      </p>
+      <div style="display:flex; justify-content:center; gap:1rem;">
+        <a href="/register" class="btn btn-amber" style="padding:1rem 2rem; font-size:1.1rem;">Join as a Farmer</a>
+        <a href="/marketplace" class="btn btn-outline" style="padding:1rem 2rem; font-size:1.1rem; color:var(--white); border-color:var(--white);">Browse Market</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section style="padding:6rem 2rem; background:var(--bg);">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="text-align:center; margin-bottom:4rem;">
+        <h2 style="font-size:2.5rem; color:var(--emerald); margin-bottom:1rem;">How It Works</h2>
+        <p style="color:var(--ink-soft); font-size:1.1rem;">A simple, transparent digital farm commerce ecosystem.</p>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:2rem;">
+        <div style="text-align:center; padding:2rem; background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
+          <div style="width:64px; height:64px; background:var(--cream); color:var(--emerald); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
+            <i data-lucide="upload-cloud" style="width:32px; height:32px;"></i>
+          </div>
+          <h3 style="margin-bottom:0.5rem;">1. List Produce</h3>
+          <p style="color:var(--ink-soft); font-size:0.95rem;">Farmers easily post their available harvest with prices and quantities.</p>
+        </div>
+
+        <div style="text-align:center; padding:2rem; background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
+          <div style="width:64px; height:64px; background:var(--cream); color:var(--emerald); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
+            <i data-lucide="store" style="width:32px; height:32px;"></i>
+          </div>
+          <h3 style="margin-bottom:0.5rem;">2. Reach Buyers</h3>
+          <p style="color:var(--ink-soft); font-size:0.95rem;">Produce appears on the marketplace for buyers nationwide to see.</p>
+        </div>
+
+        <div style="text-align:center; padding:2rem; background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
+          <div style="width:64px; height:64px; background:var(--cream); color:var(--emerald); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
+            <i data-lucide="shopping-bag" style="width:32px; height:32px;"></i>
+          </div>
+          <h3 style="margin-bottom:0.5rem;">3. Receive Orders</h3>
+          <p style="color:var(--ink-soft); font-size:0.95rem;">Buyers place secure orders, and farmers manage them from their dashboard.</p>
+        </div>
+
+        <div style="text-align:center; padding:2rem; background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
+          <div style="width:64px; height:64px; background:var(--cream); color:var(--emerald); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
+            <i data-lucide="wrench" style="width:32px; height:32px;"></i>
+          </div>
+          <h3 style="margin-bottom:0.5rem;">4. Find Services</h3>
+          <p style="color:var(--ink-soft); font-size:0.95rem;">Need a tractor or labor? Request services directly on the platform.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section style="padding:6rem 2rem; background:var(--white); border-top:1px solid var(--stone);">
+    <div style="max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center;">
+      <div>
+        <h2 style="font-size:2.5rem; color:var(--emerald); margin-bottom:1.5rem;">Why Choose AgriConnect?</h2>
+        <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:1.5rem;">
+          <li style="display:flex; gap:1rem;">
+            <i data-lucide="check-circle-2" style="color:var(--gold); flex-shrink:0;"></i>
+            <div>
+              <strong>Transparent Pricing</strong>
+              <p style="color:var(--ink-soft); font-size:0.95rem; margin-top:0.25rem;">Our market prices dashboard ensures everyone gets a fair deal.</p>
+            </div>
+          </li>
+          <li style="display:flex; gap:1rem;">
+            <i data-lucide="check-circle-2" style="color:var(--gold); flex-shrink:0;"></i>
+            <div>
+              <strong>Direct Access</strong>
+              <p style="color:var(--ink-soft); font-size:0.95rem; margin-top:0.25rem;">No brokers. Farmers deal directly with buyers and service providers.</p>
+            </div>
+          </li>
+          <li style="display:flex; gap:1rem;">
+            <i data-lucide="check-circle-2" style="color:var(--gold); flex-shrink:0;"></i>
+            <div>
+              <strong>All-in-One Platform</strong>
+              <p style="color:var(--ink-soft); font-size:0.95rem; margin-top:0.25rem;">Manage your produce, orders, and farm services in one place.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div style="background:var(--cream); border-radius:12px; border:1px solid var(--stone); display:flex; align-items:center; justify-content:center; min-height:400px; overflow:hidden;">
+        <i data-lucide="sprout" style="width:120px; height:120px; color:var(--emerald); opacity:0.5;"></i>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+<%- include('partials/footer') %>

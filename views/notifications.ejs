@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:800px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <h1 style="color:var(--emerald); margin:0;">Notifications</h1>
+    <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
+  </div>
+
+  <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); overflow:hidden;">
+    <% if (notifications && notifications.length > 0) { %>
+      <div style="display:flex; flex-direction:column;">
+        <% notifications.forEach((n, idx) => { %>
+          <a href="<%= n.type === 'ORDER' ? '/orders/' + n.relatedId : n.type === 'MESSAGE' ? '/messages' : '#' %>" 
+             style="display:flex; gap:1.5rem; padding:1.5rem; border-bottom:<%= idx === notifications.length - 1 ? 'none' : '1px solid var(--stone)' %>; text-decoration:none; color:inherit; background:<%= n.isRead ? 'var(--white)' : 'var(--cream)' %>; transition:var(--transition);">
+            <div style="width:48px; height:48px; background:<%= n.type === 'ORDER' ? '#fff3cd' : n.type === 'SYSTEM' ? '#e2e3e5' : '#cce5ff' %>; color:<%= n.type === 'ORDER' ? '#856404' : n.type === 'SYSTEM' ? '#383d41' : '#004085' %>; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i data-lucide="<%= n.type === 'ORDER' ? 'shopping-bag' : n.type === 'MESSAGE' ? 'message-circle' : 'bell' %>"></i>
+            </div>
+            <div style="flex:1;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.25rem;">
+                <h4 style="margin:0; font-size:1.1rem; color:<%= n.isRead ? 'var(--ink-mid)' : 'var(--emerald)' %>;"><%= n.title %></h4>
+                <span style="font-size:0.8rem; color:var(--ink-soft);"><%= new Date(n.createdAt).toLocaleDateString() %></span>
+              </div>
+              <p style="margin:0; color:var(--ink-soft); line-height:1.5;"><%= n.message %></p>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state" style="padding:4rem 2rem; text-align:center;">
+        <i data-lucide="bell-off" style="width:64px; height:64px; color:var(--ink-soft); opacity:0.5; margin-bottom:1rem;"></i>
+        <h3 style="margin-bottom:0.5rem;">You're all caught up.</h3>
+        <p style="color:var(--ink-soft);">No new notifications at this time.</p>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+<%- include('partials/footer') %>

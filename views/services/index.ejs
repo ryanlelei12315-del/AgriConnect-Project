@@ -1,0 +1,72 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="text-align:center; margin-bottom:3rem;">
+    <h1 style="color:var(--emerald); font-size:3rem; margin-bottom:1rem;">Agricultural Services</h1>
+    <p style="color:var(--ink-soft); font-size:1.2rem; max-width:600px; margin:0 auto;">Find reliable tractors, transport, labor, and agronomy services for your farm.</p>
+  </div>
+
+  <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:2rem; background:var(--white); padding:1.5rem; border-radius:12px; border:1px solid var(--stone); box-shadow:var(--shadow-sm);">
+    <form action="/services" method="GET" style="display:flex; gap:1rem; flex:1; flex-wrap:wrap;">
+      <div style="flex:1; min-width:200px;">
+        <input type="text" name="search" placeholder="Search services..." value="<%= search %>" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px;">
+      </div>
+      <div style="min-width:150px;">
+        <select name="category" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+          <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
+          <option value="Machinery" <%= category === 'Machinery' ? 'selected' : '' %>>Machinery</option>
+          <option value="Transport" <%= category === 'Transport' ? 'selected' : '' %>>Transport</option>
+          <option value="Infrastructure" <%= category === 'Infrastructure' ? 'selected' : '' %>>Infrastructure</option>
+          <option value="Labour" <%= category === 'Labour' ? 'selected' : '' %>>Labour</option>
+          <option value="Agronomy" <%= category === 'Agronomy' ? 'selected' : '' %>>Agronomy</option>
+          <option value="Other" <%= category === 'Other' ? 'selected' : '' %>>Other</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-emerald">Search</button>
+    </form>
+  </div>
+
+  <% if (error) { %>
+    <div style="background:#f8d7da; color:#842029; padding:1rem; border-radius:8px; margin-bottom:2rem;">
+      <%= error %>
+    </div>
+  <% } %>
+
+  <% if (services && services.length > 0) { %>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:2rem;">
+      <% services.forEach(service => { %>
+        <div class="card" style="background:var(--white); border:1px solid var(--stone); border-radius:12px; overflow:hidden; transition:var(--transition); box-shadow:var(--shadow-sm); display:flex; flex-direction:column;">
+          <div style="height:160px; background:var(--cream); display:flex; align-items:center; justify-content:center; color:var(--emerald);">
+            <i data-lucide="<%= service.category === 'Transport' ? 'truck' : service.category === 'Machinery' ? 'tractor' : service.category === 'Labour' ? 'users' : 'wrench' %>" style="width:64px; height:64px; opacity:0.8;"></i>
+          </div>
+          <div style="padding:1.5rem; flex:1; display:flex; flex-direction:column;">
+            <div style="margin-bottom:auto;">
+              <span style="font-size:0.8rem; font-weight:600; color:var(--emerald); text-transform:uppercase; letter-spacing:0.5px;"><%= service.category %></span>
+              <h3 style="margin:0.25rem 0 0.5rem 0; font-size:1.25rem;"><%= service.title %></h3>
+              <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:4px;">
+                <i data-lucide="map-pin" style="width:16px; height:16px;"></i> <%= service.county %>
+              </p>
+              <div style="font-weight:700; color:var(--gold); font-size:1.1rem; margin-bottom:1rem;">KES <%= Number(service.priceKes).toLocaleString() %></div>
+            </div>
+            
+            <a href="/services/<%= service.id %>" class="btn btn-outline" style="width:100%; text-align:center; display:block;">View Details</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-state" style="padding:4rem 2rem; text-align:center; background:var(--white); border-radius:12px; border:1px solid var(--stone);">
+      <i data-lucide="wrench" style="width:64px; height:64px; color:var(--ink-soft); opacity:0.5; margin-bottom:1rem;"></i>
+      <h3 style="margin-bottom:0.5rem;">No services found</h3>
+      <p style="color:var(--ink-soft);">We couldn't find any services matching your search criteria.</p>
+      <a href="/services" class="btn btn-outline" style="margin-top:1.5rem;">Clear Filters</a>
+    </div>
+  <% } %>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,104 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1000px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="margin-bottom:1.5rem;">
+    <a href="/orders" style="color:var(--emerald); text-decoration:none;">← Back to Orders</a>
+  </div>
+
+  <div style="background:var(--white); padding:2rem; border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--stone); padding-bottom:1.5rem; margin-bottom:2rem;">
+      <div>
+        <h1 style="color:var(--emerald); margin:0 0 0.5rem 0;">Order #ORD-<%= order.id %></h1>
+        <p style="color:var(--ink-soft); margin:0;">Placed on <%= new Date(order.createdAt).toLocaleDateString() %> at <%= new Date(order.createdAt).toLocaleTimeString() %></p>
+      </div>
+      <div>
+        <span style="font-size:1rem; padding:6px 16px; border-radius:16px; font-weight:600;
+          background:<%= order.status === 'pending' ? '#fff3cd' : order.status === 'completed' ? '#d1e7dd' : order.status === 'canceled' ? '#f8d7da' : '#e2e3e5' %>; 
+          color:<%= order.status === 'pending' ? '#856404' : order.status === 'completed' ? '#0f5132' : order.status === 'canceled' ? '#842029' : '#383d41' %>">
+          <%= order.status.toUpperCase() %>
+        </span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:2rem;">
+      <div style="background:var(--cream); padding:1.5rem; border-radius:8px; border:1px solid var(--stone);">
+        <h3 style="margin-bottom:1rem; font-size:1.1rem; color:var(--ink-mid);">Produce Details</h3>
+        <% if (order.items && order.items.length > 0 && order.items[0].listing) { %>
+          <div style="margin-bottom:0.5rem;"><span style="color:var(--ink-soft); width:100px; display:inline-block;">Item:</span> <span style="font-weight:500;"><%= order.items[0].listing.name %></span></div>
+          <div style="margin-bottom:0.5rem;"><span style="color:var(--ink-soft); width:100px; display:inline-block;">Quantity:</span> <span style="font-weight:500;"><%= order.items[0].quantityKg %> kg</span></div>
+          <div style="margin-bottom:0.5rem;"><span style="color:var(--ink-soft); width:100px; display:inline-block;">Unit Price:</span> <span style="font-weight:500;">KES <%= Number(order.items[0].unitPriceKes).toLocaleString() %></span></div>
+          <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--stone); font-size:1.2rem;">
+            <span style="color:var(--ink-soft); width:100px; display:inline-block;">Total:</span> <span style="font-weight:700; color:var(--emerald);">KES <%= Number(order.totalKes).toLocaleString() %></span>
+          </div>
+        <% } else { %>
+          <p style="color:var(--ink-soft);">Listing details unavailable.</p>
+        <% } %>
+      </div>
+
+      <div style="background:var(--cream); padding:1.5rem; border-radius:8px; border:1px solid var(--stone);">
+        <h3 style="margin-bottom:1rem; font-size:1.1rem; color:var(--ink-mid);">Contact Information</h3>
+        <% if (isSeller) { %>
+          <div style="margin-bottom:0.5rem;"><span style="color:var(--ink-soft); width:100px; display:inline-block;">Buyer:</span> <span style="font-weight:500;"><%= order.buyer ? order.buyer.fullName : 'Unknown' %></span></div>
+          <div style="margin-bottom:0.5rem;"><span style="color:var(--ink-soft); width:100px; display:inline-block;">Location:</span> <span style="font-weight:500;"><%= order.buyer ? order.buyer.county : 'Unknown' %></span></div>
+          <div style="margin-bottom:0.5rem;"><span style="color:var(--ink-soft); width:100px; display:inline-block;">Phone:</span> <span style="font-weight:500;"><%= order.buyer ? order.buyer.phoneNumber : 'N/A' %></span></div>
+          <div style="margin-top:1rem;">
+            <a href="/messages/new?to=<%= order.buyer ? order.buyer.id : '' %>" class="btn btn-outline" style="padding:0.5rem 1rem;">Message Buyer</a>
+          </div>
+        <% } else { %>
+          <div style="margin-bottom:0.5rem;"><span style="color:var(--ink-soft); width:100px; display:inline-block;">Farmer:</span> <span style="font-weight:500;"><%= order.seller ? order.seller.fullName : 'Unknown' %></span></div>
+          <div style="margin-bottom:0.5rem;"><span style="color:var(--ink-soft); width:100px; display:inline-block;">Location:</span> <span style="font-weight:500;"><%= order.seller ? order.seller.county : 'Unknown' %></span></div>
+          <div style="margin-bottom:0.5rem;"><span style="color:var(--ink-soft); width:100px; display:inline-block;">Phone:</span> <span style="font-weight:500;"><%= order.seller ? order.seller.phoneNumber : 'N/A' %></span></div>
+          <div style="margin-top:1rem;">
+            <a href="/messages/new?to=<%= order.seller ? order.seller.id : '' %>" class="btn btn-outline" style="padding:0.5rem 1rem;">Message Farmer</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="padding-top:1.5rem; border-top:1px solid var(--stone);">
+      <h3 style="margin-bottom:1rem; font-size:1.1rem; color:var(--ink-mid);">Update Status</h3>
+      <div style="display:flex; gap:1rem;">
+        <% if (isSeller) { %>
+          <% if (order.status === 'pending') { %>
+            <form action="/orders/<%= order.id %>/status" method="POST">
+              <input type="hidden" name="status" value="confirmed">
+              <button type="submit" class="btn btn-amber">Confirm Order</button>
+            </form>
+            <form action="/orders/<%= order.id %>/status" method="POST">
+              <input type="hidden" name="status" value="canceled">
+              <button type="submit" class="btn btn-outline" style="color:#d9534f; border-color:#d9534f;">Reject</button>
+            </form>
+          <% } else if (order.status === 'confirmed') { %>
+            <form action="/orders/<%= order.id %>/status" method="POST">
+              <input type="hidden" name="status" value="shipped">
+              <button type="submit" class="btn btn-amber">Mark as Shipped</button>
+            </form>
+          <% } else if (order.status === 'shipped') { %>
+            <form action="/orders/<%= order.id %>/status" method="POST">
+              <input type="hidden" name="status" value="completed">
+              <button type="submit" class="btn btn-amber">Mark as Completed</button>
+            </form>
+          <% } else { %>
+            <p style="color:var(--ink-soft);">No further actions available.</p>
+          <% } %>
+        <% } else if (isBuyer) { %>
+          <% if (order.status === 'pending') { %>
+            <form action="/orders/<%= order.id %>/status" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+              <input type="hidden" name="status" value="canceled">
+              <button type="submit" class="btn btn-outline" style="color:#d9534f; border-color:#d9534f;">Cancel Order</button>
+            </form>
+          <% } else { %>
+            <p style="color:var(--ink-soft);">You cannot change the status of this order.</p>
+          <% } %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+<%- include('../partials/footer') %>

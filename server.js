@@ -1,86 +1,93 @@
 /* eslint-env node */
 require('dotenv').config();
+
 const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
 const path = require('path');
-const bcrypt = require('bcryptjs');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
+const cors = require('cors');
 const { testConnection } = require('./config/database');
-console.log('DEBUG DB_PASSWORD:', process.env.DB_PASSWORD);
+
+// Load Sequelize model associations (registers belongsTo/hasMany)
+require('./models/associations');
 
 const app = express();
 
-// View Engine setup
+// ── View Engine ────────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views')); // __dirname works automatically here
+app.set('views', path.join(__dirname, 'views'));
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// ── Security & parsing middleware ──────────────────────────────────────────
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // EJS inline scripts; tighten for prod CSP separately
+  })
+);
+app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const dbconnection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+// ── Rate limiting (protect auth endpoints) ─────────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many attempts. Please try again later.' },
 });
 
-// Routes
+// ── Routes ─────────────────────────────────────────────────────────────────
+const { requireAuthPage, redirectIfAuthed } = require('./middlewares/pageAuth');
+
 app.use('/', require('./routes/dashboardRoutes'));
-app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
+app.use('/api/listings', require('./routes/listingRoutes'));
+app.use('/services', require('./routes/serviceRoutes'));
+app.use('/orders', require('./routes/orderRoutes'));
+app.use('/api/messages', require('./routes/messageRoutes'));
 
-// Basic View Routes
-app.get('/', (req, res) => res.render('index'));
-app.get('/register', (req, res) =>
-  dbconnection.query('SELECT * FROM users', (err, results) => {
-    if (err) throw err;
-    res.render('register', { users: results });
-  })
-);
-app.post('/register', (req, res) => {
-  const { full_name, phone_number, email, password } = req.body;
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  const query = 'INSERT INTO users (full_name,phone_number, email, password) VALUES (?, ?, ?, ?)';
-  dbconnection.query(query, [full_name, phone_number, email, hashedPassword], (err, results) => {
-    if (err) throw err;
-    res.redirect('/login');
+// Messages page (server-side guarded)
+const messageCtrl = require('./controllers/messageController');
+app.get('/messages', requireAuthPage, messageCtrl.renderMessagesPage);
+app.get('/messages/:userId', requireAuthPage, messageCtrl.renderMessagesPage);
+app.use('/produce', require('./routes/produceRoutes'));
+app.use('/market-prices', require('./routes/marketPriceRoutes'));
+app.use('/profile', require('./routes/profileRoutes'));
+app.use('/notifications', require('./routes/notificationRoutes'));
+app.use('/', require('./routes/marketplace'));
+
+app.get('/why-us', (req, res) => res.render('why-us'));
+
+// ── Page routes (server-side guarded) ───────────────────────────────────────
+app.get('/', redirectIfAuthed, (req, res) => res.render('index'));
+
+// Auth pages (redirect authed users to dashboard)
+app.get('/login', redirectIfAuthed, (req, res) => res.render('login'));
+app.get('/register', redirectIfAuthed, (req, res) => res.render('register'));
+
+// Protected app pages removed here since they are handled by their own modular routers
+
+// ── 404 + centralized error handler ────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).render('index', { notFound: true }); // TODO: proper 404 page in Sprint 3 UI
+});
+
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.message);
+  res.status(500).json({
+    success: false,
+    message: process.env.NODE_ENV === 'production' ? 'Internal server error.' : err.message,
   });
 });
 
-app.get('/login', (req, res) =>
-  dbconnection.query('SELECT * FROM users', (err, results) => {
-    if (err) throw err;
-    res.render('login', { users: results });
-  })
-);
-
-app.get('/file', (req, res) =>
-  dbconnection.query('SELECT * FROM files', (err, results) => {
-    if (err) throw err;
-    res.render('file', { files: results });
-  })
-);
-
-// Fallback for .html links in existing templates
-app.get('/:page.html', (req, res) => {
-  res.render(req.params.page, (err, html) => {
-    if (err) {
-      return res.render('index');
-    }
-    res.send(html);
-  });
-});
-
-// Any other unknown route
-app.get('*', (req, res) => {
-  res.render('index');
-});
-
-// Connect DB and start server
+// ── Start server ───────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, async () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 AgriConnect running at http://localhost:${PORT}`);
   await testConnection();
 });

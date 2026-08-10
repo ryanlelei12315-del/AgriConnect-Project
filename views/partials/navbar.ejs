@@ -11,41 +11,50 @@
     <a href="/#why">Why Us</a>
   </div>
   <div class="nav-right" id="nav-right">
-    <!-- Filled by auth-nav.js -->
+    <span class="nav-skeleton">Loading…</span>
   </div>
 </nav>
 
 <script>
-(function () {
-  const token = localStorage.getItem('agri_token');
-  const user  = JSON.parse(localStorage.getItem('agri_user') || 'null');
-  const el    = document.getElementById('nav-right');
+  (function () {
+    const el = document.getElementById('nav-right');
 
-  if (token && user) {
-    // Logged-in state
-    const role = user.role || 'farmer';
-    const dash = role === 'buyer' ? '/dashboard/buyer'
-               : role === 'provider' ? '/dashboard/provider'
-               : '/dashboard';
+    // Check auth state server-side via the httpOnly cookie (no localStorage token).
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && data.success) {
+          const user = data.user;
+          const role = user.role || 'farmer';
 
-    el.innerHTML = `
-      <a href="${dash}" class="nav-user-chip">
-        <span class="nav-user-avatar">${user.full_name.charAt(0).toUpperCase()}</span>
-        <span class="nav-user-name">${user.full_name.split(' ')[0]}</span>
-      </a>
-      <button class="btn btn-outline" id="logout-btn">Sign out</button>
-    `;
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      localStorage.removeItem('agri_token');
-      localStorage.removeItem('agri_user');
-      window.location.href = '/';
-    });
-  } else {
-    // Guest state
-    el.innerHTML = `
-      <a href="/login" class="btn btn-outline">Sign in</a>
-      <a href="/register" class="btn btn-amber">Join Free →</a>
-    `;
-  }
-})();
+          el.innerHTML = `
+          <a href="/dashboard" class="nav-user-chip">
+            <span class="nav-user-avatar">${(user.full_name || '?').charAt(0).toUpperCase()}</span>
+            <span class="nav-user-name">${(user.full_name || 'User').split(' ')[0]}</span>
+          </a>
+          <button class="btn btn-outline" id="logout-btn">Sign out</button>
+        `;
+
+          document.getElementById('logout-btn').addEventListener('click', async () => {
+            try {
+              await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+            } catch (e) {
+              /* ignore */
+            }
+            window.location.href = '/';
+          });
+        } else {
+          el.innerHTML = `
+          <a href="/login" class="btn btn-outline">Sign in</a>
+          <a href="/register" class="btn btn-amber">Join Free →</a>
+        `;
+        }
+      })
+      .catch(() => {
+        el.innerHTML = `
+        <a href="/login" class="btn btn-outline">Sign in</a>
+        <a href="/register" class="btn btn-amber">Join Free →</a>
+      `;
+      });
+  })();
 </script>

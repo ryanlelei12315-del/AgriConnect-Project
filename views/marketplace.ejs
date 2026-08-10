@@ -1,0 +1,88 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="text-align:center; margin-bottom:3rem;">
+    <h1 style="color:var(--emerald); font-size:3rem; margin-bottom:1rem;">Fresh Farm Produce</h1>
+    <p style="color:var(--ink-soft); font-size:1.2rem; max-width:600px; margin:0 auto;">Buy directly from Kenyan farmers. Transparent prices, fresh quality, no middlemen.</p>
+  </div>
+
+  <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:2rem; background:var(--white); padding:1.5rem; border-radius:12px; border:1px solid var(--stone); box-shadow:var(--shadow-sm);">
+    <form action="/marketplace" method="GET" style="display:flex; gap:1rem; flex:1; flex-wrap:wrap;">
+      <div style="flex:1; min-width:200px;">
+        <input type="text" name="search" placeholder="Search produce..." value="<%= search %>" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px;">
+      </div>
+      <div style="min-width:150px;">
+        <select name="category" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+          <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
+          <option value="Cereals" <%= category === 'Cereals' ? 'selected' : '' %>>Cereals</option>
+          <option value="Vegetables" <%= category === 'Vegetables' ? 'selected' : '' %>>Vegetables</option>
+          <option value="Fruits" <%= category === 'Fruits' ? 'selected' : '' %>>Fruits</option>
+          <option value="Root Crops" <%= category === 'Root Crops' ? 'selected' : '' %>>Root Crops</option>
+          <option value="Legumes" <%= category === 'Legumes' ? 'selected' : '' %>>Legumes</option>
+          <option value="Dairy" <%= category === 'Dairy' ? 'selected' : '' %>>Dairy</option>
+          <option value="Poultry" <%= category === 'Poultry' ? 'selected' : '' %>>Poultry</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-emerald">Search</button>
+    </form>
+  </div>
+
+  <% if (error) { %>
+    <div style="background:#f8d7da; color:#842029; padding:1rem; border-radius:8px; margin-bottom:2rem;">
+      <%= error %>
+    </div>
+  <% } %>
+
+  <% if (listings && listings.length > 0) { %>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:2rem;">
+      <% listings.forEach(listing => { %>
+        <div class="card" style="background:var(--white); border:1px solid var(--stone); border-radius:12px; overflow:hidden; transition:var(--transition); box-shadow:var(--shadow-sm);">
+          <div style="height:200px; background:var(--cream); position:relative;">
+            <% if (listing.imageUrl) { %>
+              <img src="<%= listing.imageUrl %>" alt="<%= listing.name %>" style="width:100%; height:100%; object-fit:cover;">
+            <% } else { %>
+              <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--ink-soft);">
+                <i data-lucide="image" style="width:48px; height:48px; opacity:0.3;"></i>
+              </div>
+            <% } %>
+            <div style="position:absolute; top:12px; right:12px; background:var(--white); padding:4px 12px; border-radius:16px; font-size:0.8rem; font-weight:600; color:var(--emerald); box-shadow:var(--shadow-sm);">
+              <%= listing.category %>
+            </div>
+          </div>
+          <div style="padding:1.5rem;">
+            <h3 style="margin-bottom:0.5rem; font-size:1.25rem;"><%= listing.name %></h3>
+            <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:4px;">
+              <i data-lucide="map-pin" style="width:16px; height:16px;"></i> <%= listing.county %>
+            </p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+              <div>
+                <div style="font-weight:700; color:var(--gold); font-size:1.1rem;">KES <%= Number(listing.pricePerKgKes).toLocaleString() %></div>
+                <div style="font-size:0.8rem; color:var(--ink-soft);">per kg</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-weight:600; color:var(--ink-mid);"><%= Number(listing.quantityKg).toLocaleString() %></div>
+                <div style="font-size:0.8rem; color:var(--ink-soft);">kg available</div>
+              </div>
+            </div>
+            
+            <a href="/produce/<%= listing.id %>" class="btn btn-outline" style="width:100%; text-align:center; display:block;">View Details</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-state" style="padding:4rem 2rem; text-align:center; background:var(--white); border-radius:12px; border:1px solid var(--stone);">
+      <i data-lucide="search-x" style="width:64px; height:64px; color:var(--ink-soft); opacity:0.5; margin-bottom:1rem;"></i>
+      <h3 style="margin-bottom:0.5rem;">No produce found</h3>
+      <p style="color:var(--ink-soft);">We couldn't find any listings matching your search criteria.</p>
+      <a href="/marketplace" class="btn btn-outline" style="margin-top:1.5rem;">Clear Filters</a>
+    </div>
+  <% } %>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+<%- include('partials/footer') %>

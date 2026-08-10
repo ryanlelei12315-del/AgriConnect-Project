@@ -1,145 +1,540 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 <main class="dash-main">
 
-  <!-- Sidebar -->
-  <aside class="dash-sidebar">
-    <div class="dash-avatar" id="dash-avatar">?</div>
-    <div class="dash-user-name" id="dash-user-name">Loading…</div>
-    <div class="dash-user-role" id="dash-user-role"></div>
+  <%- include('partials/sidebar', { currentPage: 'dashboard' }) %>
 
-    <nav class="dash-nav">
-      <a href="/dashboard" class="dash-link active">
-        <i data-lucide="layout-dashboard"></i> Overview
-      </a>
-      <a href="/produce" class="dash-link">
-        <i data-lucide="wheat"></i> My Produce
-      </a>
-      <a href="/services" class="dash-link">
-        <i data-lucide="wrench"></i> Services
-      </a>
-      <a href="/profile" class="dash-link">
-        <i data-lucide="user"></i> Profile
-      </a>
-    </nav>
-
-    <button class="dash-logout" id="dash-logout">
-      <i data-lucide="log-out"></i> Sign out
-    </button>
-  </aside>
-
-  <!-- Content -->
+  <!-- ══ Main Content ══ -->
   <div class="dash-content">
 
-    <!-- Header row -->
+    <!-- ── Welcome Header ──────────────────────────────────────── -->
     <div class="dash-header">
       <div>
-        <h1 class="dash-greeting" id="dash-greeting">Welcome back!</h1>
-        <p class="dash-sub">Here's what's happening on your farm today.</p>
+        <h1 class="dash-greeting">Welcome back, <%= (user.fullName || user.full_name || 'User').split(' ')[0] %>!</h1>
+        <p class="dash-sub">Here's what's happening with your farm today.</p>
       </div>
-      <a href="/produce/new" class="btn btn-amber">
-        <i data-lucide="plus"></i> Post Produce
+      <div class="dash-header-actions">
+        <% if (user.role === 'farmer') { %>
+          <a href="/produce/new" class="btn btn-amber"><i data-lucide="plus"></i> Post Produce</a>
+        <% } else if (user.role === 'provider') { %>
+          <a href="/services/new" class="btn btn-amber"><i data-lucide="plus"></i> List a Service</a>
+        <% } else { %>
+          <a href="/marketplace" class="btn btn-amber"><i data-lucide="store"></i> Browse Market</a>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- ── Quick Actions ───────────────────────────────────────── -->
+    <div class="dash-quick-actions">
+      <% if (user.role === 'farmer') { %>
+        <a href="/produce/new" class="quick-action-btn">
+          <i data-lucide="plus-circle"></i> Post Produce
+        </a>
+      <% } %>
+      <a href="/marketplace" class="quick-action-btn">
+        <i data-lucide="store"></i> Browse Marketplace
+      </a>
+      <a href="/orders" class="quick-action-btn">
+        <i data-lucide="shopping-bag"></i> My Orders
+      </a>
+      <a href="/services" class="quick-action-btn">
+        <i data-lucide="tractor"></i> Find Services
       </a>
     </div>
 
-    <!-- Stats -->
+    <!-- ── KPI Cards ─────────────────────────────────────────────── -->
     <div class="dash-stats">
-      <div class="stat-card">
+      <a href="/produce" class="stat-card stat-card-link">
         <div class="stat-icon emerald"><i data-lucide="package"></i></div>
         <div class="stat-info">
-          <div class="stat-num" id="stat-produce">—</div>
+          <div class="stat-num"><%= stats.activeListings %></div>
           <div class="stat-label">Active Listings</div>
         </div>
-      </div>
-      <div class="stat-card">
+      </a>
+      <a href="/orders?status=pending" class="stat-card stat-card-link">
         <div class="stat-icon gold"><i data-lucide="shopping-bag"></i></div>
         <div class="stat-info">
-          <div class="stat-num" id="stat-orders">—</div>
-          <div class="stat-label">Purchase Requests</div>
+          <div class="stat-num"><%= stats.pendingOrders %></div>
+          <div class="stat-label">Pending Orders</div>
         </div>
-      </div>
-      <div class="stat-card">
+      </a>
+      <a href="/messages" class="stat-card stat-card-link">
         <div class="stat-icon blue"><i data-lucide="message-circle"></i></div>
         <div class="stat-info">
-          <div class="stat-num" id="stat-messages">—</div>
-          <div class="stat-label">Messages</div>
+          <div class="stat-num"><%= stats.unreadMessages %></div>
+          <div class="stat-label">Unread Messages</div>
         </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon purple"><i data-lucide="star"></i></div>
+      </a>
+      <a href="/orders?status=completed" class="stat-card stat-card-link">
+        <div class="stat-icon purple"><i data-lucide="banknote"></i></div>
         <div class="stat-info">
-          <div class="stat-num">—</div>
-          <div class="stat-label">Avg. Rating</div>
+          <div class="stat-num">KES <%= Number(stats.totalSales).toLocaleString() %></div>
+          <div class="stat-label">Total Sales</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- ── Farm Analytics ──────────────────────────────────────── -->
+    <% if (user.role === 'farmer') { %>
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <div>
+          <h2 class="dash-section-title">Farm Analytics</h2>
+          <p class="dash-section-sub">Track your sales, orders and marketplace activity.</p>
+        </div>
+        <!-- Period Filter -->
+        <div class="analytics-period-filter">
+          <a href="/dashboard?period=30d" class="period-btn <%= period === '30d' ? 'active' : '' %>">30 Days</a>
+          <a href="/dashboard?period=3m" class="period-btn <%= period === '3m' ? 'active' : '' %>">3 Months</a>
+          <a href="/dashboard?period=6m" class="period-btn <%= (period === '6m' || !period) ? 'active' : '' %>">6 Months</a>
+          <a href="/dashboard?period=12m" class="period-btn <%= period === '12m' ? 'active' : '' %>">12 Months</a>
         </div>
       </div>
-    </div>
 
-    <!-- Quick actions -->
-    <div class="dash-section">
-      <h2 class="dash-section-title">Quick Actions</h2>
-      <div class="dash-actions">
-        <a href="/produce/new" class="action-card">
-          <div class="action-icon"><i data-lucide="plus-circle"></i></div>
-          <div class="action-label">Post Produce</div>
-        </a>
-        <a href="/marketplace" class="action-card">
-          <div class="action-icon"><i data-lucide="store"></i></div>
-          <div class="action-label">Browse Market</div>
-        </a>
-        <a href="/services" class="action-card">
-          <div class="action-icon"><i data-lucide="tractor"></i></div>
-          <div class="action-label">Find Services</div>
-        </a>
-        <a href="/profile" class="action-card">
-          <div class="action-icon"><i data-lucide="settings"></i></div>
-          <div class="action-label">Edit Profile</div>
-        </a>
+      <div class="analytics-grid">
+        <!-- Sales Overview Chart -->
+        <div class="analytics-card">
+          <div class="analytics-card-header">
+            <div>
+              <h3 class="analytics-card-title">Sales Overview</h3>
+              <p class="analytics-card-sub">Your completed sales over the selected period</p>
+            </div>
+          </div>
+          <% if (salesData && salesData.some(v => v > 0)) { %>
+            <div class="chart-wrapper">
+              <canvas id="salesChart"></canvas>
+            </div>
+          <% } else { %>
+            <div class="chart-empty-state">
+              <i data-lucide="bar-chart-2"></i>
+              <h4>No sales data yet</h4>
+              <p>Your sales analytics will appear here after your first completed order.</p>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Order Status Doughnut -->
+        <div class="analytics-card">
+          <div class="analytics-card-header">
+            <div>
+              <h3 class="analytics-card-title">Order Status</h3>
+              <p class="analytics-card-sub">Distribution of all your orders</p>
+            </div>
+          </div>
+          <% if (hasOrders && orderStatusLabels && orderStatusLabels.length > 0) { %>
+            <div class="chart-wrapper chart-wrapper-doughnut">
+              <canvas id="orderChart"></canvas>
+            </div>
+            <div class="chart-legend" id="orderChartLegend"></div>
+          <% } else { %>
+            <div class="chart-empty-state">
+              <i data-lucide="pie-chart"></i>
+              <h4>No orders yet</h4>
+              <p>Once buyers order your produce, you'll see your order distribution here.</p>
+              <a href="/marketplace" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1rem;">Browse Marketplace</a>
+            </div>
+          <% } %>
+        </div>
       </div>
-    </div>
 
-  </div>
+      <!-- Produce Category Chart (smaller, optional) -->
+      <% if (produceCategoryLabels && produceCategoryLabels.length > 0) { %>
+      <div class="analytics-card analytics-card-wide" style="margin-top:1.5rem;">
+        <div class="analytics-card-header">
+          <div>
+            <h3 class="analytics-card-title">Produce by Category</h3>
+            <p class="analytics-card-sub">Your active listings across categories</p>
+          </div>
+        </div>
+        <div class="chart-wrapper" style="height:200px;">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+      <% } %>
+    </div>
+    <% } %>
+
+    <!-- ── Main Content Grid ─────────────────────────────────── -->
+    <div class="dash-content-grid">
+
+      <!-- ── Recent Orders ──────────────────────── -->
+      <div class="dash-section dash-section-wide">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Recent Orders</h2>
+          <a href="/orders" class="dash-section-link">View All →</a>
+        </div>
+        <% if (recentOrders && recentOrders.length > 0) { %>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Produce</th>
+                  <th><%= user.role === 'farmer' ? 'Buyer' : 'Seller' %></th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentOrders.forEach(o => {
+                  const otherUser = user.role === 'farmer' ? o.buyer : o.seller;
+                  const produceName = o.items && o.items[0] && o.items[0].listing ? o.items[0].listing.name : '—';
+                  const statusClass = o.status === 'completed' ? 'status-completed' : o.status === 'pending' ? 'status-pending' : o.status === 'canceled' ? 'status-canceled' : 'status-processing';
+                %>
+                  <tr>
+                    <td class="order-id">#ORD-<%= o.id %></td>
+                    <td><%= produceName %></td>
+                    <td><%= otherUser ? otherUser.fullName : 'Unknown' %></td>
+                    <td class="order-total">KES <%= Number(o.totalKes || 0).toLocaleString() %></td>
+                    <td><span class="status-badge <%= statusClass %>"><%= o.status ? o.status.charAt(0).toUpperCase() + o.status.slice(1) : '—' %></span></td>
+                    <td class="order-date"><%= new Date(o.createdAt).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' }) %></td>
+                    <td><a href="/orders/<%= o.id %>" class="table-action-link">View</a></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="inbox"></i>
+            <p>No recent orders.</p>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- ── My Produce ──────────────────────────── -->
+      <% if (user.role === 'farmer') { %>
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">My Produce</h2>
+          <a href="/produce" class="dash-section-link">View All →</a>
+        </div>
+        <% if (recentProduce && recentProduce.length > 0) { %>
+          <div class="produce-mini-list">
+            <% recentProduce.forEach(p => {
+              const statusClass = p.status === 'LISTED' ? 'badge-active' : p.status === 'SOLD' ? 'badge-sold' : 'badge-inactive';
+              const statusLabel = p.status === 'LISTED' ? 'Active' : p.status === 'SOLD' ? 'Sold' : 'Inactive';
+            %>
+              <div class="produce-mini-card">
+                <div class="produce-mini-img">
+                  <% if (p.imageUrl) { %>
+                    <img src="<%= p.imageUrl %>" alt="<%= p.name %>">
+                  <% } else { %>
+                    <i data-lucide="image"></i>
+                  <% } %>
+                </div>
+                <div class="produce-mini-info">
+                  <div class="produce-mini-name"><%= p.name %></div>
+                  <div class="produce-mini-price">KES <%= Number(p.pricePerKgKes).toLocaleString() %> / kg</div>
+                  <div class="produce-mini-meta"><%= p.county %></div>
+                </div>
+                <div class="produce-mini-right">
+                  <span class="produce-status-badge <%= statusClass %>"><%= statusLabel %></span>
+                  <div class="produce-mini-actions">
+                    <a href="/produce/<%= p.id %>" class="table-action-link">View</a>
+                    <a href="/produce/<%= p.id %>/edit" class="table-action-link">Edit</a>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="package-open"></i>
+            <h4>No produce listed yet</h4>
+            <p>Start selling to buyers across Kenya.</p>
+            <a href="/produce/new" class="btn btn-amber" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Post First Listing</a>
+          </div>
+        <% } %>
+      </div>
+      <% } %>
+
+    </div><!-- end .dash-content-grid -->
+
+    <!-- ── Market Info + Messages Row ─────────────────────── -->
+    <div class="dash-bottom-grid">
+
+      <!-- Market Prices -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Market Prices</h2>
+          <a href="/market-prices" class="dash-section-link">View All →</a>
+        </div>
+        <div class="market-price-list">
+          <% if (marketPrices && marketPrices.length > 0) { %>
+            <% marketPrices.forEach(m => { %>
+              <div class="market-price-row">
+                <div>
+                  <div class="market-price-name"><%= m.produceName %></div>
+                  <div class="market-price-market"><%= m.marketName || '' %></div>
+                </div>
+                <div class="market-price-right">
+                  <div class="market-price-value">KES <%= Number(m.price).toLocaleString() %> / <%= m.unit %></div>
+                  <% if (m.priceChange > 0) { %>
+                    <div class="market-price-change up">↑ <%= m.priceChange %>%</div>
+                  <% } else if (m.priceChange < 0) { %>
+                    <div class="market-price-change down">↓ <%= Math.abs(m.priceChange) %>%</div>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="empty-state-card"><p>No market data available.</p></div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Recommended Services -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Services Near You</h2>
+          <a href="/services" class="dash-section-link">View All →</a>
+        </div>
+        <div class="services-mini-list">
+          <% if (recommendedServices && recommendedServices.length > 0) { %>
+            <% recommendedServices.forEach(s => { %>
+              <a href="/services/<%= s.id %>" class="service-mini-card">
+                <div class="service-mini-icon">
+                  <i data-lucide="tractor"></i>
+                </div>
+                <div class="service-mini-info">
+                  <div class="service-mini-name"><%= s.title %></div>
+                  <div class="service-mini-price">KES <%= Number(s.priceKes).toLocaleString() %></div>
+                  <div class="service-mini-county"><%= s.county %></div>
+                </div>
+                <i data-lucide="chevron-right" class="service-mini-arrow"></i>
+              </a>
+            <% }) %>
+          <% } else { %>
+            <div class="empty-state-card"><p>No services currently available.</p></div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Recent Messages -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Recent Messages</h2>
+          <a href="/messages" class="dash-section-link">View All →</a>
+        </div>
+        <div class="messages-mini-list">
+          <% if (recentMessages && recentMessages.length > 0) { %>
+            <% recentMessages.forEach(m => { %>
+              <a href="/messages/<%= m.other_user_id %>" class="message-mini-card">
+                <div class="message-mini-avatar">
+                  <%= (m.other_user_name || '?').charAt(0).toUpperCase() %>
+                </div>
+                <div class="message-mini-info">
+                  <div class="message-mini-name"><%= m.other_user_name %></div>
+                  <div class="message-mini-preview">"<%= m.last_message ? m.last_message.substring(0, 45) : '' %><%= m.last_message && m.last_message.length > 45 ? '…' : '' %>"</div>
+                </div>
+                <div class="message-mini-right">
+                  <div class="message-mini-time"><%= new Date(m.last_at).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' }) %></div>
+                  <% if (Number(m.unread_count) > 0) { %>
+                    <span class="sidebar-badge sidebar-badge-green" style="position:static;"><%= m.unread_count %></span>
+                  <% } %>
+                </div>
+              </a>
+            <% }) %>
+          <% } else { %>
+            <div class="empty-state-card">
+              <i data-lucide="message-square"></i>
+              <p>No messages yet.</p>
+              <a href="/messages" class="btn btn-outline" style="margin-top:0.75rem;font-size:0.85rem;padding:0.5rem 1rem;">Go to Messages</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+    </div><!-- end .dash-bottom-grid -->
+
+  </div><!-- end .dash-content -->
 </main>
 
-<%- include('partials/footer') %>
-<%- include('partials/scripts') %>
-
+<!-- ── Chart.js Initialization ───────────────────────────────── -->
 <script>
-  // ── Auth guard ──────────────────────────────────────────────────────────────
-  const token = localStorage.getItem('agri_token');
-  const user  = JSON.parse(localStorage.getItem('agri_user') || 'null');
+  // Data injected safely from Express controller — no arbitrary user content
+  const salesLabels = <%- JSON.stringify(salesLabels || []) %>;
+  const salesData   = <%- JSON.stringify(salesData || []) %>;
+  const orderStatusLabels = <%- JSON.stringify(orderStatusLabels || []) %>;
+  const orderStatusData   = <%- JSON.stringify(orderStatusData || []) %>;
+  const produceCategoryLabels = <%- JSON.stringify(produceCategoryLabels || []) %>;
+  const produceCategoryData   = <%- JSON.stringify(produceCategoryData || []) %>;
 
-  if (!token || !user) {
-    window.location.href = '/login';
-  } else {
-    // Populate UI from stored user object
-    const firstName = user.full_name.split(' ')[0];
-    const initial   = user.full_name.charAt(0).toUpperCase();
-    const roleLabel = { farmer: '🌾 Farmer', buyer: '🛒 Buyer', provider: '🔧 Service Provider' }[user.role] || user.role;
+  // AgriConnect design tokens
+  const EMERALD      = '#1b4a2e';
+  const EMERALD_LIGHT = '#2c6e45';
+  const GOLD         = '#b38234';
+  const GOLD_LIGHT   = '#cfa153';
+  const STONE        = '#e8e4d9';
+  const INK_SOFT     = '#636b65';
 
-    document.getElementById('dash-avatar').textContent    = initial;
-    document.getElementById('dash-user-name').textContent = user.full_name;
-    document.getElementById('dash-user-role').textContent = roleLabel;
-    document.getElementById('dash-greeting').textContent  = `Welcome back, ${firstName}!`;
+  const STATUS_COLORS = ['#2c6e45','#b38234','#cfa153','#1b4a2e','#e74c3c'];
 
-    // Logout
-    document.getElementById('dash-logout').addEventListener('click', () => {
-      localStorage.removeItem('agri_token');
-      localStorage.removeItem('agri_user');
-      window.location.href = '/';
+  // Currency formatter
+  function fmtKES(val) {
+    return 'KES ' + Number(val).toLocaleString('en-KE', { maximumFractionDigits: 0 });
+  }
+
+  // ── Sales Bar Chart ─────────────────────────────────────────
+  const salesCtx = document.getElementById('salesChart');
+  if (salesCtx && salesData.length > 0) {
+    new Chart(salesCtx, {
+      type: 'bar',
+      data: {
+        labels: salesLabels,
+        datasets: [{
+          label: 'Sales',
+          data: salesData,
+          backgroundColor: 'rgba(44, 110, 69, 0.75)',
+          borderColor: EMERALD,
+          borderWidth: 1.5,
+          borderRadius: 6,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => fmtKES(ctx.raw),
+            },
+            backgroundColor: EMERALD,
+            titleColor: '#fff',
+            bodyColor: '#cfa153',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: v => 'KES ' + v.toLocaleString(),
+              color: INK_SOFT,
+              font: { size: 11 },
+            },
+            grid: { color: STONE },
+            border: { display: false },
+          },
+          x: {
+            ticks: { color: INK_SOFT, font: { size: 11 } },
+            grid: { display: false },
+            border: { display: false },
+          },
+        },
+      },
+    });
+  }
+
+  // ── Order Status Doughnut ───────────────────────────────────
+  const orderCtx = document.getElementById('orderChart');
+  if (orderCtx && orderStatusData.length > 0) {
+    const orderChart = new Chart(orderCtx, {
+      type: 'doughnut',
+      data: {
+        labels: orderStatusLabels,
+        datasets: [{
+          data: orderStatusData,
+          backgroundColor: STATUS_COLORS.slice(0, orderStatusLabels.length),
+          borderColor: '#fff',
+          borderWidth: 3,
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.raw}`,
+            },
+            backgroundColor: EMERALD,
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+      },
     });
 
-    // Fetch real stats (optional — falls back gracefully if API not ready)
-    fetch('/api/dashboard/stats', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    })
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      if (!data) return;
-      if (data.produce  !== undefined) document.getElementById('stat-produce').textContent   = data.produce;
-      if (data.orders   !== undefined) document.getElementById('stat-orders').textContent    = data.orders;
-      if (data.messages !== undefined) document.getElementById('stat-messages').textContent  = data.messages;
-    })
-    .catch(() => {}); // Silent fail — stats stay as —
+    // Build custom legend
+    const legendEl = document.getElementById('orderChartLegend');
+    if (legendEl) {
+      orderStatusLabels.forEach((label, i) => {
+        const div = document.createElement('div');
+        div.className = 'legend-item';
+        div.innerHTML = `
+          <span class="legend-dot" style="background:${STATUS_COLORS[i] || '#ccc'}"></span>
+          <span class="legend-label">${label}</span>
+          <span class="legend-value">${orderStatusData[i]}</span>
+        `;
+        legendEl.appendChild(div);
+      });
+    }
   }
+
+  // ── Produce Category Bar Chart ──────────────────────────────
+  const catCtx = document.getElementById('categoryChart');
+  if (catCtx && produceCategoryData.length > 0) {
+    new Chart(catCtx, {
+      type: 'bar',
+      data: {
+        labels: produceCategoryLabels,
+        datasets: [{
+          label: 'Listings',
+          data: produceCategoryData,
+          backgroundColor: [EMERALD_LIGHT, GOLD, '#5c8a6e', GOLD_LIGHT, '#3d7a58', '#a87028'],
+          borderRadius: 5,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => ` ${ctx.raw} listing${ctx.raw !== 1 ? 's' : ''}` },
+            backgroundColor: EMERALD,
+            titleColor: '#fff',
+            bodyColor: '#cfa153',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, color: INK_SOFT, font: { size: 11 } },
+            grid: { color: STONE },
+            border: { display: false },
+          },
+          y: {
+            ticks: { color: INK_SOFT, font: { size: 11 } },
+            grid: { display: false },
+            border: { display: false },
+          },
+        },
+      },
+    });
+  }
+
+  // Init Lucide icons
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 </script>
+
+<%- include('partials/chatbot') %>
+<%- include('partials/footer') %>

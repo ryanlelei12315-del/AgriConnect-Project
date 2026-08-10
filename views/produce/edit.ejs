@@ -1,0 +1,80 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem;">
+  <div class="form-wrapper" style="max-width:800px; margin:0 auto; background:var(--white); padding:2rem; border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
+    <h1 style="margin-bottom:0.5rem; color:var(--emerald);">Edit Produce</h1>
+    <p style="color:var(--ink-soft); margin-bottom:2rem;">Update your listing details.</p>
+    
+    <form action="/produce/<%= listing.id %>/update" method="POST" class="auth-form" style="display:flex; flex-direction:column; gap:1.5rem;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+        <div class="form-group">
+          <label for="name">Produce Name *</label>
+          <input type="text" id="name" name="name" required value="<%= listing.name %>">
+        </div>
+        <div class="form-group">
+          <label for="category">Category *</label>
+          <select id="category" name="category" required>
+            <option value="Cereals" <%= listing.category === 'Cereals' ? 'selected' : '' %>>Cereals</option>
+            <option value="Vegetables" <%= listing.category === 'Vegetables' ? 'selected' : '' %>>Vegetables</option>
+            <option value="Fruits" <%= listing.category === 'Fruits' ? 'selected' : '' %>>Fruits</option>
+            <option value="Legumes" <%= listing.category === 'Legumes' ? 'selected' : '' %>>Legumes</option>
+            <option value="Root Crops" <%= listing.category === 'Root Crops' ? 'selected' : '' %>>Root Crops</option>
+            <option value="Dairy" <%= listing.category === 'Dairy' ? 'selected' : '' %>>Dairy</option>
+            <option value="Poultry" <%= listing.category === 'Poultry' ? 'selected' : '' %>>Poultry</option>
+            <option value="Livestock" <%= listing.category === 'Livestock' ? 'selected' : '' %>>Livestock</option>
+            <option value="Other" <%= listing.category === 'Other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+        <div class="form-group">
+          <label for="quantity">Quantity Available (kg) *</label>
+          <input type="number" id="quantity" name="quantity" min="0.1" step="0.1" required value="<%= Number(listing.quantityKg) %>">
+        </div>
+        <div class="form-group">
+          <label for="price">Price (KES per kg) *</label>
+          <input type="number" id="price" name="price" min="1" step="0.01" required value="<%= Number(listing.pricePerKgKes) %>">
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+        <div class="form-group">
+          <label for="location">Location (County) *</label>
+          <select id="location" name="location" required>
+            <option value="Uasin Gishu" <%= listing.county === 'Uasin Gishu' ? 'selected' : '' %>>Uasin Gishu</option>
+            <option value="Nakuru" <%= listing.county === 'Nakuru' ? 'selected' : '' %>>Nakuru</option>
+            <option value="Trans Nzoia" <%= listing.county === 'Trans Nzoia' ? 'selected' : '' %>>Trans Nzoia</option>
+            <option value="Meru" <%= listing.county === 'Meru' ? 'selected' : '' %>>Meru</option>
+            <option value="Kiambu" <%= listing.county === 'Kiambu' ? 'selected' : '' %>>Kiambu</option>
+            <option value="Kajiado" <%= listing.county === 'Kajiado' ? 'selected' : '' %>>Kajiado</option>
+            <option value="Nairobi" <%= listing.county === 'Nairobi' ? 'selected' : '' %>>Nairobi</option>
+            <option value="Mombasa" <%= listing.county === 'Mombasa' ? 'selected' : '' %>>Mombasa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="status">Status *</label>
+          <select id="status" name="status" required>
+            <option value="LISTED" <%= listing.status === 'LISTED' ? 'selected' : '' %>>Active</option>
+            <option value="PENDING" <%= listing.status === 'PENDING' ? 'selected' : '' %>>Pending</option>
+            <option value="SOLD" <%= listing.status === 'SOLD' ? 'selected' : '' %>>Sold</option>
+            <option value="INACTIVE" <%= listing.status === 'INACTIVE' ? 'selected' : '' %>>Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4"><%= listing.description %></textarea>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem;">
+        <a href="/produce/<%= listing.id %>" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-amber">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

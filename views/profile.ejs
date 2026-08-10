@@ -1,0 +1,105 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem;">
+  <div style="max-width:1000px; margin:0 auto; display:grid; grid-template-columns:300px 1fr; gap:2rem;">
+    <!-- Profile Sidebar -->
+    <div>
+      <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); padding:2rem; text-align:center; margin-bottom:2rem;">
+        <div style="width:100px; height:100px; background:var(--emerald); color:var(--white); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; font-weight:700; margin:0 auto 1rem auto;">
+          <%= user.fullName ? user.fullName.charAt(0).toUpperCase() : '?' %>
+        </div>
+        <h2 style="margin-bottom:0.25rem;"><%= user.fullName %></h2>
+        <p style="color:var(--ink-soft); text-transform:capitalize; margin-bottom:1rem;"><%= user.role %></p>
+        <span style="display:inline-block; padding:4px 12px; background:var(--cream); border-radius:16px; border:1px solid var(--stone); font-size:0.85rem;">
+          📍 <%= user.county || 'Not Set' %>
+        </span>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+      <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); padding:2rem; margin-bottom:2rem;">
+        <h2 style="color:var(--emerald); margin-bottom:1.5rem; border-bottom:1px solid var(--stone); padding-bottom:0.5rem;">Personal Information</h2>
+        
+        <form action="/profile/update" method="POST" style="display:flex; flex-direction:column; gap:1.5rem;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+            <div class="form-group">
+              <label for="fullName">Full Name</label>
+              <input type="text" id="fullName" name="fullName" value="<%= user.fullName %>" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" value="<%= user.email %>" required>
+            </div>
+          </div>
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+            <div class="form-group">
+              <label for="phoneNumber">Phone Number</label>
+              <input type="text" id="phoneNumber" name="phoneNumber" value="<%= user.phoneNumber %>" required>
+            </div>
+            <div class="form-group">
+              <label for="county">County</label>
+              <select id="county" name="county" required>
+                <option value="Uasin Gishu" <%= user.county === 'Uasin Gishu' ? 'selected' : '' %>>Uasin Gishu</option>
+                <option value="Nakuru" <%= user.county === 'Nakuru' ? 'selected' : '' %>>Nakuru</option>
+                <option value="Trans Nzoia" <%= user.county === 'Trans Nzoia' ? 'selected' : '' %>>Trans Nzoia</option>
+                <option value="Meru" <%= user.county === 'Meru' ? 'selected' : '' %>>Meru</option>
+                <option value="Kiambu" <%= user.county === 'Kiambu' ? 'selected' : '' %>>Kiambu</option>
+                <option value="Kajiado" <%= user.county === 'Kajiado' ? 'selected' : '' %>>Kajiado</option>
+                <option value="Nairobi" <%= user.county === 'Nairobi' ? 'selected' : '' %>>Nairobi</option>
+                <option value="Mombasa" <%= user.county === 'Mombasa' ? 'selected' : '' %>>Mombasa</option>
+              </select>
+            </div>
+          </div>
+          
+          <div style="display:flex; justify-content:flex-end;">
+            <button type="submit" class="btn btn-amber">Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+      <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); padding:2rem;">
+        <h2 style="color:var(--emerald); margin-bottom:1.5rem; border-bottom:1px solid var(--stone); padding-bottom:0.5rem;">Change Password</h2>
+        
+        <form action="/profile/password" method="POST" style="display:flex; flex-direction:column; gap:1.5rem;">
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" name="currentPassword" required>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+            <div class="form-group">
+              <label for="newPassword">New Password</label>
+              <input type="password" id="newPassword" name="newPassword" required>
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+          </div>
+          
+          <div style="display:flex; justify-content:flex-end;">
+            <button type="submit" class="btn btn-outline">Update Password</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  
+  // Basic validation for password matching
+  document.querySelector('form[action="/profile/password"]').addEventListener('submit', function(e) {
+    const p1 = document.getElementById('newPassword').value;
+    const p2 = document.getElementById('confirmPassword').value;
+    if (p1 !== p2) {
+      e.preventDefault();
+      alert('New passwords do not match.');
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

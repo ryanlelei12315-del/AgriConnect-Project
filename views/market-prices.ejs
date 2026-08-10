@@ -1,0 +1,90 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="text-align:center; margin-bottom:3rem;">
+    <h1 style="color:var(--emerald); font-size:3rem; margin-bottom:1rem;">Market Prices</h1>
+    <p style="color:var(--ink-soft); font-size:1.2rem; max-width:600px; margin:0 auto;">Track the latest agricultural commodity prices across major markets in Kenya.</p>
+  </div>
+
+  <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:2rem; background:var(--white); padding:1.5rem; border-radius:12px; border:1px solid var(--stone); box-shadow:var(--shadow-sm);">
+    <form action="/market-prices" method="GET" style="display:flex; gap:1rem; flex:1; flex-wrap:wrap;">
+      <div style="flex:1; min-width:150px;">
+        <select name="category" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+          <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
+          <option value="Cereals" <%= category === 'Cereals' ? 'selected' : '' %>>Cereals</option>
+          <option value="Vegetables" <%= category === 'Vegetables' ? 'selected' : '' %>>Vegetables</option>
+          <option value="Fruits" <%= category === 'Fruits' ? 'selected' : '' %>>Fruits</option>
+          <option value="Root Crops" <%= category === 'Root Crops' ? 'selected' : '' %>>Root Crops</option>
+          <option value="Legumes" <%= category === 'Legumes' ? 'selected' : '' %>>Legumes</option>
+        </select>
+      </div>
+      <div style="flex:1; min-width:150px;">
+        <select name="county" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+          <option value="All" <%= county === 'All' ? 'selected' : '' %>>All Counties</option>
+          <option value="Uasin Gishu" <%= county === 'Uasin Gishu' ? 'selected' : '' %>>Uasin Gishu</option>
+          <option value="Nakuru" <%= county === 'Nakuru' ? 'selected' : '' %>>Nakuru</option>
+          <option value="Nairobi" <%= county === 'Nairobi' ? 'selected' : '' %>>Nairobi</option>
+          <option value="Mombasa" <%= county === 'Mombasa' ? 'selected' : '' %>>Mombasa</option>
+          <option value="Murang'a" <%= county === 'Murang\'a' ? 'selected' : '' %>>Murang'a</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-emerald">Filter Prices</button>
+    </form>
+  </div>
+
+  <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); overflow:hidden;">
+    <% if (prices && prices.length > 0) { %>
+      <table class="data-table" style="width:100%; text-align:left; border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--cream); border-bottom:1px solid var(--stone);">
+            <th style="padding:1rem;">Produce</th>
+            <th style="padding:1rem;">Market</th>
+            <th style="padding:1rem;">County</th>
+            <th style="padding:1rem;">Price (KES)</th>
+            <th style="padding:1rem;">Trend</th>
+            <th style="padding:1rem;">Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% prices.forEach(p => { %>
+            <tr style="border-bottom:1px solid var(--stone);">
+              <td style="padding:1rem; font-weight:500;">
+                <%= p.produceName %>
+                <div style="font-size:0.8rem; color:var(--ink-soft);"><%= p.category %></div>
+              </td>
+              <td style="padding:1rem;"><%= p.marketName %></td>
+              <td style="padding:1rem;"><%= p.county %></td>
+              <td style="padding:1rem; font-weight:600;"><%= Number(p.price).toLocaleString() %> / <%= p.unit %></td>
+              <td style="padding:1rem;">
+                <% if (p.priceChange > 0) { %>
+                  <span style="color:#d9534f; font-weight:500;">↑ <%= p.priceChange %>%</span>
+                <% } else if (p.priceChange < 0) { %>
+                  <span style="color:#5cb85c; font-weight:500;">↓ <%= Math.abs(p.priceChange) %>%</span>
+                <% } else { %>
+                  <span style="color:var(--ink-soft);">-</span>
+                <% } %>
+              </td>
+              <td style="padding:1rem; color:var(--ink-soft); font-size:0.9rem;">
+                <%= new Date(p.recordedAt).toLocaleDateString() %>
+                <div style="font-size:0.75rem;">Source: <%= p.source %></div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state" style="padding:4rem 2rem; text-align:center;">
+        <i data-lucide="trending-up" style="width:64px; height:64px; color:var(--ink-soft); opacity:0.5; margin-bottom:1rem;"></i>
+        <h3 style="margin-bottom:0.5rem;">No price data available.</h3>
+        <p style="color:var(--ink-soft);">Try adjusting your filters.</p>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+<%- include('partials/footer') %>

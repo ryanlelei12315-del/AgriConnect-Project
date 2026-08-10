@@ -1,0 +1,36 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:800px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="background:var(--white); padding:2rem; border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
+    <a href="/services/<%= service.id %>" style="color:var(--emerald); text-decoration:none; display:inline-block; margin-bottom:1.5rem;">← Back to Service</a>
+    <h1 style="margin-bottom:1rem; color:var(--emerald);">Request Service</h1>
+    
+    <div style="background:var(--cream); padding:1.5rem; border-radius:8px; border:1px solid var(--stone); margin-bottom:2rem;">
+      <h3 style="margin-bottom:0.5rem; font-size:1.1rem;"><%= service.title %></h3>
+      <p style="color:var(--ink-soft); margin-bottom:0.5rem;"><%= service.provider ? service.provider.fullName : 'Unknown Provider' %></p>
+      <div style="font-weight:600; color:var(--gold); margin-top:0.5rem;">KES <%= Number(service.priceKes).toLocaleString() %></div>
+    </div>
+
+    <form action="/services/<%= service.id %>/request" method="POST">
+      <div class="form-group" style="margin-bottom:1.5rem;">
+        <label for="location">Your Farm Location (Where do you need the service?) *</label>
+        <input type="text" id="location" name="location" required placeholder="e.g. Kesses, Uasin Gishu">
+      </div>
+
+      <div class="form-group" style="margin-bottom:1.5rem;">
+        <label for="requested_date">Requested Date *</label>
+        <input type="date" id="requested_date" name="requested_date" required>
+      </div>
+      
+      <div class="form-group" style="margin-bottom:2rem;">
+        <label for="description">Additional Details (Optional)</label>
+        <textarea id="description" name="description" rows="4" placeholder="Describe the size of the land, specific requirements, etc."></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-amber" style="width:100%; padding:1rem; font-size:1.1rem;">Submit Request</button>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

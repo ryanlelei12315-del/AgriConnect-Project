@@ -94,7 +94,8 @@
   right: 8px;
   width: 12px;
   height: 12px;
-  background: #16a34a; /* green dot */
+  background: #16a34a;
+  /* green dot */
   border-radius: 50%;
   border: 2px solid var(--white);
   display: grid;
@@ -136,6 +137,7 @@
   font-size: 0.8rem;
   overflow: hidden;
 }
+
 .top-role-avatar img {
   width: 100%;
   height: 100%;
@@ -198,10 +200,12 @@
 }
 
 .weather-icon {
-  color: #60a5fa; /* light blue */
+  color: #60a5fa;
+  /* light blue */
   display: grid;
   place-items: center;
 }
+
 .weather-icon svg {
   width: 24px;
   height: 24px;
@@ -241,10 +245,25 @@
   flex-shrink: 0;
 }
 
-.stat-icon-wrapper.green { background: #f0fdf4; color: #16a34a; }
-.stat-icon-wrapper.blue { background: #eff6ff; color: #2563eb; }
-.stat-icon-wrapper.yellow { background: #fffbeb; color: #d97706; }
-.stat-icon-wrapper.purple { background: #faf5ff; color: #7c3aed; }
+.stat-icon-wrapper.green {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.stat-icon-wrapper.blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.stat-icon-wrapper.yellow {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.stat-icon-wrapper.purple {
+  background: #faf5ff;
+  color: #7c3aed;
+}
 
 .stat-icon-wrapper svg {
   width: 20px;
@@ -277,8 +296,13 @@
   gap: 4px;
 }
 
-.stat-trend.up { color: #16a34a; }
-.stat-trend.down { color: #dc2626; }
+.stat-trend.up {
+  color: #16a34a;
+}
+
+.stat-trend.down {
+  color: #dc2626;
+}
 
 /* ── Main Layout Grid ── */
 .dash-layout-grid {
@@ -395,11 +419,30 @@
   place-items: center;
 }
 
-.action-item-icon.green { background: #f0fdf4; color: #16a34a; }
-.action-item-icon.blue { background: #eff6ff; color: #2563eb; }
-.action-item-icon.yellow { background: #fffbeb; color: #d97706; }
-.action-item-icon.purple { background: #faf5ff; color: #7c3aed; }
-.action-item-icon.teal { background: #f0fdfa; color: #0d9488; }
+.action-item-icon.green {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.action-item-icon.blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.action-item-icon.yellow {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.action-item-icon.purple {
+  background: #faf5ff;
+  color: #7c3aed;
+}
+
+.action-item-icon.teal {
+  background: #f0fdfa;
+  color: #0d9488;
+}
 
 .action-item-icon svg {
   width: 18px;
@@ -471,6 +514,7 @@
   opacity: 0.5;
   align-self: center;
 }
+
 .todo-arrow svg {
   width: 14px;
   height: 14px;
@@ -543,8 +587,14 @@
   font-size: 0.75rem;
   font-weight: 600;
 }
-.market-price-trend.up { color: #16a34a; }
-.market-price-trend.down { color: #dc2626; }
+
+.market-price-trend.up {
+  color: #16a34a;
+}
+
+.market-price-trend.down {
+  color: #dc2626;
+}
 
 /* Promo banner */
 .promo-banner-card {
@@ -614,12 +664,15 @@
   .dash-stats-row {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .dash-layout-grid {
     grid-template-columns: 1fr;
   }
+
   .dash-content-grid {
     grid-template-columns: 1fr;
   }
+
   .dash-bottom-grid {
     grid-template-columns: 1fr;
   }
@@ -629,16 +682,18 @@
   .dash-main {
     grid-template-columns: 1fr;
   }
+
   .bottom-split-panels {
     grid-template-columns: 1fr;
   }
+
   .promo-banner-card {
     flex-direction: column;
     text-align: center;
     padding: 1.5rem;
   }
-  }
 }
+
 
 /* ── Tab View Toggle ── */
 .dash-view {
@@ -749,7 +804,8 @@
 
 .chat-header-status {
   font-size: 0.75rem;
-  color: #16a34a; /* online */
+  color: #16a34a;
+  /* online */
 }
 
 .chat-messages {
@@ -864,9 +920,20 @@
   flex-shrink: 0;
 }
 
-.notif-icon-circle.green { background: #f0fdf4; color: #16a34a; }
-.notif-icon-circle.blue { background: #eff6ff; color: #2563eb; }
-.notif-icon-circle.yellow { background: #fffbeb; color: #d97706; }
+.notif-icon-circle.green {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.notif-icon-circle.blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.notif-icon-circle.yellow {
+  background: #fffbeb;
+  color: #d97706;
+}
 
 .notif-icon-circle svg {
   width: 18px;
@@ -937,4 +1004,3 @@
   height: 16px;
   opacity: 0.7;
 }
-

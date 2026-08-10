@@ -1,0 +1,127 @@
+<%- include('partials/header') %> <%- include('partials/navbar') %>
+
+<main class="dash-main">
+  <div class="dash-content">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-greeting">Orders</h1>
+        <p class="dash-sub">
+          <%= user.role === 'farmer' ? 'Orders placed on your produce.' : 'Your purchase orders.' %>
+        </p>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <h2 class="dash-section-title">All Orders</h2>
+      <div id="orders-list">
+        <p class="dash-sub">Loading orders…</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %> <%- include('partials/scripts') %>
+
+<script>
+  const fmt = (n) => 'KES ' + Number(n).toLocaleString('en-KE');
+
+  function statusBadge(status) {
+    const colors = {
+      pending: 'gold',
+      confirmed: 'blue',
+      shipped: 'purple',
+      completed: 'emerald',
+      canceled: 'gray',
+    };
+    return `<span class="badge ${colors[status] || 'gray'}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('en-KE', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
+
+  function orderRow(o) {
+    const item = o.items && o.items[0];
+    const listing = item ? item.listing : null;
+    const produceName = listing ? listing.name : 'Produce';
+    const buyerName = o.buyer ? o.buyer.fullName : '—';
+    const sellerName = o.seller ? o.seller.fullName : '—';
+    const otherParty = user.role === 'farmer' ? buyerName : sellerName;
+
+    const canAdvance =
+      user.role === 'farmer' &&
+      (o.status === 'pending' || o.status === 'confirmed' || o.status === 'shipped');
+    const canCancel = o.status === 'pending' || o.status === 'confirmed';
+
+    return `
+      <div class="order-card">
+        <div class="order-main">
+          <strong>${produceName}</strong>
+          <span class="dash-sub">${otherParty} · ${fmtDate(o.createdAt)}</span>
+        </div>
+        <div class="order-qty">
+          ${item ? Number(item.quantityKg).toLocaleString('en-KE') + ' kg' : '—'} ·
+          ${item ? fmt(item.totalKes) : '—'}
+        </div>
+        <div class="order-status">${statusBadge(o.status)}</div>
+        <div class="order-actions">
+          ${
+            canAdvance
+              ? `
+            <button class="btn btn-outline" onclick="setStatus(${o.id}, '${o.status === 'pending' ? 'confirmed' : o.status === 'confirmed' ? 'shipped' : 'completed'}')">
+              ${o.status === 'pending' ? 'Confirm' : o.status === 'confirmed' ? 'Ship' : 'Complete'}
+            </button>
+          `
+              : ''
+          }
+          ${
+            canCancel
+              ? `
+            <button class="btn btn-outline" onclick="setStatus(${o.id}, 'canceled')">Cancel</button>
+          `
+              : ''
+          }
+        </div>
+      </div>`;
+  }
+
+  async function loadOrders() {
+    try {
+      const res = await fetch('/api/orders/mine', { credentials: 'same-origin' });
+      const data = await res.json();
+      const list = document.getElementById('orders-list');
+
+      if (!data.success || !data.orders.length) {
+        list.innerHTML =
+          '<p class="dash-sub">No orders yet. Browse the Marketplace to get started!</p>';
+        return;
+      }
+      list.innerHTML = data.orders.map(orderRow).join('');
+    } catch (e) {
+      document.getElementById('orders-list').innerHTML =
+        '<p class="dash-sub">Could not load orders. Please try again.</p>';
+    }
+  }
+
+  async function setStatus(orderId, status) {
+    const res = await fetch('/api/orders/' + orderId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ status }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || 'Update failed.');
+      return;
+    }
+    loadOrders();
+  }
+
+  loadOrders();
+</script>

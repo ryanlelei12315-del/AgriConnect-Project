@@ -1,0 +1,70 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <h1 style="color:var(--emerald); margin:0;">My Orders</h1>
+    <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
+  </div>
+
+  <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); overflow:hidden;">
+    <% if (orders && orders.length > 0) { %>
+      <table class="data-table" style="width:100%; text-align:left; border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--cream); border-bottom:1px solid var(--stone);">
+            <th style="padding:1rem;">Order ID</th>
+            <th style="padding:1rem;">Date</th>
+            <th style="padding:1rem;"><%= isFarmer ? 'Buyer' : 'Seller' %></th>
+            <th style="padding:1rem;">Produce</th>
+            <th style="padding:1rem;">Quantity</th>
+            <th style="padding:1rem;">Total</th>
+            <th style="padding:1rem;">Status</th>
+            <th style="padding:1rem;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% orders.forEach(o => { %>
+            <tr style="border-bottom:1px solid var(--stone);">
+              <td style="padding:1rem; font-weight:500;">#ORD-<%= o.id %></td>
+              <td style="padding:1rem; color:var(--ink-soft);"><%= new Date(o.createdAt).toLocaleDateString() %></td>
+              <td style="padding:1rem;"><%= isFarmer ? (o.buyer ? o.buyer.fullName : 'Unknown') : (o.seller ? o.seller.fullName : 'Unknown') %></td>
+              <td style="padding:1rem;">
+                <% if (o.items && o.items.length > 0 && o.items[0].listing) { %>
+                  <%= o.items[0].listing.name %>
+                <% } else { %>
+                  Unknown
+                <% } %>
+              </td>
+              <td style="padding:1rem;"><%= o.items && o.items.length > 0 ? o.items[0].quantityKg : 0 %> kg</td>
+              <td style="padding:1rem; font-weight:600;">KES <%= Number(o.totalKes).toLocaleString() %></td>
+              <td style="padding:1rem;">
+                <span style="font-size:0.85rem; padding:4px 8px; border-radius:12px; font-weight:500;
+                  background:<%= o.status === 'pending' ? '#fff3cd' : o.status === 'completed' ? '#d1e7dd' : o.status === 'canceled' ? '#f8d7da' : '#e2e3e5' %>; 
+                  color:<%= o.status === 'pending' ? '#856404' : o.status === 'completed' ? '#0f5132' : o.status === 'canceled' ? '#842029' : '#383d41' %>">
+                  <%= o.status.toUpperCase() %>
+                </span>
+              </td>
+              <td style="padding:1rem;">
+                <a href="/orders/<%= o.id %>" style="color:var(--emerald); font-weight:500; text-decoration:none;">View Details</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state" style="padding:4rem 2rem; text-align:center;">
+        <i data-lucide="shopping-bag" style="width:64px; height:64px; color:var(--ink-soft); opacity:0.5; margin-bottom:1rem;"></i>
+        <h3 style="margin-bottom:0.5rem;">No orders yet.</h3>
+        <p style="color:var(--ink-soft); margin-bottom:1.5rem;">
+          <%= isFarmer ? 'When buyers place orders for your produce, they will appear here.' : 'When you order produce from farmers, they will appear here.' %>
+        </p>
+        <a href="/marketplace" class="btn btn-amber">Browse Marketplace</a>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+<%- include('../partials/footer') %>
