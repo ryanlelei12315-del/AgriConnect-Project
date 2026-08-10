@@ -1,38 +1,48 @@
 /* eslint-env node */
 const { ProduceListing } = require('../models/ProduceListing');
 const { User } = require('../models/User');
+const { Op } = require('sequelize');
 
 module.exports = {
   renderMarketplace: async (req, res) => {
     try {
-      const { category, search } = req.query;
+      const { category, search, county } = req.query;
       
       const where = { status: 'LISTED' };
       if (category && category !== 'All') {
         where.category = category;
       }
       
-      // If we had a robust search, we could use Op.like for name, but skipping for simplicity or basic implementation.
-      // We'll just fetch all LISTED and optionally filter by category for now.
+      if (county && county !== 'All') {
+        where.county = county;
+      }
 
-      const listings = await ProduceListing.findAll({
+      if (search && search.trim() !== '') {
+        where.name = { [Op.like]: `%${search.trim()}%` };
+      }
+
+      const page = parseInt(req.query.page) || 1;
+      const limit = 12; // 12 listings per page
+      const offset = (page - 1) * limit;
+
+      const { count, rows: listings } = await ProduceListing.findAndCountAll({
         where,
         include: [{ model: User, as: 'farmer', attributes: ['id', 'fullName', 'county'] }],
-        order: [['createdAt', 'DESC']]
+        order: [['createdAt', 'DESC']],
+        limit,
+        offset
       });
 
-      // Filter by search in-memory (for simple MVP search)
-      let filteredListings = listings;
-      if (search) {
-        const lowerSearch = search.toLowerCase();
-        filteredListings = listings.filter(l => l.name.toLowerCase().includes(lowerSearch));
-      }
+      const totalPages = Math.ceil(count / limit);
 
       res.render('marketplace', {
         user: req.user,
-        listings: filteredListings,
+        listings,
         category: category || 'All',
         search: search || '',
+        county: county || 'All',
+        currentPage: page,
+        totalPages,
         error: null
       });
     } catch (err) {

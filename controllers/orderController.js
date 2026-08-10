@@ -71,7 +71,10 @@ module.exports = {
         throw new Error('Valid listing_id and quantity are required.');
       }
 
-      const listing = await ProduceListing.findByPk(listing_id, { transaction: t });
+      const listing = await ProduceListing.findByPk(listing_id, {
+        transaction: t,
+        lock: t.LOCK.UPDATE
+      });
       if (!listing || listing.status !== 'LISTED') {
         throw new Error('Listing is not available.');
       }

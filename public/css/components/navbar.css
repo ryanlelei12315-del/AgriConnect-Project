@@ -96,3 +96,23 @@ nav {
   font-weight: 500;
   color: var(--ink);
 }
+
+@media (max-width: 768px) {
+  nav {
+    padding: 0 1rem;
+    height: 64px;
+  }
+  .nav-center {
+    display: none; /* Hide the center links on mobile */
+  }
+  .nav-logo-text {
+    font-size: 1.1rem;
+  }
+  .nav-right {
+    gap: 8px;
+  }
+  .nav-right .btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+}

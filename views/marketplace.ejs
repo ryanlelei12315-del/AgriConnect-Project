@@ -24,6 +24,19 @@
           <option value="Poultry" <%= category === 'Poultry' ? 'selected' : '' %>>Poultry</option>
         </select>
       </div>
+      <div style="min-width:150px;">
+        <select name="county" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+          <option value="All" <%= county === 'All' ? 'selected' : '' %>>All Counties</option>
+          <option value="Uasin Gishu" <%= county === 'Uasin Gishu' ? 'selected' : '' %>>Uasin Gishu</option>
+          <option value="Nakuru" <%= county === 'Nakuru' ? 'selected' : '' %>>Nakuru</option>
+          <option value="Meru" <%= county === 'Meru' ? 'selected' : '' %>>Meru</option>
+          <option value="Kajiado" <%= county === 'Kajiado' ? 'selected' : '' %>>Kajiado</option>
+          <option value="Kiambu" <%= county === 'Kiambu' ? 'selected' : '' %>>Kiambu</option>
+          <option value="Nairobi" <%= county === 'Nairobi' ? 'selected' : '' %>>Nairobi</option>
+          <option value="Mombasa" <%= county === 'Mombasa' ? 'selected' : '' %>>Mombasa</option>
+          <option value="Trans Nzoia" <%= county === 'Trans Nzoia' ? 'selected' : '' %>>Trans Nzoia</option>
+        </select>
+      </div>
       <button type="submit" class="btn btn-emerald">Search</button>
     </form>
   </div>
@@ -71,6 +84,24 @@
         </div>
       <% }) %>
     </div>
+
+    <% if (totalPages > 1) { %>
+      <div style="display:flex; justify-content:center; align-items:center; gap:1.5rem; margin-top:3rem;">
+        <% if (currentPage > 1) { %>
+          <a href="/marketplace?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search) %>&category=<%= encodeURIComponent(category) %>&county=<%= encodeURIComponent(county) %>" class="btn btn-outline" style="padding:0.5rem 1rem;">← Previous</a>
+        <% } else { %>
+          <span class="btn btn-outline" style="padding:0.5rem 1rem; opacity:0.5; cursor:not-allowed;">← Previous</span>
+        <% } %>
+
+        <span style="font-weight:600; color:var(--ink-mid);">Page <%= currentPage %> of <%= totalPages %></span>
+
+        <% if (currentPage < totalPages) { %>
+          <a href="/marketplace?page=<%= currentPage + 1 %>&search=<%= encodeURIComponent(search) %>&category=<%= encodeURIComponent(category) %>&county=<%= encodeURIComponent(county) %>" class="btn btn-outline" style="padding:0.5rem 1rem;">Next →</a>
+        <% } else { %>
+          <span class="btn btn-outline" style="padding:0.5rem 1rem; opacity:0.5; cursor:not-allowed;">Next →</span>
+        <% } %>
+      </div>
+    <% } %>
   <% } else { %>
     <div class="empty-state" style="padding:4rem 2rem; text-align:center; background:var(--white); border-radius:12px; border:1px solid var(--stone);">
       <i data-lucide="search-x" style="width:64px; height:64px; color:var(--ink-soft); opacity:0.5; margin-bottom:1rem;"></i>
