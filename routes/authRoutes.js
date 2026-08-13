@@ -16,4 +16,7 @@ router.post('/logout', authCtrl.logout);
 // GET /api/auth/me (protected)
 router.get('/me', auth, authCtrl.me);
 
+// GET /api/auth/csrf (returns a fresh token + cookie; used for self-healing stale CSRF)
+router.get('/csrf', authCtrl.csrfToken);
+
 module.exports = router;

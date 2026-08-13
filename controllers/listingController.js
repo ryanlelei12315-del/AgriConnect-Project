@@ -1,126 +1,138 @@
 /* eslint-env node */
 const { ProduceListing } = require('../models/ProduceListing');
 const { User } = require('../models/User');
+const { ApiError } = require('../utils/ApiError');
+const {
+  positiveNumber,
+  requiredString,
+  enumValue,
+  VALID_CATEGORIES,
+  LIMITS,
+} = require('../utils/validation');
+const path = require('path');
+const fs = require('fs');
+module.exports = {
+  // GET /api/listings?county=&category=&status=LISTED — public browse (authed)
+  list: async (req, res, next) => {
+    try {
+      const { county, category, status = 'LISTED' } = req.query;
+      const where = {};
 
-/** Valid listing status transitions (state machine) */
-const VALID_CATEGORIES = [
-  'Vegetables',
-  'Cereals',
-  'Root Crops',
-  'Legumes',
-  'Fruits',
-  'Dairy',
-  'Livestock',
-  'Other',
-];
+      if (status) where.status = status;
+      if (county) where.county = county;
+      if (category && VALID_CATEGORIES.includes(category)) where.category = category;
 
-/**
- * GET /api/listings?county=&category=&status=LISTED
- * Public browse (authenticated users). Returns flattened listings
- * with farmer display info.
- */
-async function list(req, res) {
-  try {
-    const { county, category, status = 'LISTED' } = req.query;
-    const where = {};
-
-    if (status) where.status = status;
-    if (county) where.county = county;
-    if (category) where.category = category;
-
-    const listings = await ProduceListing.findAll({
-      where,
-      order: [['createdAt', 'DESC']],
-      include: [
-        {
-          model: User,
-          as: 'farmer',
-          attributes: ['id', 'fullName', 'county'],
-        },
-      ],
-    });
-
-    return res.json({ success: true, listings });
-  } catch (err) {
-    console.error('Listing list error:', err.message);
-    return res.status(500).json({ success: false, message: 'Server error.' });
-  }
-}
-
-/**
- * POST /api/listings  (farmer only)
- * Creates a produce listing for the authenticated farmer.
- */
-async function create(req, res) {
-  try {
-    if (req.user.role !== 'farmer') {
-      return res.status(403).json({ success: false, message: 'Only farmers can post listings.' });
-    }
-
-    const { name, category, quantity_kg, price_per_kg_kes, county, description } = req.body;
-
-    if (!name || !quantity_kg || !price_per_kg_kes || !county) {
-      return res.status(400).json({
-        success: false,
-        message: 'name, quantity_kg, price_per_kg_kes, and county are required.',
+      const listings = await ProduceListing.findAll({
+        where,
+        order: [['createdAt', 'DESC']],
+        include: [{ model: User, as: 'farmer', attributes: ['id', 'fullName', 'county'] }],
       });
+
+      return res.json({ success: true, listings });
+    } catch (err) {
+      next(err);
     }
-    if (!VALID_CATEGORIES.includes(category)) {
-      return res.status(400).json({
-        success: false,
-        message: `category must be one of: ${VALID_CATEGORIES.join(', ')}.`,
+  },
+
+  // POST /api/listings (farmer only)
+  create: async (req, res, next) => {
+    try {
+      if (req.user.role !== 'farmer') {
+        return res.status(403).json({ success: false, message: 'Only farmers can post listings.' });
+      }
+
+      const { name, category, quantity_kg, price_per_kg_kes, county, description } = req.body;
+
+      const nameRes = requiredString(name, 'name', { maxLen: LIMITS.produceName });
+      if (!nameRes.ok) return res.status(400).json({ success: false, message: nameRes.error });
+
+      const catRes = enumValue(category, VALID_CATEGORIES, 'category');
+      if (!catRes.ok) return res.status(400).json({ success: false, message: catRes.error });
+
+      const qtyRes = positiveNumber(quantity_kg, 'quantity', { min: 0 });
+      if (!qtyRes.ok) return res.status(400).json({ success: false, message: qtyRes.error });
+
+      const priceRes = positiveNumber(price_per_kg_kes, 'price', { min: 0 });
+      if (!priceRes.ok) return res.status(400).json({ success: false, message: priceRes.error });
+
+      const countyRes = requiredString(county, 'county', { maxLen: LIMITS.county });
+      if (!countyRes.ok) return res.status(400).json({ success: false, message: countyRes.error });
+
+      const listing = await ProduceListing.create({
+        farmerId: req.user.id,
+        name: nameRes.value,
+        category: catRes.value,
+        quantityKg: qtyRes.value,
+        pricePerKgKes: priceRes.value,
+        county: countyRes.value,
+        description: description ? String(description).slice(0, LIMITS.description) : null,
+        status: 'LISTED',
       });
+
+      return res.status(201).json({ success: true, listing });
+    } catch (err) {
+      next(err);
     }
+  },
 
-    const listing = await ProduceListing.create({
-      farmerId: req.user.id,
-      name,
-      category: category || 'Other',
-      quantityKg: quantity_kg,
-      pricePerKgKes: price_per_kg_kes,
-      county,
-      description: description || null,
-      status: 'LISTED',
-    });
+  // PATCH /api/listings/:id/status (owner only)
+  updateStatus: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
 
-    return res.status(201).json({ success: true, listing });
-  } catch (err) {
-    console.error('Listing create error:', err.message);
-    return res.status(500).json({ success: false, message: 'Server error.' });
-  }
-}
+      if (!['LISTED', 'PENDING', 'SOLD', 'INACTIVE'].includes(status)) {
+        return res.status(400).json({ success: false, message: 'Invalid status.' });
+      }
 
-/**
- * PATCH /api/listings/:id/status  (owner only)
- * Marks a listing LISTED → PENDING → SOLD.
- */
-async function updateStatus(req, res) {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
+      const listing = await ProduceListing.findByPk(id);
+      if (!listing) return res.status(404).json({ success: false, message: 'Listing not found.' });
+      if (listing.farmerId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'You can only update your own listings.' });
+      }
 
-    if (!['LISTED', 'PENDING', 'SOLD'].includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status.' });
+      listing.status = status;
+      await listing.save();
+
+      return res.json({ success: true, listing });
+    } catch (err) {
+      next(err);
     }
+  },
 
-    const listing = await ProduceListing.findByPk(id);
-    if (!listing) {
-      return res.status(404).json({ success: false, message: 'Listing not found.' });
+  // POST /api/listings/:id/image (owner only)
+  uploadImage: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+
+      const listing = await ProduceListing.findByPk(id);
+      if (!listing) {
+        return res.status(404).json({ success: false, message: 'Listing not found.' });
+      }
+      if (listing.farmerId !== req.user.id) {
+        return res
+          .status(403)
+          .json({ success: false, message: 'You can only update your own listings.' });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ success: false, message: 'No image file uploaded.' });
+      }
+
+      // Optional: delete old image file if it exists and is not a placeholder
+      if (listing.imageUrl && listing.imageUrl.startsWith('/uploads/')) {
+        const oldPath = path.join(__dirname, '..', 'public', listing.imageUrl);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+
+      listing.imageUrl = '/uploads/' + req.file.filename;
+      await listing.save();
+
+      return res.json({ success: true, listing });
+    } catch (err) {
+      next(err);
     }
-    if (listing.farmerId !== req.user.id) {
-      return res
-        .status(403)
-        .json({ success: false, message: 'You can only update your own listings.' });
-    }
-
-    listing.status = status;
-    await listing.save();
-
-    return res.json({ success: true, listing });
-  } catch (err) {
-    console.error('Listing status error:', err.message);
-    return res.status(500).json({ success: false, message: 'Server error.' });
-  }
-}
-
-module.exports = { list, create, updateStatus, VALID_CATEGORIES };
+  },
+};

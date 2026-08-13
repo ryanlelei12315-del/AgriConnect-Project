@@ -122,7 +122,10 @@
 
     fetch('/api/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+  'Content-Type': 'application/json',
+  'x-csrf-token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+ },
       body: JSON.stringify({ recipient_id: recipientId, content }),
     })
       .then(r => r.json())

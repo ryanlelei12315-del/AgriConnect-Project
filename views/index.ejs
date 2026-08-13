@@ -1,4 +1,5 @@
-<%- include('partials/header') %> <%- include('partials/navbar') %>
+<%- include('partials/header') %> 
+<%- include('partials/navbar') %>
 
 <!-- ══ HERO ══ -->
 <section class="hero">
@@ -20,11 +21,11 @@
     </p>
 
     <div class="hero-actions">
-      <a href="marketplace.html" class="btn btn-amber">Browse Produce →</a>
-      <a href="services.html" class="btn btn-outline">Find Farm Services</a>
+      <a href="/marketplace" class="btn btn-amber">Browse Produce →</a>
+      <a href="/services" class="btn btn-outline">Find Farm Services</a>
     </div>
 
-    <div class="hero-proof">
+        <div class="hero-proof">
       <div class="proof-item">
         <div class="proof-num">47</div>
         <div class="proof-label">Counties covered</div>
@@ -43,6 +44,9 @@
   </div>
 
   <div class="hero-right">
+    <div class="hero-bg-image">
+      <img src="/images/designarena_image_v6hkp90k.jpg" alt="" />
+    </div>
     <div class="hero-cards-label">Live listings</div>
     <div class="live-cards">
       <div class="lc">
@@ -80,15 +84,15 @@
     </div>
 
     <div class="hero-roles">
-      <div class="role-chip" onclick="location.href = 'register.html'">
+      <div class="role-chip" onclick="location.href = '/register'">
         <div class="ri"><i data-lucide="user"></i></div>
         <div class="rl">Farmer</div>
       </div>
-      <div class="role-chip" onclick="location.href = 'register.html'">
+      <div class="role-chip" onclick="location.href = '/register'">
         <div class="ri"><i data-lucide="shopping-cart"></i></div>
         <div class="rl">Buyer</div>
       </div>
-      <div class="role-chip" onclick="location.href = 'register.html'">
+      <div class="role-chip" onclick="location.href = '/register'">
         <div class="ri"><i data-lucide="wrench"></i></div>
         <div class="rl">Provider</div>
       </div>
@@ -96,339 +100,341 @@
   </div>
 </section>
 
-<!-- ══ MARQUEE ══ -->
-<div class="marquee-strip">
-  <div class="marquee-track" id="marquee">
-    <span class="marquee-item"><span class="marquee-dot"></span>Uasin Gishu</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Nakuru</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Eldoret</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Meru</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kisumu</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kajiado</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Embu</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Naivasha</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kericho</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Trans Nzoia</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kakamega</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kiambu</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Uasin Gishu</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Nakuru</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Eldoret</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Meru</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kisumu</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kajiado</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Embu</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Naivasha</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kericho</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Trans Nzoia</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kakamega</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Kiambu</span>
-  </div>
-</div>
-
-<!-- ══ PRODUCE ══ -->
-<section class="section">
-  <div class="row-head">
-    <div>
-      <div class="section-tag">
-        <div class="tag-line"></div>
-        <span class="tag-text">Farm Fresh</span>
+    <!-- ══ MARQUEE ══ -->
+    <div class="marquee-strip">
+      <div class="marquee-track" id="marquee">
+        <span class="marquee-item"><span class="marquee-dot"></span>Uasin Gishu</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Nakuru</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Eldoret</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Meru</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kisumu</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kajiado</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Embu</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Naivasha</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kericho</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Trans Nzoia</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kakamega</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kiambu</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Uasin Gishu</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Nakuru</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Eldoret</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Meru</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kisumu</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kajiado</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Embu</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Naivasha</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kericho</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Trans Nzoia</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kakamega</span>
+        <span class="marquee-item"><span class="marquee-dot"></span>Kiambu</span>
       </div>
-      <h2 class="section-heading">Featured Produce</h2>
-      <p class="section-sub">
-        Posted directly by farmers. Browse and request to buy with one click.
-      </p>
     </div>
-    <a href="marketplace.html" class="btn btn-outline">View all listings →</a>
-  </div>
 
-  <div class="produce_section">
-    <div class="pc" id="pc1" onclick="location.href = 'marketplace.html'">
-      <div class="pc-img t">
-        <img src="/images/designarena_image_ni9bxflg.png" alt="cherry tomatoes" />
-        <span class="pc-tag">Uasin Gishu</span>
-        <span class="pc-avail">In season</span>
-      </div>
-      <div class="pc-body">
-        <div class="pc-name">Cherry Tomatoes</div>
-        <div class="pc-farmer">📍 Posted by Kamau Farms</div>
-        <div class="pc-bottom">
-          <span class="pc-qty">120 kg available</span>
-          <span class="pc-price">KES 90 <small>/kg</small></span>
+    <!-- ══ PRODUCE ══ -->
+    <section class="section">
+      <div class="row-head">
+        <div>
+          <div class="section-tag">
+            <div class="tag-line"></div>
+            <span class="tag-text">Farm Fresh</span>
+          </div>
+          <h2 class="section-heading">Featured Produce</h2>
+          <p class="section-sub">
+            Posted directly by farmers. Browse and request to buy with one click.
+          </p>
         </div>
-        <button class="pc-cta">Request to Buy</button>
+        <a href="/marketplace" class="btn btn-outline">View all listings →</a>
       </div>
-    </div>
 
-    <div class="pc" id="pc2" onclick="location.href = 'marketplace.html'">
-      <div class="pc-img m">
-        <img src="/images/designarena_image_17f603s0.png" alt="White Maize" />
-        <span class="pc-tag">Nakuru</span>
-        <span class="pc-avail">In season</span>
-      </div>
-      <div class="pc-body">
-        <div class="pc-name">White Maize</div>
-        <div class="pc-farmer">📍 Posted by Rift Valley Grains</div>
-        <div class="pc-bottom">
-          <span class="pc-qty">500 kg available</span>
-          <span class="pc-price">KES 55 <small>/kg</small></span>
+            <div class="produce_section">
+        <div class="pc" id="pc1" onclick="location.href = '/marketplace'">
+          <div class="pc-img">
+            <img src="/images/designarena_image_ni9bxflg.png" alt="cherry tomatoes" />
+            <span class="pc-tag">Uasin Gishu</span>
+            <span class="pc-avail">In season</span>
+          </div>
+          <div class="pc-body">
+            <div class="pc-name">Cherry Tomatoes</div>
+            <div class="pc-farmer">📍 Posted by Kamau Farms</div>
+            <div class="pc-bottom">
+              <span class="pc-qty">120 kg available</span>
+              <span class="pc-price">KES 90 <small>/kg</small></span>
+            </div>
+            <button class="pc-cta">Request to Buy</button>
+          </div>
         </div>
-        <button class="pc-cta">Request to Buy</button>
-      </div>
-    </div>
 
-    <div class="pc" id="pc3" onclick="location.href = 'marketplace.html'">
-      <div class="pc-img p">
-        <img src="/images/designarena_image_fgwrwznp.png" alt="Irish Potatoes" />
-        <span class="pc-tag">Meru</span>
-        <span class="pc-avail">In season</span>
-      </div>
-      <div class="pc-body">
-        <div class="pc-name">Irish Potatoes</div>
-        <div class="pc-farmer">📍 Posted by Njagi Agri</div>
-        <div class="pc-bottom">
-          <span class="pc-qty">300 kg available</span>
-          <span class="pc-price">KES 70 <small>/kg</small></span>
+        <div class="pc" id="pc2" onclick="location.href = '/marketplace'">
+          <div class="pc-img">
+            <img src="/images/designarena_image_17f603s0.png" alt="White Maize" />
+            <span class="pc-tag">Nakuru</span>
+            <span class="pc-avail">In season</span>
+          </div>
+          <div class="pc-body">
+            <div class="pc-name">White Maize</div>
+            <div class="pc-farmer">📍 Posted by Rift Valley Grains</div>
+            <div class="pc-bottom">
+              <span class="pc-qty">500 kg available</span>
+              <span class="pc-price">KES 55 <small>/kg</small></span>
+            </div>
+            <button class="pc-cta">Request to Buy</button>
+          </div>
         </div>
-        <button class="pc-cta">Request to Buy</button>
-      </div>
-    </div>
 
-    <div class="pc" id="pc4" onclick="location.href = 'marketplace.html'">
-      <div class="pc-img o">
-        <img src="/images/designarena_image_llkqsdn3.png" alt="Red Onions" />
-        <span class="pc-tag">Kajiado</span>
-        <span class="pc-avail">In season</span>
-      </div>
-      <div class="pc-body">
-        <div class="pc-name">Red Onions</div>
-        <div class="pc-farmer">📍 Posted by Maasai Organics</div>
-        <div class="pc-bottom">
-          <span class="pc-qty">200 kg available</span>
-          <span class="pc-price">KES 65 <small>/kg</small></span>
+        <div class="pc" id="pc3" onclick="location.href = '/marketplace'">
+          <div class="pc-img">
+            <img src="/images/designarena_image_fgwrwznp.png" alt="Irish Potatoes" />
+            <span class="pc-tag">Meru</span>
+            <span class="pc-avail">In season</span>
+          </div>
+          <div class="pc-body">
+            <div class="pc-name">Irish Potatoes</div>
+            <div class="pc-farmer">📍 Posted by Njagi Agri</div>
+            <div class="pc-bottom">
+              <span class="pc-qty">300 kg available</span>
+              <span class="pc-price">KES 70 <small>/kg</small></span>
+            </div>
+            <button class="pc-cta">Request to Buy</button>
+          </div>
         </div>
-        <button class="pc-cta">Request to Buy</button>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ══ COUNTIES ══ -->
+        <div class="pc" id="pc4" onclick="location.href = '/marketplace'">
+          <div class="pc-img">
+            <img src="/images/designarena_image_llkqsdn3.png" alt="Red Onions" />
+            <span class="pc-tag">Kajiado</span>
+            <span class="pc-avail">In season</span>
+          </div>
+          <div class="pc-body">
+            <div class="pc-name">Red Onions</div>
+            <div class="pc-farmer">📍 Posted by Maasai Organics</div>
+            <div class="pc-bottom">
+              <span class="pc-qty">200 kg available</span>
+              <span class="pc-price">KES 65 <small>/kg</small></span>
+            </div>
+            <button class="pc-cta">Request to Buy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ COUNTIES ══ -->
 <div class="counties-section">
   <div class="counties-label">Browse by county</div>
-  <select class="counties-list">
-    <option value="all">All Counties</option>
-    <option value="Uasin Gishu">Uasin Gishu</option>
-    <option value="Nakuru">Nakuru</option>
-    <option value="Eldoret">Eldoret</option>
-    <option value="Meru">Meru</option>
-    <option value="Kisumu">Kisumu</option>
-    <option value="Kajiado">Kajiado</option>
-    <option value="Embu">Embu</option>
-    <option value="Naivasha">Naivasha</option>
-    <option value="Trans Nzoia">Trans Nzoia</option>
-    <option value="Kakamega">Kakamega</option>
-    <option value="Kericho">Kericho</option>
-    <option value="Kiambu">Kiambu</option>
-  </select>
-</div>
+  <div class="counties-list">
+    <a href="/marketplace?county=Uasin+Gishu" class="county-pill">Uasin Gishu</a>
+    <a href="/marketplace?county=Nakuru" class="county-pill">Nakuru</a>
+    <a href="/marketplace?county=Eldoret" class="county-pill">Eldoret</a>
+    <a href="/marketplace?county=Meru" class="county-pill">Meru</a>
+    <a href="/marketplace?county=Kisumu" class="county-pill">Kisumu</a>
+    <a href="/marketplace?county=Kajiado" class="county-pill">Kajiado</a>
+    <a href="/marketplace?county=Embu" class="county-pill">Embu</a>
+    <a href="/marketplace?county=Naivasha" class="county-pill">Naivasha</a>
+    <a href="/marketplace?county=Trans+Nzoia" class="county-pill">Trans Nzoia</a>
+    <a href="/marketplace?county=Kakamega" class="county-pill">Kakamega</a>
+    <a href="/marketplace?county=Kericho" class="county-pill">Kericho</a>
+    <a href="/marketplace?county=Kiambu" class="county-pill">Kiambu</a>
+  </div>
+ </div>
+    <!-- ══ SERVICES ══ -->
+    <section class="section svc-section">
+      <div class="row-head">
+        <div>
+          <div class="section-tag">
+            <div class="tag-line"></div>
+            <span class="tag-text">Farm Services</span>
+          </div>
+          <h2 class="section-heading">Trusted Providers Near You</h2>
+          <p class="section-sub">
+            From tractor repair to irrigation — connect with verified agricultural service providers
+            in your county.
+          </p>
+        </div>
+        <a href="/services" class="btn btn-outline">All services →</a>
+      </div>
 
-<!-- ══ SERVICES ══ -->
-<section class="section svc-section">
-  <div class="row-head">
-    <div>
+      <div class="svc-grid">
+        <div class="sc" onclick="location.href = '/services'">
+          <div class="sc-icon"><i data-lucide="tractor"></i></div>
+          <div class="sc-cat">Machinery</div>
+          <div class="sc-name">Tractor Repair</div>
+          <div class="sc-location">Eldoret, Uasin Gishu</div>
+          <div class="sc-status">Available today</div>
+          <div class="sc-price">From KES 3,500</div>
+        </div>
+        <div class="sc" onclick="location.href = '/services'">
+          <div class="sc-icon"><i data-lucide="truck"></i></div>
+          <div class="sc-cat">Transport</div>
+          <div class="sc-name">Farm Transport</div>
+          <div class="sc-location">Nakuru, Naivasha</div>
+          <div class="sc-status">Available today</div>
+          <div class="sc-price">From KES 2,000</div>
+        </div>
+        <div class="sc" onclick="location.href = '/services'">
+          <div class="sc-icon"><i data-lucide="droplet"></i></div>
+          <div class="sc-cat">Infrastructure</div>
+          <div class="sc-name">Irrigation Setup</div>
+          <div class="sc-location">Meru, Embu</div>
+          <div class="sc-status">Book in advance</div>
+          <div class="sc-price">From KES 5,000</div>
+        </div>
+        <div class="sc" onclick="location.href = '/services'">
+          <div class="sc-icon"><i data-lucide="hard-hat"></i></div>
+          <div class="sc-cat">Labour</div>
+          <div class="sc-name">Harvest Labor</div>
+          <div class="sc-location">All counties</div>
+          <div class="sc-status">Available today</div>
+          <div class="sc-price">From KES 800/day</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ MARKET PRICES ══ -->
+    <section class="ticker-section" id="prices">
+      <div class="section-tag" style="margin-bottom: 1rem">
+        <div class="tag-line"></div>
+        <span class="tag-text" style="color: var(--amber-glow)">Market Intelligence</span>
+      </div>
+      <h2 class="section-heading" style="color: var(--white)">Today's Market Prices</h2>
+      <p class="section-sub" style="color: rgba(255, 255, 255, 0.5)">
+        Live farm-gate price estimates across major Kenyan counties.
+      </p>
+
+      <div class="ticker-grid">
+        <div class="ticker-card">
+          <div class="tc-crop">Cereals</div>
+          <div class="tc-name">White Maize</div>
+          <div class="tc-price">KES 55</div>
+          <div class="tc-unit">per kg · Nakuru</div>
+          <div class="tc-trend up">↑ +3% this week</div>
+        </div>
+        <div class="ticker-card">
+          <div class="tc-crop">Vegetables</div>
+          <div class="tc-name">Tomatoes</div>
+          <div class="tc-price">KES 90</div>
+          <div class="tc-unit">per kg · Uasin Gishu</div>
+          <div class="tc-trend down">↓ -5% this week</div>
+        </div>
+        <div class="ticker-card">
+          <div class="tc-crop">Root Crops</div>
+          <div class="tc-name">Irish Potatoes</div>
+          <div class="tc-price">KES 70</div>
+          <div class="tc-unit">per kg · Meru</div>
+          <div class="tc-trend up">↑ +8% this week</div>
+        </div>
+        <div class="ticker-card">
+          <div class="tc-crop">Vegetables</div>
+          <div class="tc-name">Red Onions</div>
+          <div class="tc-price">KES 65</div>
+          <div class="tc-unit">per kg · Kajiado</div>
+          <div class="tc-trend flat">→ Stable</div>
+        </div>
+        <div class="ticker-card">
+          <div class="tc-crop">Legumes</div>
+          <div class="tc-name">Dry Beans</div>
+          <div class="tc-price">KES 120</div>
+          <div class="tc-unit">per kg · Trans Nzoia</div>
+          <div class="tc-trend up">↑ +12% this week</div>
+        </div>
+        <div class="ticker-card">
+          <div class="tc-crop">Cereals</div>
+          <div class="tc-name">Wheat</div>
+          <div class="tc-price">KES 48</div>
+          <div class="tc-unit">per kg · Uasin Gishu</div>
+          <div class="tc-trend down">↓ -2% this week</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ WHY ══ -->
+    <section class="section" id="why">
       <div class="section-tag">
         <div class="tag-line"></div>
-        <span class="tag-text">Farm Services</span>
+        <span class="tag-text">Why AgriConnect</span>
       </div>
-      <h2 class="section-heading">Trusted Providers Near You</h2>
-      <p class="section-sub">
-        From tractor repair to irrigation — connect with verified agricultural service providers in
-        your county.
-      </p>
-    </div>
-    <a href="services.html" class="btn btn-outline">All services →</a>
-  </div>
+      <h2 class="section-heading">Built for Kenya's farmers.<br />Not for brokers.</h2>
 
-  <div class="svc-grid">
-    <div class="sc" onclick="location.href = 'services.html'">
-      <div class="sc-icon"><i data-lucide="tractor"></i></div>
-      <div class="sc-cat">Machinery</div>
-      <div class="sc-name">Tractor Repair</div>
-      <div class="sc-location">Eldoret, Uasin Gishu</div>
-      <div class="sc-status">Available today</div>
-      <div class="sc-price">From KES 3,500</div>
-    </div>
-    <div class="sc" onclick="location.href = 'services.html'">
-      <div class="sc-icon"><i data-lucide="truck"></i></div>
-      <div class="sc-cat">Transport</div>
-      <div class="sc-name">Farm Transport</div>
-      <div class="sc-location">Nakuru, Naivasha</div>
-      <div class="sc-status">Available today</div>
-      <div class="sc-price">From KES 2,000</div>
-    </div>
-    <div class="sc" onclick="location.href = 'services.html'">
-      <div class="sc-icon"><i data-lucide="droplet"></i></div>
-      <div class="sc-cat">Infrastructure</div>
-      <div class="sc-name">Irrigation Setup</div>
-      <div class="sc-location">Meru, Embu</div>
-      <div class="sc-status">Book in advance</div>
-      <div class="sc-price">From KES 5,000</div>
-    </div>
-    <div class="sc" onclick="location.href = 'services.html'">
-      <div class="sc-icon"><i data-lucide="hard-hat"></i></div>
-      <div class="sc-cat">Labour</div>
-      <div class="sc-name">Harvest Labor</div>
-      <div class="sc-location">All counties</div>
-      <div class="sc-status">Available today</div>
-      <div class="sc-price">From KES 800/day</div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ MARKET PRICES ══ -->
-<section class="ticker-section" id="prices">
-  <div class="section-tag" style="margin-bottom: 1rem">
-    <div class="tag-line"></div>
-    <span class="tag-text" style="color: var(--amber-glow)">Market Intelligence</span>
-  </div>
-  <h2 class="section-heading" style="color: var(--white)">Today's Market Prices</h2>
-  <p class="section-sub" style="color: rgba(255, 255, 255, 0.5)">
-    Live farm-gate price estimates across major Kenyan counties.
-  </p>
-
-  <div class="ticker-grid">
-    <div class="ticker-card">
-      <div class="tc-crop">Cereals</div>
-      <div class="tc-name">White Maize</div>
-      <div class="tc-price">KES 55</div>
-      <div class="tc-unit">per kg · Nakuru</div>
-      <div class="tc-trend up">↑ +3% this week</div>
-    </div>
-    <div class="ticker-card">
-      <div class="tc-crop">Vegetables</div>
-      <div class="tc-name">Tomatoes</div>
-      <div class="tc-price">KES 90</div>
-      <div class="tc-unit">per kg · Uasin Gishu</div>
-      <div class="tc-trend down">↓ -5% this week</div>
-    </div>
-    <div class="ticker-card">
-      <div class="tc-crop">Root Crops</div>
-      <div class="tc-name">Irish Potatoes</div>
-      <div class="tc-price">KES 70</div>
-      <div class="tc-unit">per kg · Meru</div>
-      <div class="tc-trend up">↑ +8% this week</div>
-    </div>
-    <div class="ticker-card">
-      <div class="tc-crop">Vegetables</div>
-      <div class="tc-name">Red Onions</div>
-      <div class="tc-price">KES 65</div>
-      <div class="tc-unit">per kg · Kajiado</div>
-      <div class="tc-trend flat">→ Stable</div>
-    </div>
-    <div class="ticker-card">
-      <div class="tc-crop">Legumes</div>
-      <div class="tc-name">Dry Beans</div>
-      <div class="tc-price">KES 120</div>
-      <div class="tc-unit">per kg · Trans Nzoia</div>
-      <div class="tc-trend up">↑ +12% this week</div>
-    </div>
-    <div class="ticker-card">
-      <div class="tc-crop">Cereals</div>
-      <div class="tc-name">Wheat</div>
-      <div class="tc-price">KES 48</div>
-      <div class="tc-unit">per kg · Uasin Gishu</div>
-      <div class="tc-trend down">↓ -2% this week</div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ WHY ══ -->
-<section class="section" id="why">
-  <div class="section-tag">
-    <div class="tag-line"></div>
-    <span class="tag-text">Why AgriConnect</span>
-  </div>
-  <h2 class="section-heading">Built for Kenya's farmers.<br />Not for brokers.</h2>
-
-  <div class="why-grid">
-    <div class="wc">
-      <div class="wc-num">01</div>
-      <div class="wc-icon"><i data-lucide="ban"></i></div>
-      <div class="wc-title">Zero brokers</div>
-      <div class="wc-desc">
-        Sell your produce directly to verified buyers and keep every shilling you earn.
+      <div class="why-grid">
+        <div class="wc">
+          <div class="wc-num">01</div>
+          <div class="wc-icon"><i data-lucide="ban"></i></div>
+          <div class="wc-title">Zero brokers</div>
+          <div class="wc-desc">
+            Sell your produce directly to verified buyers and keep every shilling you earn.
+          </div>
+        </div>
+        <div class="wc">
+          <div class="wc-num">02</div>
+          <div class="wc-icon"><i data-lucide="map-pin"></i></div>
+          <div class="wc-title">County-first search</div>
+          <div class="wc-desc">
+            Find buyers and service providers in your exact county — no wasted trips.
+          </div>
+        </div>
+        <div class="wc">
+          <div class="wc-num">03</div>
+          <div class="wc-icon"><i data-lucide="check-circle"></i></div>
+          <div class="wc-title">Trusted services</div>
+          <div class="wc-desc">
+            Every service provider is reviewed and verified by the AgriConnect community.
+          </div>
+        </div>
+        <div class="wc">
+          <div class="wc-num">04</div>
+          <div class="wc-icon"><i data-lucide="smartphone"></i></div>
+          <div class="wc-title">Phone-first</div>
+          <div class="wc-desc">
+            Designed for the phone in your pocket. Works on 3G. Built for rural Kenya.
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="wc">
-      <div class="wc-num">02</div>
-      <div class="wc-icon"><i data-lucide="map-pin"></i></div>
-      <div class="wc-title">County-first search</div>
-      <div class="wc-desc">
-        Find buyers and service providers in your exact county — no wasted trips.
-      </div>
-    </div>
-    <div class="wc">
-      <div class="wc-num">03</div>
-      <div class="wc-icon"><i data-lucide="check-circle"></i></div>
-      <div class="wc-title">Trusted services</div>
-      <div class="wc-desc">
-        Every service provider is reviewed and verified by the AgriConnect community.
-      </div>
-    </div>
-    <div class="wc">
-      <div class="wc-num">04</div>
-      <div class="wc-icon"><i data-lucide="smartphone"></i></div>
-      <div class="wc-title">Phone-first</div>
-      <div class="wc-desc">
-        Designed for the phone in your pocket. Works on 3G. Built for rural Kenya.
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- ══ CTA ══ -->
-<section class="cta-section">
-  <div class="cta-left">
-    <div class="section-tag" style="margin-bottom: 1rem">
-      <div class="tag-line"></div>
-      <span class="tag-text" style="color: var(--amber-glow)">Get Started</span>
-    </div>
-    <h2 class="section-heading" style="color: var(--white); margin-bottom: 1rem">
-      Join Kenya's farm-direct community.
-    </h2>
-    <p class="section-sub" style="color: rgba(255, 255, 255, 0.6); margin-bottom: 2rem">
-      Free to join. No commission on your first 10 deals. Register today and start connecting.
-    </p>
-    <a href="register.html" class="btn btn-amber">Create Free Account →</a>
-  </div>
+    <!-- ══ CTA ══ -->
+    <section class="cta-section">
+      <div class="cta-left">
+        <div class="section-tag" style="margin-bottom: 1rem">
+          <div class="tag-line"></div>
+          <span class="tag-text" style="color: var(--amber-glow)">Get Started</span>
+        </div>
+        <h2 class="section-heading" style="color: var(--white); margin-bottom: 1rem">
+          Join Kenya's farm-direct community.
+        </h2>
+        <p class="section-sub" style="color: rgba(255, 255, 255, 0.6); margin-bottom: 2rem">
+          Free to join. No commission on your first 10 deals. Register today and start connecting.
+        </p>
+        <a href="/register" class="btn btn-amber">Create Free Account →</a>
+      </div>
 
-  <div class="cta-role-cards">
-    <a href="register.html" class="role-card">
-      <div class="role-card-icon"><i data-lucide="user"></i></div>
-      <div class="role-card-info">
-        <div class="role-card-name">I'm a Farmer</div>
-        <div class="role-card-desc">Post produce and request farm services</div>
+      <div class="cta-role-cards">
+        <a href="/register" class="role-card">
+          <div class="role-card-icon"><i data-lucide="user"></i></div>
+          <div class="role-card-info">
+            <div class="role-card-name">I'm a Farmer</div>
+            <div class="role-card-desc">Post produce and request farm services</div>
+          </div>
+          <div class="role-card-arrow">→</div>
+        </a>
+        <a href="/register" class="role-card">
+          <div class="role-card-icon"><i data-lucide="shopping-cart"></i></div>
+          <div class="role-card-info">
+            <div class="role-card-name">I'm a Buyer</div>
+            <div class="role-card-desc">Browse fresh produce from nearby farms</div>
+          </div>
+          <div class="role-card-arrow">→</div>
+        </a>
+        <a href="/register" class="role-card">
+          <div class="role-card-icon"><i data-lucide="wrench"></i></div>
+          <div class="role-card-info">
+            <div class="role-card-name">I'm a Service Provider</div>
+            <div class="role-card-desc">List your agricultural services for hire</div>
+          </div>
+          <div class="role-card-arrow">→</div>
+        </a>
       </div>
-      <div class="role-card-arrow">→</div>
-    </a>
-    <a href="register.html" class="role-card">
-      <div class="role-card-icon"><i data-lucide="shopping-cart"></i></div>
-      <div class="role-card-info">
-        <div class="role-card-name">I'm a Buyer</div>
-        <div class="role-card-desc">Browse fresh produce from nearby farms</div>
-      </div>
-      <div class="role-card-arrow">→</div>
-    </a>
-    <a href="register.html" class="role-card">
-      <div class="role-card-icon"><i data-lucide="wrench"></i></div>
-      <div class="role-card-info">
-        <div class="role-card-name">I'm a Service Provider</div>
-        <div class="role-card-desc">List your agricultural services for hire</div>
-      </div>
-      <div class="role-card-arrow">→</div>
-    </a>
-  </div>
-</section>
+    </section>
 
-<%- include('partials/footer') %> <%- include('partials/scripts') %>
+    <%- include('partials/footer') %>
+    <%- include('partials/scripts') %>
+  </div>
+</body>
+</html>

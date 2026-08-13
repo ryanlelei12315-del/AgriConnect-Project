@@ -1,59 +1,38 @@
 /* eslint-env node */
 const { ProduceListing } = require('../models/ProduceListing');
 const { User } = require('../models/User');
-const { Op } = require('sequelize');
+const { buildWhere, parseFilters, normalizePage, PAGE_SIZE } = require('../services/marketplaceService');
 
 module.exports = {
-  renderMarketplace: async (req, res) => {
+  renderMarketplace: async (req, res, next) => {
     try {
-      const { category, search, county } = req.query;
-      
-      const where = { status: 'LISTED' };
-      if (category && category !== 'All') {
-        where.category = category;
-      }
-      
-      if (county && county !== 'All') {
-        where.county = county;
-      }
+      const filters = parseFilters(req.query);
+      const page = normalizePage(req.query.page);
 
-      if (search && search.trim() !== '') {
-        where.name = { [Op.like]: `%${search.trim()}%` };
-      }
-
-      const page = parseInt(req.query.page) || 1;
-      const limit = 12; // 12 listings per page
-      const offset = (page - 1) * limit;
-
+      const where = buildWhere(filters);
       const { count, rows: listings } = await ProduceListing.findAndCountAll({
         where,
         include: [{ model: User, as: 'farmer', attributes: ['id', 'fullName', 'county'] }],
         order: [['createdAt', 'DESC']],
-        limit,
-        offset
+        limit: PAGE_SIZE,
+        offset: (page - 1) * PAGE_SIZE,
       });
-
-      const totalPages = Math.ceil(count / limit);
 
       res.render('marketplace', {
         user: req.user,
         listings,
-        category: category || 'All',
-        search: search || '',
-        county: county || 'All',
+        category: filters.category,
+        search: filters.search,
+        county: filters.county,
+        availability: filters.availability || '',
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
         currentPage: page,
-        totalPages,
-        error: null
+        totalPages: Math.ceil(count / PAGE_SIZE),
+        error: null,
       });
     } catch (err) {
-      console.error(err);
-      res.status(500).render('marketplace', {
-        user: req.user,
-        listings: [],
-        category: 'All',
-        search: '',
-        error: 'Unable to load marketplace data.'
-      });
+      next(err);
     }
-  }
+  },
 };

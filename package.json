@@ -11,10 +11,12 @@
     "db:seed": "node scripts/seed.js"
   },
   "dependencies": {
+    "axios": "^1.19.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
+    "csurf": "^1.11.0",
+    "dotenv": "^16.6.1",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-rate-limit": "^8.6.1",
@@ -35,5 +37,16 @@
     "fullstack"
   ],
   "author": "Ryan — Eldohub AI & Tech Academy",
-  "license": "MIT"
+  "license": "MIT",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanlelei12315-del/AgriConnect-Project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ryanlelei12315-del/AgriConnect-Project/issues"
+  },
+  "homepage": "https://github.com/ryanlelei12315-del/AgriConnect-Project#readme"
 }

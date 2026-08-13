@@ -9,6 +9,7 @@
     <form action="/produce" method="POST" class="auth-form" style="display:flex; flex-direction:column; gap:1.5rem;">
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
         <div class="form-group">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <label for="name">Produce Name *</label>
           <input type="text" id="name" name="name" required placeholder="e.g. Fresh Maize">
         </div>

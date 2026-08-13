@@ -2872,3 +2872,168 @@ footer p {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+/* ══ DASHBOARD SIDEBAR PANELS (dark) ══
+   Widgets rendered inside the sidebar on the dashboard page (quick actions,
+   transactions, messages, recommended services). Matches the dark emerald
+   sidebar instead of the light-page widget styles. */
+.sidebar-panels {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 0.25rem;
+  padding: 1.1rem 0.75rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  flex-shrink: 0;
+}
+.sidebar-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.25rem 0.4rem;
+}
+.sidebar-panel-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+}
+.sidebar-panel-more {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-decoration: none;
+}
+.sidebar-panel-more:hover {
+  text-decoration: underline;
+}
+
+/* Quick action buttons */
+.sidebar-quick-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.4rem;
+}
+.sidebar-quick-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s ease;
+}
+.sidebar-quick-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.sidebar-quick-btn-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sidebar-quick-btn-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Compact list rows (transactions / messages / services) */
+.sidebar-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.sidebar-compact-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s ease;
+}
+.sidebar-compact-item:hover {
+  background: rgba(255, 255, 255, 0.11);
+  color: #fff;
+}
+.sidebar-compact-avatar,
+.sidebar-compact-ico {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.sidebar-compact-avatar.round {
+  border-radius: 50%;
+}
+.sidebar-compact-ico svg {
+  width: 16px;
+  height: 16px;
+}
+.sidebar-compact-body {
+  flex: 1;
+  min-width: 0;
+}
+.sidebar-compact-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-compact-sub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.sidebar-compact-end {
+  flex-shrink: 0;
+  text-align: right;
+}
+.sidebar-compact-end svg {
+  color: rgba(255, 255, 255, 0.5);
+}
+.sidebar-compact-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+.sidebar-compact-empty {
+  padding: 10px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+/* Hide the dashboard widgets when the sidebar is collapsed (icon-only) */
+@media (min-width: 901px) {
+  .dash-sidebar.collapsed .sidebar-panels {
+    display: none;
+  }
+}

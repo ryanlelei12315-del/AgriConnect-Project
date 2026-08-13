@@ -47,7 +47,7 @@ function periodToMonths(period) {
 }
 
 module.exports = {
-  renderDashboard: async (req, res) => {
+  renderDashboard: async (req, res, next) => {
     try {
       const userId = req.user.id;
       const role = req.user.role;
@@ -229,11 +229,11 @@ module.exports = {
       });
     } catch (err) {
       console.error('Dashboard render error:', err);
-      res.status(500).send('Server Error: ' + err.message);
+      next(err);
     }
   },
 
-  getStats: async (req, res) => {
+  getStats: async (req, res, next) => {
     try {
       const userId = req.user.id;
       const isFarmer = req.user.role === 'farmer';
@@ -244,7 +244,7 @@ module.exports = {
       ]);
       return res.json({ success: true, produce, orders, messages });
     } catch (err) {
-      return res.status(500).json({ success: false });
+      next(err);
     }
   },
 };

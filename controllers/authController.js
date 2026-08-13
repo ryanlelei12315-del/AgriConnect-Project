@@ -156,6 +156,15 @@ exports.logout = (req, res) => {
   return res.json({ success: true, message: 'Logged out.' });
 };
 
+// ── CSRF token endpoint ──────────────────────────────────────────────────────
+// Returns a fresh, current CSRF token and (via initCsrf) sets the matching
+// `_csrf` cookie. Clients use this to self-heal when a previously-rendered
+// page token goes stale (e.g. the 1-hour cookie expired) instead of getting
+// stuck on a dead-end 403 "session expired" banner.
+exports.csrfToken = (req, res) => {
+  return res.json({ success: true, csrfToken: res.locals.csrfToken });
+};
+
 // ── Me ───────────────────────────────────────────────────────────────────────
 exports.me = async (req, res) => {
   try {

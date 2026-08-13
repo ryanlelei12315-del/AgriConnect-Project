@@ -1,45 +1,122 @@
-<%- include('../partials/header') %>
-<%- include('../partials/navbar') %>
+<%- include('../partials/header') %> <%- include('../partials/navbar') %>
 
-<main class="page-container" style="padding-top:100px; padding-bottom:4rem;">
-  <div class="form-wrapper" style="max-width:600px; margin:0 auto; background:var(--white); padding:2rem; border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
-    <a href="/produce/<%= listing.id %>" style="color:var(--emerald); text-decoration:none; display:inline-block; margin-bottom:1.5rem;">← Back to Produce</a>
-    <h1 style="margin-bottom:1rem; color:var(--emerald);">Checkout</h1>
-    
-    <div style="background:var(--cream); padding:1.5rem; border-radius:8px; border:1px solid var(--stone); margin-bottom:2rem;">
-      <h3 style="margin-bottom:0.5rem; font-size:1.1rem;"><%= listing.name %></h3>
-      <p style="color:var(--ink-soft); margin-bottom:0.5rem;"><%= listing.farmer ? listing.farmer.fullName : 'Unknown Farmer' %> • 📍 <%= listing.county %></p>
-      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--stone); padding-top:1rem; margin-top:1rem;">
-        <span style="font-weight:500;">Unit Price:</span>
-        <span style="font-weight:600; color:var(--gold);">KES <%= Number(listing.pricePerKgKes).toLocaleString() %> / kg</span>
+<main class="page-container" style="padding-top: 100px; padding-bottom: 4rem">
+  <div
+    class="form-wrapper"
+    style="
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--white);
+      padding: 2rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--stone);
+    "
+  >
+    <a
+      href="/produce/<%= listing.id %>"
+      style="
+        color: var(--emerald);
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+      "
+      >← Back to Produce</a
+    >
+    <h1 style="margin-bottom: 1rem; color: var(--emerald)">Checkout</h1>
+
+    <div
+      style="
+        background: var(--cream);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--stone);
+        margin-bottom: 2rem;
+      "
+    >
+      <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem"><%= listing.name %></h3>
+      <p style="color: var(--ink-soft); margin-bottom: 0.5rem">
+        <%= listing.farmer ? listing.farmer.fullName : 'Unknown Farmer' %> • 📍 <%= listing.county
+        %>
+      </p>
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid var(--stone);
+          padding-top: 1rem;
+          margin-top: 1rem;
+        "
+      >
+        <span style="font-weight: 500">Unit Price:</span>
+        <span style="font-weight: 600; color: var(--gold)"
+          >KES <%= Number(listing.pricePerKgKes).toLocaleString() %> / kg</span
+        >
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
-        <span style="font-weight:500; color:var(--ink-soft);">Available:</span>
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 0.5rem;
+        "
+      >
+        <span style="font-weight: 500; color: var(--ink-soft)">Available:</span>
         <span><%= Number(listing.quantityKg).toLocaleString() %> kg</span>
       </div>
     </div>
 
     <form action="/orders" method="POST" id="order-form">
-      <input type="hidden" name="listing_id" value="<%= listing.id %>">
-      
-      <div class="form-group" style="margin-bottom:1.5rem;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <input type="hidden" name="listing_id" value="<%= listing.id %>" />
+
+      <div class="form-group" style="margin-bottom: 1.5rem">
         <label for="quantity_kg">Quantity to Order (kg) *</label>
-        <input type="number" id="quantity_kg" name="quantity_kg" min="1" max="<%= listing.quantityKg %>" required value="1" style="font-size:1.2rem; padding:0.75rem;">
+        <input
+          type="number"
+          id="quantity_kg"
+          name="quantity_kg"
+          min="1"
+          max="<%= listing.quantityKg %>"
+          required
+          value="1"
+          style="font-size: 1.2rem; padding: 0.75rem"
+        />
       </div>
 
-      <div style="background:#f8f9fa; padding:1.5rem; border-radius:8px; margin-bottom:2rem; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:1.2rem; font-weight:500;">Total Cost:</span>
-        <span id="total-cost" style="font-size:1.5rem; font-weight:700; color:var(--emerald);">KES <%= Number(listing.pricePerKgKes).toLocaleString() %></span>
+      <div
+        style="
+          background: #f8f9fa;
+          padding: 1.5rem;
+          border-radius: 8px;
+          margin-bottom: 2rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <span style="font-size: 1.2rem; font-weight: 500">Total Cost:</span>
+        <span id="total-cost" style="font-size: 1.5rem; font-weight: 700; color: var(--emerald)"
+          >KES <%= Number(listing.pricePerKgKes).toLocaleString() %></span
+        >
       </div>
 
-      <button type="submit" class="btn btn-amber" style="width:100%; padding:1rem; font-size:1.1rem;" id="submit-btn">Confirm Order</button>
+      <button
+        type="submit"
+        class="btn btn-amber"
+        style="width: 100%; padding: 1rem; font-size: 1.1rem"
+        id="submit-btn"
+      >
+        Confirm Order
+      </button>
     </form>
   </div>
 </main>
 
 <script>
   lucide.createIcons();
-  
+
   const unitPrice = <%= Number(listing.pricePerKgKes) %>;
   const maxQty = <%= Number(listing.quantityKg) %>;
   const qtyInput = document.getElementById('quantity_kg');

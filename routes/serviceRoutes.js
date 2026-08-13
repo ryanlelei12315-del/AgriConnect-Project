@@ -9,4 +9,8 @@ router.get('/:id', serviceCtrl.renderShow);
 router.get('/:id/request', requireAuthPage, serviceCtrl.renderNewRequest);
 router.post('/:id/request', requireAuthPage, serviceCtrl.createRequest);
 
+// Service provider inbox + request management
+router.get('/requests/mine', requireAuthPage, serviceCtrl.renderMyRequests);
+router.post('/requests/:id/status', requireAuthPage, serviceCtrl.updateRequestStatus);
+
 module.exports = router;

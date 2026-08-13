@@ -1,0 +1,105 @@
+<% if (typeof showDashboardPanels !== 'undefined' && showDashboardPanels) { %>
+<div class="sidebar-panels">
+
+  <!-- ── Quick Actions ─────────────────────────────────────────── -->
+  <div class="sidebar-panel">
+    <div class="sidebar-panel-head">
+      <span class="sidebar-panel-title">Quick Actions</span>
+    </div>
+    <div class="sidebar-quick-actions">
+      <% if (typeof user !== 'undefined' && user && user.role === 'farmer') { %>
+        <a href="/produce" class="sidebar-quick-btn">
+          <span class="sidebar-quick-btn-icon"><i data-lucide="box"></i></span> My Produce
+        </a>
+      <% } %>
+      <a href="/orders" class="sidebar-quick-btn">
+        <span class="sidebar-quick-btn-icon"><i data-lucide="shopping-bag"></i></span> Orders
+      </a>
+      <a href="/services" class="sidebar-quick-btn">
+        <span class="sidebar-quick-btn-icon"><i data-lucide="tractor"></i></span> Services
+      </a>
+    </div>
+  </div>
+
+  <!-- ── Transactions (Recent Orders) ──────────────────────────── -->
+  <div class="sidebar-panel">
+    <div class="sidebar-panel-head">
+      <span class="sidebar-panel-title">Transactions</span>
+      <a href="/orders" class="sidebar-panel-more">View all →</a>
+    </div>
+    <div class="sidebar-compact-list">
+      <% if (typeof recentOrders !== 'undefined' && recentOrders && recentOrders.length > 0) { %>
+        <% recentOrders.slice(0, 4).forEach(function (o) {
+          const other = (typeof user !== 'undefined' && user) ? (user.role === 'farmer' ? o.buyer : o.seller) : null;
+          const produceName = o.items && o.items[0] && o.items[0].listing ? o.items[0].listing.name : 'Order #' + o.id;
+          const st = (o.status || '').charAt(0).toUpperCase() + (o.status || '').slice(1);
+        %>
+          <a href="/orders/<%= o.id %>" class="sidebar-compact-item">
+            <span class="sidebar-compact-ico"><i data-lucide="receipt"></i></span>
+            <span class="sidebar-compact-body">
+              <span class="sidebar-compact-title"><%= produceName %></span>
+              <span class="sidebar-compact-sub"><%= other ? other.fullName : '—' %> · <%= st %></span>
+            </span>
+            <span class="sidebar-compact-end">
+              <span class="sidebar-compact-value">KES <%= Number(o.totalKes || 0).toLocaleString() %></span>
+            </span>
+          </a>
+        <% }) %>
+      <% } else { %>
+        <div class="sidebar-compact-empty">No recent transactions</div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- ── Messages (Recent Messages) ────────────────────────────── -->
+  <div class="sidebar-panel">
+    <div class="sidebar-panel-head">
+      <span class="sidebar-panel-title">Messages</span>
+      <a href="/messages" class="sidebar-panel-more">View all →</a>
+    </div>
+    <div class="sidebar-compact-list">
+      <% if (typeof recentMessages !== 'undefined' && recentMessages && recentMessages.length > 0) { %>
+        <% recentMessages.slice(0, 4).forEach(function (m) { %>
+          <a href="/messages/<%= m.other_user_id %>" class="sidebar-compact-item">
+            <span class="sidebar-compact-avatar round"><%= (m.other_user_name || '?').charAt(0).toUpperCase() %></span>
+            <span class="sidebar-compact-body">
+              <span class="sidebar-compact-title"><%= m.other_user_name %></span>
+              <span class="sidebar-compact-sub"><%= m.last_message ? m.last_message.substring(0, 40) : '' %><%= m.last_message && m.last_message.length > 40 ? '…' : '' %></span>
+            </span>
+            <% if (Number(m.unread_count) > 0) { %>
+              <span class="sidebar-badge sidebar-badge-green"><%= m.unread_count %></span>
+            <% } %>
+          </a>
+        <% }) %>
+      <% } else { %>
+        <div class="sidebar-compact-empty">No messages yet</div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- ── Recommended Services ──────────────────────────────────── -->
+  <div class="sidebar-panel">
+    <div class="sidebar-panel-head">
+      <span class="sidebar-panel-title">Services Near You</span>
+      <a href="/services" class="sidebar-panel-more">View all →</a>
+    </div>
+    <div class="sidebar-compact-list">
+      <% if (typeof recommendedServices !== 'undefined' && recommendedServices && recommendedServices.length > 0) { %>
+        <% recommendedServices.slice(0, 4).forEach(function (s) { %>
+          <a href="/services/<%= s.id %>" class="sidebar-compact-item">
+            <span class="sidebar-compact-ico"><i data-lucide="tractor"></i></span>
+            <span class="sidebar-compact-body">
+              <span class="sidebar-compact-title"><%= s.title %></span>
+              <span class="sidebar-compact-sub"><%= s.county %> · KES <%= Number(s.priceKes).toLocaleString() %></span>
+            </span>
+            <span class="sidebar-compact-end"><i data-lucide="chevron-right"></i></span>
+          </a>
+        <% }) %>
+      <% } else { %>
+        <div class="sidebar-compact-empty">No services right now</div>
+      <% } %>
+    </div>
+  </div>
+
+</div>
+<% } %>

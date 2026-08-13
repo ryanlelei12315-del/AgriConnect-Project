@@ -1,18 +1,19 @@
 /* ══ HERO ══ */
 .hero {
   margin-top: 72px;
-  min-height: calc(100vh - 72px);
+  min-height: auto;
   display: grid;
+  padding: clamp(2.5rem, 6vw, 5rem) 0;
   grid-template-columns: 1.15fr 0.85fr;
   background: linear-gradient(135deg, var(--cream) 0%, var(--linen) 100%);
   position: relative;
 }
 .hero-left {
-  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
+  padding-right: 2rem;
   z-index: 10;
 }
 .hero-left::after {
@@ -45,11 +46,12 @@
 .hero-headline {
   font-family: 'Playfair Display', serif;
   font-weight: 900;
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  line-height: 1.1;
+  font-size: 1rem;
+  line-height: 1.6;
   color: var(--emerald-dark);
   margin-bottom: 1.5rem;
   letter-spacing: -0.01em;
+  max-width: 520px;
 }
 .hero-headline .green {
   color: var(--emerald);
@@ -68,13 +70,14 @@
 }
 .hero-actions {
   display: flex;
-  gap: 16px;
+  gap: 1rem;
+  font-size: 0.95rem;
   margin-bottom: 4rem;
 }
 .hero-proof {
   display: flex;
-  gap: 3rem;
-  margin-top: auto;
+  gap: 1.5rem;
+  margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--stone);
 }
@@ -108,7 +111,7 @@
 .hero-bg-image {
   position: absolute;
   inset: 0;
-  opacity: 0.15;
+  opacity: 0.25;
   z-index: 0;
 }
 .hero-cards-label {
@@ -119,16 +122,30 @@
   letter-spacing: 0.05em;
   margin-bottom: 1.5rem;
 }
+
 .live-cards {
   width: 100%;
   max-width: 380px;
   z-index: 10;
+  gap: 0.75rem;
+  position: relative;
 }
+
+.hero-roles {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 380px;
+  z-index: 10;
+  position: relative;
+}
+
 .lc {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px;
+  padding: 0.75rem 1rem;
   margin-bottom: 12px;
   background: var(--white);
   border-radius: 12px;
@@ -155,17 +172,17 @@
   flex: 1;
 }
 .lc-name {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--ink);
   margin-bottom: 4px;
   font-weight: 600;
 }
 .lc-sub {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--ink-soft);
 }
 .lc-price {
-  font-size: 1.1rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--emerald-dark);
   font-family: 'Playfair Display', serif;
@@ -173,8 +190,12 @@
 
 /* ══ SECTION ══ */
 .section {
-  padding: 8rem clamp(1.5rem, 5vw, 4rem);
+  padding: 4rem 0;
+
   background: var(--cream);
+}
+.svc-section {
+  padding: 3rem 0;
 }
 .section.section-alt {
   background: var(--linen);
@@ -244,7 +265,7 @@
 .marquee-strip {
   background: var(--emerald-dark);
   color: var(--gold);
-  padding: 12px 0;
+  padding: 0.75rem 0;
   overflow: hidden;
   white-space: nowrap;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -278,48 +299,50 @@
     transform: translateX(-50%);
   }
 }
-
 .counties-section {
-  padding: 4rem clamp(1.5rem, 5vw, 4rem);
-  background: var(--white);
+  padding: 3rem clamp(1.5rem, 5vw, 4rem);
+  background: var(--emerald);
   text-align: center;
-  border-bottom: 1px solid var(--stone);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .counties-label {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--ink-soft);
   margin-bottom: 1.5rem;
-  font-weight: 600;
 }
 .counties-list {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 .county-pill {
-  padding: 8px 16px;
-  background: var(--linen);
-  border: 1px solid var(--stone);
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
-  font-size: 0.85rem;
-  color: var(--ink-mid);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--white);
+  text-decoration: none;
   cursor: pointer;
   transition: var(--transition);
+  backdrop-filter: blur(4px);
 }
-.county-pill:hover,
-.county-pill.active {
-  background: var(--emerald);
-  color: var(--white);
-  border-color: var(--emerald);
+.county-pill:hover {
+  background: var(--white);
+  color: var(--emerald-dark);
+  border-color: var(--white);
+  transform: translateY(-2px);
 }
 
 .ticker-section {
-  padding: 6rem clamp(1.5rem, 5vw, 4rem);
+  padding: 3rem 0;
   background: var(--ink);
 }
 .ticker-grid {

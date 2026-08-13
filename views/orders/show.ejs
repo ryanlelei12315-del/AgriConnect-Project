@@ -63,20 +63,24 @@
         <% if (isSeller) { %>
           <% if (order.status === 'pending') { %>
             <form action="/orders/<%= order.id %>/status" method="POST">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <input type="hidden" name="status" value="confirmed">
               <button type="submit" class="btn btn-amber">Confirm Order</button>
             </form>
             <form action="/orders/<%= order.id %>/status" method="POST">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <input type="hidden" name="status" value="canceled">
               <button type="submit" class="btn btn-outline" style="color:#d9534f; border-color:#d9534f;">Reject</button>
             </form>
           <% } else if (order.status === 'confirmed') { %>
             <form action="/orders/<%= order.id %>/status" method="POST">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <input type="hidden" name="status" value="shipped">
               <button type="submit" class="btn btn-amber">Mark as Shipped</button>
             </form>
           <% } else if (order.status === 'shipped') { %>
             <form action="/orders/<%= order.id %>/status" method="POST">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <input type="hidden" name="status" value="completed">
               <button type="submit" class="btn btn-amber">Mark as Completed</button>
             </form>
@@ -86,6 +90,7 @@
         <% } else if (isBuyer) { %>
           <% if (order.status === 'pending') { %>
             <form action="/orders/<%= order.id %>/status" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <input type="hidden" name="status" value="canceled">
               <button type="submit" class="btn btn-outline" style="color:#d9534f; border-color:#d9534f;">Cancel Order</button>
             </form>

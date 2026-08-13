@@ -6,7 +6,15 @@
     <h1 style="color:var(--emerald); font-size:3rem; margin-bottom:1rem;">Market Prices</h1>
     <p style="color:var(--ink-soft); font-size:1.2rem; max-width:600px; margin:0 auto;">Track the latest agricultural commodity prices across major markets in Kenya.</p>
   </div>
-
+ <% if (isDemo) { %>
+  <div style="background:var(--gold-glow); color:var(--emerald-dark); padding:1rem; border-radius:8px; margin-bottom:2rem; text-align:center; font-weight:500;">
+    Showing demo market data. Live prices are temporarily unavailable.
+  </div>
+<% } else { %>
+  <div style="background:rgba(27,74,46,0.08); color:var(--emerald-dark); padding:1rem; border-radius:8px; margin-bottom:2rem; text-align:center; font-weight:500;">
+    Live market prices powered by Shamba Records
+  </div>
+<% } %>
   <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:2rem; background:var(--white); padding:1.5rem; border-radius:12px; border:1px solid var(--stone); box-shadow:var(--shadow-sm);">
     <form action="/market-prices" method="GET" style="display:flex; gap:1rem; flex:1; flex-wrap:wrap;">
       <div style="flex:1; min-width:150px;">

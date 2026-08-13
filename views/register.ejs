@@ -11,6 +11,7 @@
     <div id="auth-banner" class="auth-banner" style="display: none"></div>
 
     <form id="register-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <div class="form-group">
         <label class="form-label">I am registering as a:</label>
         <div class="role-options">
@@ -60,6 +61,13 @@
           <option>Trans Nzoia</option>
           <option>Kakamega</option>
           <option>Kericho</option>
+          <option>Machakos</option>
+          <option>Nyeri</option>
+          <option>Thika</option>
+          <option>Kitale</option>
+          <option>Garissa</option>
+          <option>Wajir</option>
+          <option>Mandera</option>
         </select>
       </div>
 
@@ -76,7 +84,7 @@
 
       <div class="form-group">
         <label class="form-label">Email Address <span style="opacity: 0.5">(Required)</span></label>
-        <input id="email" type="email" class="form-input" placeholder="john@example.com" />
+        <input id="email" type="email" class="form-input" placeholder="john@example.com" required />
       </div>
 
       <div class="form-group">
@@ -127,7 +135,15 @@
       return;
     }
 
-    btn.disabled = true;
+    // ── Password length validation ──────────────────────────────
+    if (password.length < 8) {
+      banner.className = 'auth-banner error';
+      banner.textContent = 'Password must be at least 8 characters long.';
+      banner.style.display = 'block';
+      document.getElementById('password').focus();
+      return;
+    }
+    btn.disabled = false;
     btn.textContent = 'Creating account…';
     banner.style.display = 'none';
 
@@ -142,25 +158,41 @@
     };
 
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
+      // POST once; if rejected because the CSRF token went stale (403),
+      // fetch a fresh token+cookie and retry the exact same request once.
+      const doSubmit = async (token, isRetry) => {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': token,
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
 
-      if (!res.ok) {
-        banner.className = 'auth-banner error';
-        banner.textContent = data.message || 'Registration failed.';
-        banner.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Register Account';
-        return;
-      }
+        if (res.status === 403 && !isRetry) {
+          const fresh = await (window.agriRefreshCsrfToken
+            ? window.agriRefreshCsrfToken()
+            : null);
+          if (fresh) return doSubmit(fresh, true);
+        }
 
-      // Auth cookie is set httpOnly by the server — just redirect.
-      // (No localStorage token = no XSS token theft.)
-      window.location.href = '/dashboard';
+        if (!res.ok) {
+          banner.className = 'auth-banner error';
+          banner.textContent = data.message || 'Registration failed.';
+          banner.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Register Account';
+          return;
+        }
+
+        // Auth cookie is set httpOnly by the server — just redirect.
+        // (No localStorage token = no XSS token theft.)
+        window.location.href = '/dashboard';
+      };
+
+      await doSubmit(window.agriCsrfToken || '', false);
     } catch (err) {
       banner.className = 'auth-banner error';
       banner.textContent = 'Network error. Please try again.';

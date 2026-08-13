@@ -11,6 +11,7 @@
     <div id="auth-banner" class="auth-banner" style="display: none"></div>
 
     <form id="login-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <div class="form-group">
         <label class="form-label">Phone Number or Email</label>
         <input
@@ -60,25 +61,39 @@
     const body = isEmail ? { email: identifier, password } : { phone_number: identifier, password };
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
+      const doSubmit = async (token, isRetry) => {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': token,
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
 
-      if (!res.ok) {
-        banner.className = 'auth-banner error';
-        banner.textContent = data.message || 'Login failed.';
-        banner.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Sign In';
-        return;
-      }
+        if (res.status === 403 && !isRetry) {
+          const fresh = await (window.agriRefreshCsrfToken
+            ? window.agriRefreshCsrfToken()
+            : null);
+          if (fresh) return doSubmit(fresh, true);
+        }
 
-      // Auth cookie is set httpOnly by the server — just redirect.
-      // (No localStorage token = no XSS token theft.)
-      window.location.href = '/dashboard';
+        if (!res.ok) {
+          banner.className = 'auth-banner error';
+          banner.textContent = data.message || 'Login failed.';
+          banner.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Sign In';
+          return;
+        }
+
+        // Auth cookie is set httpOnly by the server — just redirect.
+        // (No localStorage token = no XSS token theft.)
+        window.location.href = '/dashboard';
+      };
+
+      await doSubmit(window.agriCsrfToken || '', false);
     } catch (err) {
       banner.className = 'auth-banner error';
       banner.textContent = 'Network error. Please try again.';

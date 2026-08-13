@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' && csrfToken ? csrfToken : '' %>">
   <title>AgriConnect KE — Farm Direct. No Brokers.</title>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,6 +12,45 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <script>
+    // Global CSRF wiring: expose the token and auto-inject it into every
+    // state-changing fetch (login/register, messages, order/listings APIs,
+    // logout). Server-rendered POST forms carry a hidden `_csrf` field instead.
+    (function () {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      var token = meta ? meta.content : '';
+      window.agriCsrfToken = token;
+
+      // Self-heal helper: fetch a fresh, matching token(+cookie) from the server.
+      // Called when a POST was rejected with 403 because the page's token went
+      // stale (e.g. the 1-hour _csrf cookie expired while a tab stayed open).
+      window.agriRefreshCsrfToken = function () {
+        return fetch('/api/auth/csrf', { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (d && d.csrfToken) {
+              window.agriCsrfToken = d.csrfToken;
+              return d.csrfToken;
+            }
+            return null;
+          })
+          .catch(function () { return null; });
+      };
+
+      if (token) {
+        var orig = window.fetch;
+        window.fetch = function (input, init) {
+          init = init || {};
+          var method = (init.method || 'GET').toUpperCase();
+          if (['POST', 'PUT', 'PATCH', 'DELETE'].indexOf(method) !== -1) {
+            init.headers = Object.assign({}, init.headers || {}, { 'X-CSRF-Token': token });
+            init.credentials = init.credentials || 'same-origin';
+          }
+          return orig(input, init);
+        };
+      }
+    })();
+  </script>
 </head>
 
 <body>

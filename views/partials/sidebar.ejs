@@ -112,9 +112,14 @@
 
   </nav>
 
+  <!-- Dashboard widgets (quick actions, transactions, messages, services) —
+       rendered only on the dashboard page for a focused sidebar. -->
+  <%- include('sidebarPanels') %>
+
   <!-- ── Sign Out ────────────────────────────────────────────────── -->
   <div class="sidebar-footer">
     <form action="/api/auth/logout" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <button type="submit" class="sidebar-signout-btn">
         <i data-lucide="log-out"></i>
         <span>Sign Out</span>

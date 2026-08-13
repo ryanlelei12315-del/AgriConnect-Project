@@ -1,6 +1,6 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
-
+ <!-- wrap cards in <main class="page-container"> instead of inline styles. -->
 <main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
   <div style="text-align:center; margin-bottom:3rem;">
     <h1 style="color:var(--emerald); font-size:3rem; margin-bottom:1rem;">Fresh Farm Produce</h1>
@@ -46,7 +46,7 @@
       <%= error %>
     </div>
   <% } %>
-
+  
   <% if (listings && listings.length > 0) { %>
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:2rem;">
       <% listings.forEach(listing => { %>

@@ -53,6 +53,12 @@ const User = sequelize.define(
       defaultValue: 'farmer',
       field: 'role',
     },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+      field: 'is_active',
+    },
   },
   {
     tableName: 'users',
