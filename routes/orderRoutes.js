@@ -7,6 +7,7 @@ const { requireAuthPage } = require('../middlewares/pageAuth');
 router.get('/', requireAuthPage, orderCtrl.renderIndex);
 router.get('/new', requireAuthPage, orderCtrl.renderNew);
 router.post('/', requireAuthPage, orderCtrl.createOrder);
+router.post('/request', requireAuthPage, orderCtrl.createOrderRequest);
 router.get('/:id', requireAuthPage, orderCtrl.renderShow);
 router.post('/:id/status', requireAuthPage, orderCtrl.updateStatus);
 

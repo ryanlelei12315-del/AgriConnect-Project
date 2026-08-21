@@ -153,7 +153,7 @@ async function seed() {
           password: hashedPassword,
           role: u.role,
         });
-        console.log(`  ✔ Created ${u.role}: ${u.fullName} (${u.email}) / pw: ${DEMO_PASSWORD}`);
+        console.log(`  ✔ Created ${u.role}: ${u.fullName} (${u.email}) / pw: ********`);
         users[DEMO_USERS.indexOf(u)] = created;
       }
     }
@@ -206,7 +206,7 @@ async function seed() {
     }
 
     console.log('\n✅ Seed complete.');
-    console.log('   Login with any seeded email + ' + DEMO_PASSWORD);
+    console.log('   Login with any seeded email + ********');
   } catch (err) {
     console.error('❌ Seed failed:', err.message);
     process.exitCode = 1;

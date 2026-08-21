@@ -14,6 +14,18 @@ require('./models/associations');
 
 const app = express();
 
+// ── Environment validation ───────────────────────────────────────────────────
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  console.error(
+    '❌ FATAL: JWT_SECRET is missing or too short. Set it to at least 32 random characters.'
+  );
+  process.exit(1);
+}
+
+const corsOrigin = process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' ? '' : '*');
+const isProd = process.env.NODE_ENV === 'production';
+
 // ── View Engine ────────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -24,7 +36,12 @@ app.use(
     contentSecurityPolicy: false, // EJS inline scripts; tighten for prod CSP separately
   })
 );
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
+app.use(
+  cors({
+    origin: corsOrigin === '*' ? '*' : corsOrigin.split(',').map((s) => s.trim()),
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 app.use(cookieParser());
@@ -38,7 +55,7 @@ const { initCsrf, csrfProtect } = require('./middlewares/csrf');
 app.use(initCsrf);
 app.use(csrfProtect);
 
-// ── Rate limiting (protect auth endpoints) ─────────────────────────────────
+// ── Rate limiting ───────────────────────────────────────────────────────────
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 50,
@@ -47,31 +64,39 @@ const authLimiter = rateLimit({
   message: { success: false, message: 'Too many attempts. Please try again later.' },
 });
 
+const mutatingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests. Please slow down and try again.' },
+});
+
 // ── Routes ─────────────────────────────────────────────────────────────────
 const { requireAuthPage, redirectIfAuthed } = require('./middlewares/pageAuth');
 
 app.use('/', require('./routes/dashboardRoutes'));
 app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
-app.use('/api/listings', require('./routes/listingRoutes'));
-app.use('/services', require('./routes/serviceRoutes'));
-app.use('/orders', require('./routes/orderRoutes'));
-app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/listings', mutatingLimiter, require('./routes/listingRoutes'));
+app.use('/services', mutatingLimiter, require('./routes/serviceRoutes'));
+app.use('/orders', mutatingLimiter, require('./routes/orderRoutes'));
+app.use('/api/messages', mutatingLimiter, require('./routes/messageRoutes'));
 
 // Messages page (server-side guarded)
 const messageCtrl = require('./controllers/messageController');
 app.get('/messages', requireAuthPage, messageCtrl.renderMessagesPage);
 app.get('/messages/:userId', requireAuthPage, messageCtrl.renderMessagesPage);
-app.use('/produce', require('./routes/produceRoutes'));
+app.use('/produce', mutatingLimiter, require('./routes/produceRoutes'));
 app.use('/market-prices', require('./routes/marketPriceRoutes'));
-app.use('/profile', require('./routes/profileRoutes'));
+app.use('/profile', mutatingLimiter, require('./routes/profileRoutes'));
 app.use('/notifications', require('./routes/notificationRoutes'));
 
 // Reviews + public farmer profiles
-app.use('/reviews', require('./routes/reviewRoutes'));
+app.use('/reviews', mutatingLimiter, require('./routes/reviewRoutes'));
 app.use('/farmers', require('./routes/farmerRoutes'));
 
 // Admin (authenticated + admin role enforced in the route file)
-app.use('/admin', require('./routes/adminRoutes'));
+app.use('/admin', mutatingLimiter, require('./routes/adminRoutes'));
 
 app.use('/', require('./routes/marketplace'));
 
@@ -97,6 +122,8 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, async () => {
   console.log(`🚀 AgriConnect running at http://localhost:${PORT}`);
+  console.log(`   NODE_ENV=${isProd ? 'production' : 'development'}`);
+  console.log(`   CORS_ORIGIN=${corsOrigin}`);
   await testConnection();
 });
 

@@ -99,6 +99,36 @@ module.exports = {
     }
   },
 
+  // POST /orders/request (farmer requests an order from a buyer)
+  createOrderRequest: async (req, res, next) => {
+    try {
+      const { listing_id, buyer_id, quantity_kg } = req.body;
+
+      const listing = await ProduceListing.findByPk(listing_id);
+      if (!listing || listing.farmerId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'You can only request orders for your own produce.' });
+      }
+
+      const order = await orderService.createOrder({
+        sequelize,
+        ProduceListing,
+        Order,
+        OrderItem,
+        Notification,
+        userId: buyer_id,
+        listingId: listing_id,
+        quantityKg: quantity_kg,
+      });
+
+      return res.status(201).json({ success: true, order });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        return res.status(err.status).json({ success: false, message: err.message });
+      }
+      next(err);
+    }
+  },
+
   // GET /orders/:id
   renderShow: async (req, res, next) => {
     try {

@@ -134,6 +134,10 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
 
+    if (!user.isActive) {
+      return res.status(403).json({ success: false, message: 'Your account has been deactivated. Please contact support.' });
+    }
+
     // Sign JWT + set httpOnly cookie
     const token = signToken(user);
     setAuthCookie(res, token);
@@ -153,6 +157,7 @@ exports.login = async (req, res) => {
 // ── Logout ───────────────────────────────────────────────────────────────────
 exports.logout = (req, res) => {
   res.clearCookie(TOKEN_COOKIE, { path: '/' });
+  res.clearCookie('_csrf', { path: '/' });
   return res.json({ success: true, message: 'Logged out.' });
 };
 

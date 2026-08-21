@@ -14,6 +14,12 @@ const ProduceListing = sequelize.define(
       defaultValue: 'Other',
       field: 'category',
     },
+    unit: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      defaultValue: 'kg',
+      field: 'unit',
+    },
     quantityKg: { type: DataTypes.DECIMAL(10, 2), allowNull: false, field: 'quantity_kg' },
     pricePerKgKes: { type: DataTypes.DECIMAL(10, 2), allowNull: false, field: 'price_per_kg_kes' },
     county: { type: DataTypes.STRING(50), allowNull: false, field: 'county' },

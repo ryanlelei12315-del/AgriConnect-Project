@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "AgriConnect",
+    "slug": "agriconnect-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "agriconnect",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#0f3b21"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ke.co.agriconnect.mobile"
+    },
+    "android": {
+      "package": "ke.co.agriconnect.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#0f3b21"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "AgriConnect uses your photo library to add images to your produce listings and profile."
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "extra": {
+      "apiUrl": "http://10.0.2.2:3000"
+    }
+  }
+}

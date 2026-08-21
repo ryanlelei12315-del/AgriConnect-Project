@@ -4,6 +4,7 @@ const { User } = require('../models/User');
 const { Notification } = require('../models/Notification');
 const { Op } = require('sequelize');
 const { ApiError } = require('../utils/ApiError');
+const { sanitize } = require('../utils/sanitize');
 
 /**
  * GET /messages — renders conversation list + optional active thread.
@@ -19,6 +20,7 @@ async function renderMessagesPage(req, res, next) {
       `SELECT
          other.id AS other_user_id,
          other.full_name AS other_full_name,
+         other.phone_number AS other_phone,
          last.content AS last_message,
          last.created_at AS last_at,
          SUM(CASE WHEN m.recipient_id = :me AND m.read = 0 THEN 1 ELSE 0 END) AS unread
@@ -33,14 +35,14 @@ async function renderMessagesPage(req, res, next) {
        ) last ON last.id = m.id
        JOIN users other ON other.id = IF(m.sender_id = :me, m.recipient_id, m.sender_id)
        WHERE (m.sender_id = :me OR m.recipient_id = :me)
-       GROUP BY other.id, other.full_name, last.content, last.created_at
+       GROUP BY other.id, other.full_name, other.phone_number, last.content, last.created_at
        ORDER BY last.created_at DESC`,
       { replacements: { me: userId }, type: sequelize.QueryTypes.SELECT }
     );
 
     const conversations = grouped.map((g) => ({
-      user: { id: g.other_user_id, fullName: g.other_full_name },
-      lastMessage: g.last_message,
+      user: { id: g.other_user_id, fullName: g.other_full_name, phoneNumber: g.other_phone },
+      lastMessage: sanitize(g.last_message),
       lastAt: g.last_at,
       unread: Number(g.unread),
     }));
@@ -48,7 +50,7 @@ async function renderMessagesPage(req, res, next) {
     let activeThread = null;
     let activeUser = null;
     if (otherUserId) {
-      activeUser = await User.findByPk(otherUserId, { attributes: ['id', 'fullName'] });
+      activeUser = await User.findByPk(otherUserId, { attributes: ['id', 'fullName', 'phoneNumber', 'role', 'county'] });
       if (!activeUser) return next(new ApiError(404, 'User not found.'));
 
       const thread = await sequelize.query(
@@ -62,7 +64,7 @@ async function renderMessagesPage(req, res, next) {
       );
       activeThread = thread.map((t) => ({
         id: t.id, senderId: t.senderId, recipientId: t.recipientId,
-        content: t.content, createdAt: t.createdAt,
+        content: sanitize(t.content), createdAt: t.createdAt,
       }));
 
       // Mark incoming from this user as read.
@@ -80,12 +82,12 @@ async function renderMessagesPage(req, res, next) {
   } catch (err) {
     next(err);
   }
-  }
+}
 
-  /**
-   * GET /api/messages?with=<userId> — returns the full thread as JSON.
-   */
-  async function thread(req, res, next) {
+/**
+ * GET /api/messages?with=<userId> — returns the full thread as JSON.
+ */
+async function thread(req, res, next) {
   try {
     const otherUserId = Number(req.query.with);
     if (!otherUserId) return res.status(400).json({ success: false, message: '?with=<userId> is required.' });
@@ -104,7 +106,12 @@ async function renderMessagesPage(req, res, next) {
       ],
     });
 
-    return res.json({ success: true, messages });
+    return res.json({ success: true, messages: messages.map((m) => ({
+      id: m.id, senderId: m.senderId, recipientId: m.recipientId,
+      content: sanitize(m.content), createdAt: m.createdAt,
+      sender: m.sender ? { id: m.sender.id, fullName: m.sender.fullName } : null,
+      recipient: m.recipient ? { id: m.recipient.id, fullName: m.recipient.fullName } : null,
+    })) });
   } catch (err) {
     next(err);
   }
@@ -134,7 +141,7 @@ async function send(req, res, next) {
     const message = await Message.create({
       senderId: req.user.id,
       recipientId: recipient_id,
-      content: String(content).trim(),
+      content: sanitize(String(content).trim()),
       read: false,
     });
 
@@ -154,6 +161,45 @@ async function send(req, res, next) {
 }
 
 /**
+ * GET /api/messages/users?q=<query> — search users by name OR phone number.
+ */
+async function searchUsers(req, res, next) {
+  try {
+    const q = String(req.query.q || '').trim();
+    const roleFilter = req.query.role || null;
+    if (q) {
+      const users = await User.findAll({
+        where: {
+          [Op.or]: [
+            { fullName: { [Op.like]: '%' + q + '%' } },
+            { phoneNumber: { [Op.like]: '%' + q.replace(/\D/g, '') + '%' } },
+          ],
+          id: { [Op.ne]: req.user.id },
+          ...(roleFilter ? { role: roleFilter } : {}),
+        },
+        attributes: ['id', 'fullName', 'phoneNumber', 'role', 'county'],
+        limit: 15,
+        order: [['fullName', 'ASC']],
+      });
+
+      const results = users.map((u) => ({
+        id: u.id,
+        fullName: u.fullName,
+        phoneNumber: u.phoneNumber,
+        role: u.role,
+        county: u.county,
+      }));
+
+      return res.json({ success: true, users: results });
+    }
+
+    return res.json({ success: true, users: [] });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
  * GET /api/messages/conversations — returns conversation list as JSON.
  */
 async function conversations(req, res, next) {
@@ -165,6 +211,7 @@ async function conversations(req, res, next) {
       `SELECT
          other.id AS other_user_id,
          other.full_name AS other_full_name,
+         other.phone_number AS other_phone,
          last.content AS last_message,
          last.created_at AS last_at,
          SUM(CASE WHEN m.recipient_id = :me AND m.read = 0 THEN 1 ELSE 0 END) AS unread
@@ -179,14 +226,14 @@ async function conversations(req, res, next) {
        ) last ON last.id = m.id
        JOIN users other ON other.id = IF(m.sender_id = :me, m.recipient_id, m.sender_id)
        WHERE (m.sender_id = :me OR m.recipient_id = :me)
-       GROUP BY other.id, other.full_name, last.content, last.created_at
+       GROUP BY other.id, other.full_name, other.phone_number, last.content, last.created_at
        ORDER BY last.created_at DESC`,
       { replacements: { me: userId }, type: sequelize.QueryTypes.SELECT }
     );
 
     const conversations = grouped.map((g) => ({
-      user: { id: g.other_user_id, fullName: g.other_full_name },
-      lastMessage: g.last_message,
+      user: { id: g.other_user_id, fullName: g.other_full_name, phoneNumber: g.other_phone },
+      lastMessage: sanitize(g.last_message),
       lastAt: g.last_at,
       unread: Number(g.unread),
     }));
@@ -213,4 +260,4 @@ async function markRead(req, res, next) {
   }
 }
 
-module.exports = { renderMessagesPage, thread, send, markRead, conversations };
+module.exports = { renderMessagesPage, thread, send, markRead, searchUsers, conversations };

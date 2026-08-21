@@ -1,90 +1,115 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
 
-<main class="page-container" style="padding-top:100px; padding-bottom:4rem;">
-  <div style="max-width:1000px; margin:0 auto; display:grid; grid-template-columns:300px 1fr; gap:2rem;">
-    <!-- Profile Sidebar -->
-    <div>
-      <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); padding:2rem; text-align:center; margin-bottom:2rem;">
-        <div style="width:100px; height:100px; background:var(--emerald); color:var(--white); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.5rem; font-weight:700; margin:0 auto 1rem auto;">
-          <%= user.fullName ? user.fullName.charAt(0).toUpperCase() : '?' %>
-        </div>
-        <h2 style="margin-bottom:0.25rem;"><%= user.fullName %></h2>
-        <p style="color:var(--ink-soft); text-transform:capitalize; margin-bottom:1rem;"><%= user.role %></p>
-        <span style="display:inline-block; padding:4px 12px; background:var(--cream); border-radius:16px; border:1px solid var(--stone); font-size:0.85rem;">
-          📍 <%= user.county || 'Not Set' %>
-        </span>
+<main class="dash-main">
+  <%- include('partials/sidebar', { currentPage: 'profile' }) %>
+
+  <div class="dash-content">
+    <div class="dash-topbar">
+      <div>
+        <h1 class="dash-greeting">My Profile</h1>
+        <p class="dash-sub">Manage your personal information and account settings.</p>
       </div>
     </div>
 
-    <!-- Main Content -->
-    <div>
-      <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); padding:2rem; margin-bottom:2rem;">
-        <h2 style="color:var(--emerald); margin-bottom:1.5rem; border-bottom:1px solid var(--stone); padding-bottom:0.5rem;">Personal Information</h2>
-        
-        <form action="/profile/update" method="POST" style="display:flex; flex-direction:column; gap:1.5rem;">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-            <div class="form-group">
-              <label for="fullName">Full Name</label>
-              <input type="text" id="fullName" name="fullName" value="<%= user.fullName %>" required>
-            </div>
-            <div class="form-group">
-              <label for="email">Email Address</label>
-              <input type="email" id="email" name="email" value="<%= user.email %>" required>
-            </div>
-          </div>
-          
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-            <div class="form-group">
-              <label for="phoneNumber">Phone Number</label>
-              <input type="text" id="phoneNumber" name="phoneNumber" value="<%= user.phoneNumber %>" required>
-            </div>
-            <div class="form-group">
-              <label for="county">County</label>
-              <select id="county" name="county" required>
-                <option value="Uasin Gishu" <%= user.county === 'Uasin Gishu' ? 'selected' : '' %>>Uasin Gishu</option>
-                <option value="Nakuru" <%= user.county === 'Nakuru' ? 'selected' : '' %>>Nakuru</option>
-                <option value="Trans Nzoia" <%= user.county === 'Trans Nzoia' ? 'selected' : '' %>>Trans Nzoia</option>
-                <option value="Meru" <%= user.county === 'Meru' ? 'selected' : '' %>>Meru</option>
-                <option value="Kiambu" <%= user.county === 'Kiambu' ? 'selected' : '' %>>Kiambu</option>
-                <option value="Kajiado" <%= user.county === 'Kajiado' ? 'selected' : '' %>>Kajiado</option>
-                <option value="Nairobi" <%= user.county === 'Nairobi' ? 'selected' : '' %>>Nairobi</option>
-                <option value="Mombasa" <%= user.county === 'Mombasa' ? 'selected' : '' %>>Mombasa</option>
-              </select>
-            </div>
-          </div>
-          
-          <div style="display:flex; justify-content:flex-end;">
-            <button type="submit" class="btn btn-amber">Save Changes</button>
-          </div>
-        </form>
-      </div>
+    <% if (typeof image !== 'undefined' && image) { %>
+      <div class="alert alert-success">Profile photo updated successfully.</div>
+    <% } %>
+    <% if (typeof updated !== 'undefined' && updated) { %>
+      <div class="alert alert-success">Profile updated successfully.</div>
+    <% } %>
+    <% if (typeof password !== 'undefined' && password) { %>
+      <div class="alert alert-success">Password updated successfully.</div>
+    <% } %>
 
-      <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); padding:2rem;">
-        <h2 style="color:var(--emerald); margin-bottom:1.5rem; border-bottom:1px solid var(--stone); padding-bottom:0.5rem;">Change Password</h2>
-        
-        <form action="/profile/password" method="POST" style="display:flex; flex-direction:column; gap:1.5rem;">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="profile-section">
+      <h2 class="profile-section-title">Personal Information</h2>
+      <form action="/profile/update" method="POST" class="settings-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="form-row">
           <div class="form-group">
-            <label for="currentPassword">Current Password</label>
-            <input type="password" id="currentPassword" name="currentPassword" required>
+            <label for="fullName" class="form-label">Full Name</label>
+            <input type="text" id="fullName" name="fullName" class="form-input" value="<%= user.fullName %>" required>
           </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-            <div class="form-group">
-              <label for="newPassword">New Password</label>
-              <input type="password" id="newPassword" name="newPassword" required>
-            </div>
-            <div class="form-group">
-              <label for="confirmPassword">Confirm Password</label>
-              <input type="password" id="confirmPassword" name="confirmPassword" required>
-            </div>
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" id="email" name="email" class="form-input" value="<%= user.email %>" required>
           </div>
-          
-          <div style="display:flex; justify-content:flex-end;">
-            <button type="submit" class="btn btn-outline">Update Password</button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phoneNumber" class="form-label">Phone Number</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" class="form-input" value="<%= user.phoneNumber %>" required>
           </div>
-        </form>
+          <div class="form-group">
+            <label for="county" class="form-label">County</label>
+            <select id="county" name="county" class="form-input" required>
+              <% const counties = ['Uasin Gishu','Nakuru','Trans Nzoia','Meru','Kiambu','Kajiado','Nairobi','Mombasa','Kisumu','Eldoret','Embu','Naivasha','Kakamega','Kericho',"Murang'a",'Other']; %>
+              <% counties.forEach(function(c) { %>
+                <option value="<%= c %>" <%= user.county === c ? 'selected' : '' %>><%= c %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bio" class="form-label">Bio / About You</label>
+          <textarea id="bio" name="bio" class="form-input" rows="3" maxlength="500" placeholder="e.g. Maize and avocado farmer in Uasin Gishu — 120 acres, selling to local buyers…"><%= user.bio || '' %></textarea>
+        </div>
+
+        <div class="form-actions">
+          <a href="/dashboard" class="btn btn-outline">Cancel</a>
+          <button type="submit" class="btn btn-amber">Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="profile-section">
+      <h2 class="profile-section-title">Change Password</h2>
+      <form action="/profile/password" method="POST" class="settings-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="form-group">
+          <label for="currentPassword" class="form-label">Current Password</label>
+          <input type="password" id="currentPassword" name="currentPassword" class="form-input" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="newPassword" class="form-label">New Password</label>
+            <input type="password" id="newPassword" name="newPassword" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required>
+          </div>
+        </div>
+        <div class="form-actions">
+          <a href="/dashboard" class="btn btn-outline">Cancel</a>
+          <button type="submit" class="btn btn-outline">Update Password</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="profile-section">
+      <h2 class="profile-section-title">Profile Photo</h2>
+      <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+        <div class="profile-avatar" style="width:80px; height:80px; font-size:1.75rem; margin:0;">
+          <% if (user.profileImage) { %>
+            <img src="<%= user.profileImage %>" alt="Profile">
+          <% } else { %>
+            <%= user.fullName ? user.fullName.charAt(0).toUpperCase() : '?' %>
+          <% } %>
+        </div>
+        <div style="flex:1; min-width:200px;">
+          <p style="margin:0 0 0.5rem; color:var(--ink-soft); font-size:0.9rem;">Upload a new photo to update your profile picture across the platform.</p>
+          <form action="/profile/image" method="POST" enctype="multipart/form-data" class="profile-upload-form" style="margin-top:0;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label class="btn btn-outline" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+              <i data-lucide="camera"></i> Upload Photo
+              <input type="file" name="image" accept="image/*" style="display:none;" onchange="this.form.submit()">
+            </label>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -92,8 +117,6 @@
 
 <script>
   lucide.createIcons();
-  
-  // Basic validation for password matching
   document.querySelector('form[action="/profile/password"]').addEventListener('submit', function(e) {
     const p1 = document.getElementById('newPassword').value;
     const p2 = document.getElementById('confirmPassword').value;

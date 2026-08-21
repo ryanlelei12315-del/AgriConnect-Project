@@ -39,3 +39,24 @@
   --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: all 0.2s ease;
 }
+
+[data-theme="dark"] {
+  --cream: #0f1115;
+  --linen: #1a1d23;
+  --stone: #2d3139;
+  --white: #22262e;
+  --ink: #e5e7eb;
+  --ink-mid: #9ca3af;
+  --ink-soft: #6b7280;
+  --emerald-dark: #0a2e1a;
+  --emerald: #14532d;
+  --emerald-light: #166534;
+  --gold: #d4a853;
+  --gold-glow: #f0d078;
+  --bg: #0f1115;
+  --surface: #1a1d23;
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
+}

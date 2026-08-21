@@ -24,7 +24,7 @@
           <span style="background:var(--cream); padding:4px 12px; border-radius:16px; font-weight:500; font-size:0.9rem; border:1px solid var(--stone);"><%= listing.status %></span>
         </div>
         
-        <p style="font-size:1.5rem; font-weight:600; color:var(--gold); margin-bottom:1.5rem;">KES <%= Number(listing.pricePerKgKes).toLocaleString() %> / kg</p>
+        <p style="font-size:1.5rem; font-weight:600; color:var(--gold); margin-bottom:1.5rem;">KES <%= Number(listing.pricePerKgKes).toLocaleString() %> / <%= listing.unit || 'kg' %></p>
         
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem;">
           <div style="background:var(--cream); padding:1rem; border-radius:8px; border:1px solid var(--stone);">
@@ -33,7 +33,7 @@
           </div>
           <div style="background:var(--cream); padding:1rem; border-radius:8px; border:1px solid var(--stone);">
             <div style="font-size:0.85rem; color:var(--ink-soft); margin-bottom:4px;">Quantity Available</div>
-            <div style="font-weight:500;"><%= Number(listing.quantityKg).toLocaleString() %> kg</div>
+            <div style="font-weight:500;"><%= Number(listing.quantityKg).toLocaleString() %> <%= listing.unit || 'kg' %></div>
           </div>
           <div style="background:var(--cream); padding:1rem; border-radius:8px; border:1px solid var(--stone);">
             <div style="font-size:0.85rem; color:var(--ink-soft); margin-bottom:4px;">Location</div>
@@ -73,14 +73,37 @@
               </div>
             <% } %>
 
-            <form action="/api/listings/<%= listing.id %>/image" method="POST" enctype="multipart/form-data" style="margin-bottom:1rem;">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <div class="form-group">
-                <label for="image" style="font-size:0.9rem; font-weight:500;">Upload Image</label>
-                <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp,image/gif" required style="margin-top:0.5rem;">
+            <div style="background:var(--cream); border:1px solid var(--stone); border-radius:8px; padding:1rem; width:100%;">
+              <p style="color:var(--ink-soft); margin-bottom:1rem; font-weight:500;">This is your listing.</p>
+
+              <% if (listing.imageUrl) { %>
+                <div style="margin-bottom:1rem; border-radius:8px; overflow:hidden; border:1px solid var(--stone);">
+                  <img src="<%= listing.imageUrl %>" alt="<%= listing.name %>" style="width:100%; height:250px; object-fit:cover; display:block;">
+                </div>
+              <% } else { %>
+                <div style="margin-bottom:1rem; border-radius:8px; background:var(--white); border:1px solid var(--stone); padding:3rem; text-align:center;">
+                  <i data-lucide="image" style="width:48px; height:48px; color:var(--ink-soft); opacity:0.4;"></i>
+                  <p style="color:var(--ink-soft); margin-top:0.5rem; font-size:0.9rem;">No image uploaded yet</p>
+                </div>
+              <% } %>
+
+              <form id="imageUploadForm" data-listing-id="<%= listing.id %>" style="margin-bottom:1rem;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="form-group">
+                  <label for="image" style="font-size:0.9rem; font-weight:500;">Upload Image</label>
+                  <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp,image/gif" required style="margin-top:0.5rem;">
+                </div>
+                <button type="submit" class="btn btn-amber" style="width:100%; margin-top:0.5rem;">Upload Image</button>
+              </form>
+
+              <div style="display:flex; gap:1rem; justify-content:center;">
+                <a href="/produce/<%= listing.id %>/edit" class="btn btn-outline">Edit Listing</a>
+                <form action="/produce/<%= listing.id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this listing?');">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" class="btn btn-amber" style="background:#d9534f; color:white; border-color:#d9534f;">Delete</button>
+                </form>
               </div>
-              <button type="submit" class="btn btn-amber" style="width:100%; margin-top:0.5rem;">Upload Image</button>
-            </form>
+            </div>
 
             <div style="display:flex; gap:1rem; justify-content:center;">
               <a href="/produce/<%= listing.id %>/edit" class="btn btn-outline">Edit Listing</a>
@@ -103,6 +126,38 @@
 
 <script>
   lucide.createIcons();
+
+  (function() {
+    const form = document.getElementById('imageUploadForm');
+    if (!form) return;
+    const listingId = form.dataset.listingId;
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('image');
+      if (!fileInput || !fileInput.files.length) {
+        alert('Please select an image to upload.');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+      formData.append('_csrf', form.querySelector('input[name="_csrf"]').value);
+
+      try {
+        const res = await fetch('/api/listings/' + listingId + '/image', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          alert(data.message || 'Upload failed. Please try again.');
+          return;
+        }
+        window.location.reload();
+      } catch (err) {
+        alert('Network error. Please try again.');
+      }
+    });
+  })();
 </script>
 
 <%- include('../partials/footer') %>

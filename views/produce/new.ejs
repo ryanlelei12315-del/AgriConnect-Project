@@ -1,72 +1,112 @@
 <%- include('../partials/header') %>
 <%- include('../partials/navbar') %>
 
-<main class="page-container" style="padding-top:100px; padding-bottom:4rem;">
-  <div class="form-wrapper" style="max-width:800px; margin:0 auto; background:var(--white); padding:2rem; border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
-    <h1 style="margin-bottom:0.5rem; color:var(--emerald);">Post Produce</h1>
-    <p style="color:var(--ink-soft); margin-bottom:2rem;">List your produce to reach buyers across Kenya.</p>
-    
-    <form action="/produce" method="POST" class="auth-form" style="display:flex; flex-direction:column; gap:1.5rem;">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-        <div class="form-group">
+<main class="dash-main">
+  <%- include('../partials/sidebar', { currentPage: 'produce' }) %>
+
+  <div class="dash-content">
+    <div class="dash-topbar">
+      <div>
+        <h1 class="dash-greeting">Post Produce</h1>
+        <p class="dash-sub">List your produce to reach buyers across Kenya.</p>
+      </div>
+      <div class="dash-header-actions">
+        <a href="/produce" class="btn btn-outline">Back to My Produce</a>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <div class="produce-form-card">
+        <form action="/produce" method="POST" class="produce-form">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <label for="name">Produce Name *</label>
-          <input type="text" id="name" name="name" required placeholder="e.g. Fresh Maize">
-        </div>
-        <div class="form-group">
-          <label for="category">Category *</label>
-          <select id="category" name="category" required>
-            <option value="">Select Category</option>
-            <option value="Cereals">Cereals</option>
-            <option value="Vegetables">Vegetables</option>
-            <option value="Fruits">Fruits</option>
-            <option value="Legumes">Legumes</option>
-            <option value="Root Crops">Root Crops</option>
-            <option value="Dairy">Dairy</option>
-            <option value="Poultry">Poultry</option>
-            <option value="Livestock">Livestock</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-        <div class="form-group">
-          <label for="quantity">Quantity Available (kg) *</label>
-          <input type="number" id="quantity" name="quantity" min="0.1" step="0.1" required placeholder="e.g. 500">
-        </div>
-        <div class="form-group">
-          <label for="price">Price (KES per kg) *</label>
-          <input type="number" id="price" name="price" min="1" step="0.01" required placeholder="e.g. 65">
-        </div>
-      </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name" class="form-label">Produce Name *</label>
+              <input type="text" id="name" name="name" class="form-input" required placeholder="e.g. Fresh Maize">
+            </div>
+            <div class="form-group">
+              <label for="category" class="form-label">Category *</label>
+              <select id="category" name="category" class="form-input" required>
+                <option value="">Select Category</option>
+                <option value="Cereals">Cereals</option>
+                <option value="Vegetables">Vegetables</option>
+                <option value="Fruits">Fruits</option>
+                <option value="Legumes">Legumes</option>
+                <option value="Root Crops">Root Crops</option>
+                <option value="Dairy">Dairy</option>
+                <option value="Poultry">Poultry</option>
+                <option value="Livestock">Livestock</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
 
-      <div class="form-group">
-        <label for="location">Location (County) *</label>
-        <select id="location" name="location" required>
-          <option value="">Select County</option>
-          <option value="Uasin Gishu">Uasin Gishu</option>
-          <option value="Nakuru">Nakuru</option>
-          <option value="Trans Nzoia">Trans Nzoia</option>
-          <option value="Meru">Meru</option>
-          <option value="Kiambu">Kiambu</option>
-          <option value="Kajiado">Kajiado</option>
-          <option value="Nairobi">Nairobi</option>
-          <option value="Mombasa">Mombasa</option>
-        </select>
-      </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="unit" class="form-label">Unit *</label>
+              <select id="unit" name="unit" class="form-input" required>
+                <option value="kg">Kilogram (kg)</option>
+                <option value="bag">Bag</option>
+                <option value="crate">Crate</option>
+                <option value="bunch">Bunch</option>
+                <option value="litre">Litre</option>
+                <option value="piece">Piece</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="quantity" class="form-label">Quantity *</label>
+              <input type="number" id="quantity" name="quantity" class="form-input" min="0.1" step="0.1" required placeholder="e.g. 500">
+            </div>
+          </div>
 
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" name="description" rows="4" placeholder="Describe the quality, harvest date, and any other important details..."></textarea>
-      </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="price" class="form-label">Price (KES per <span id="priceUnitLabel">kg</span>) *</label>
+              <input type="number" id="price" name="price" class="form-input" min="1" step="0.01" required placeholder="e.g. 65">
+            </div>
+            <div class="form-group">
+              <label for="location" class="form-label">Location (County) *</label>
+              <select id="location" name="location" class="form-input" required>
+                <option value="">Select County</option>
+                <option value="Uasin Gishu">Uasin Gishu</option>
+                <option value="Nakuru">Nakuru</option>
+                <option value="Trans Nzoia">Trans Nzoia</option>
+                <option value="Meru">Meru</option>
+                <option value="Kiambu">Kiambu</option>
+                <option value="Kajiado">Kajiado</option>
+                <option value="Nairobi">Nairobi</option>
+                <option value="Mombasa">Mombasa</option>
+              </select>
+            </div>
+          </div>
 
-      <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem;">
-        <a href="/dashboard" class="btn btn-outline">Cancel</a>
-        <button type="submit" class="btn btn-amber">Create Listing</button>
+          <div class="form-group">
+            <label for="description" class="form-label">Description</label>
+            <textarea id="description" name="description" class="form-input" rows="4" placeholder="Describe quality, harvest date, farming practices…"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <a href="/produce" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-amber">Create Listing</button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   </div>
 </main>
+
+<script>
+  lucide.createIcons();
+  (function() {
+    var unitSelect = document.getElementById('unit');
+    var priceUnitLabel = document.getElementById('priceUnitLabel');
+    if (unitSelect && priceUnitLabel) {
+      unitSelect.addEventListener('change', function() {
+        priceUnitLabel.textContent = unitSelect.value;
+      });
+    }
+  })();
+</script>
 
 <%- include('../partials/footer') %>

@@ -47,6 +47,16 @@ const User = sequelize.define(
       allowNull: true,
       field: 'county',
     },
+    profileImage: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      field: 'profile_image',
+    },
+    bio: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      field: 'bio',
+    },
     role: {
       type: DataTypes.ENUM('farmer', 'buyer', 'provider', 'admin'),
       allowNull: false,

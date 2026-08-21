@@ -1,6 +1,7 @@
 /* eslint-env node */
 const { Notification } = require('../models/Notification');
 const { ApiError } = require('../utils/ApiError');
+const { sanitize } = require('../utils/sanitize');
 const { integerId } = require('../utils/validation');
 
 module.exports = {
@@ -16,7 +17,11 @@ module.exports = {
       // Viewing the page counts as reading all notifications.
       await Notification.update({ isRead: true }, { where: { userId: req.user.id, isRead: false } });
 
-      res.render('notifications', { user: req.user, notifications });
+      res.render('notifications', { user: req.user, notifications: notifications.map((n) => ({
+        ...n.toJSON(),
+        message: sanitize(n.message),
+        title: sanitize(n.title),
+      })) });
     } catch (err) {
       next(err);
     }

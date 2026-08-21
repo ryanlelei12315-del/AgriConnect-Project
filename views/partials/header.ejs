@@ -12,6 +12,19 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/pages/produce.css">
+  <script>
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = stored || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    })();
+  </script>
   <script>
     // Global CSRF wiring: expose the token and auto-inject it into every
     // state-changing fetch (login/register, messages, order/listings APIs,
@@ -48,6 +61,48 @@
           }
           return orig(input, init);
         };
+      }
+    })();
+  </script>
+  <script>
+    (function () {
+      var btn = document.getElementById('themeToggle');
+      if (!btn) return;
+
+      function updateIcons(isDark) {
+        var sun = btn.querySelector('.theme-icon-sun');
+        var moon = btn.querySelector('.theme-icon-moon');
+        if (sun && moon) {
+          sun.style.display = isDark ? 'none' : 'inline';
+          moon.style.display = isDark ? 'inline' : 'none';
+        }
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+
+      function applyTheme(theme) {
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+        updateIcons(theme === 'dark');
+      }
+
+      btn.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', next);
+        applyTheme(next);
+      });
+
+      var stored = localStorage.getItem('theme');
+      if (stored) {
+        applyTheme(stored);
+      } else {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        updateIcons(prefersDark);
       }
     })();
   </script>

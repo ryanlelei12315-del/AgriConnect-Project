@@ -4,6 +4,9 @@ const router = express.Router();
 const produceCtrl = require('../controllers/produceController');
 const { requireAuthPage } = require('../middlewares/pageAuth');
 
+// Farmer produce management dashboard
+router.get('/', requireAuthPage, produceCtrl.renderProduceIndex);
+
 // Protected routes (require user to be logged in and role specific in controller)
 router.get('/new', requireAuthPage, produceCtrl.renderNewForm);
 router.post('/', requireAuthPage, produceCtrl.createProduce);

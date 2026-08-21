@@ -6,6 +6,7 @@ const { Notification } = require('../models/Notification');
 const { getToken, verifyToken } = require('../middlewares/pageAuth');
 const { ApiError } = require('../utils/ApiError');
 const { requiredString, dateNotInPast, enumValue, LIMITS } = require('../utils/validation');
+const { sanitize } = require('../utils/sanitize');
 
 const { Op } = require('sequelize');
 
@@ -124,7 +125,7 @@ module.exports = {
         providerId: service.providerId,
         location: loc.value,
         requestedDate: date.value,
-        description: description ? String(description).trim() : null,
+        description: description ? sanitize(String(description).trim()) : null,
         status: 'PENDING',
       });
 

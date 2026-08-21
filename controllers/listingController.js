@@ -9,6 +9,7 @@ const {
   VALID_CATEGORIES,
   LIMITS,
 } = require('../utils/validation');
+const { sanitize } = require('../utils/sanitize');
 const path = require('path');
 const fs = require('fs');
 module.exports = {
@@ -65,7 +66,7 @@ module.exports = {
         quantityKg: qtyRes.value,
         pricePerKgKes: priceRes.value,
         county: countyRes.value,
-        description: description ? String(description).slice(0, LIMITS.description) : null,
+        description: description ? sanitize(String(description).slice(0, LIMITS.description)) : null,
         status: 'LISTED',
       });
 

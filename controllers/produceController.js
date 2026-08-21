@@ -1,12 +1,17 @@
 /* eslint-env node */
 const { ProduceListing } = require('../models/ProduceListing');
 const { User } = require('../models/User');
+const { OrderItem } = require('../models/OrderItem');
+const { Order } = require('../models/Order');
+const { sequelize } = require('../config/database');
 const { getToken, verifyToken } = require('../middlewares/pageAuth');
+const { sanitize } = require('../utils/sanitize');
 const {
   positiveNumber,
   requiredString,
   enumValue,
   VALID_CATEGORIES,
+  VALID_UNITS,
   LIMITS,
 } = require('../utils/validation');
 
@@ -32,6 +37,12 @@ function validateProduceInput(body, { partial = false } = {}) {
     else data.quantityKg = r.value;
   }
 
+  if (!partial || body.unit !== undefined) {
+    const u = enumValue(body.unit, VALID_UNITS, 'unit');
+    if (!u.ok) errors.push('Please choose a valid unit.');
+    else data.unit = u.value;
+  }
+
   if (!partial || body.price !== undefined) {
     const r = positiveNumber(body.price, 'price', { min: 0 });
     if (!r.ok) errors.push(r.error);
@@ -48,7 +59,7 @@ function validateProduceInput(body, { partial = false } = {}) {
     if (String(body.description).length > LIMITS.description) {
       errors.push(`Description must be ${LIMITS.description} characters or fewer.`);
     } else {
-      data.description = String(body.description).trim() || null;
+      data.description = sanitize(String(body.description).trim()) || null;
     }
   }
 
@@ -56,6 +67,96 @@ function validateProduceInput(body, { partial = false } = {}) {
 }
 
 module.exports = {
+  // GET /produce
+  renderProduceIndex: async (req, res, next) => {
+    try {
+      if (req.user.role !== 'farmer') {
+        return res.status(403).render('index', { notFound: true, message: 'Only farmers can manage produce.' });
+      }
+
+      const listings = await ProduceListing.findAll({
+        where: { farmerId: req.user.id },
+        order: [['createdAt', 'DESC']],
+      });
+
+      const listingIds = listings.map(l => l.id);
+
+      let salesMap = new Map();
+      let pendingOrdersMap = new Map();
+
+      if (listingIds.length > 0) {
+        const [salesRows] = await sequelize.query(
+          `SELECT oi.listing_id, SUM(oi.quantity_kg) AS total_kg, SUM(oi.total_kes) AS total_revenue
+           FROM order_items oi
+           JOIN orders o ON oi.order_id = o.id
+           WHERE o.seller_id = ? AND o.status = 'completed' AND oi.listing_id IN (?)
+           GROUP BY oi.listing_id`,
+          {
+            replacements: [req.user.id, listingIds],
+            type: sequelize.QueryTypes.SELECT,
+          }
+        );
+
+        const salesList = Array.isArray(salesRows) ? salesRows : [];
+        for (const row of salesList) {
+          salesMap.set(row.listing_id, {
+            kgSold: Number(row.total_kg || 0),
+            revenue: Number(row.total_revenue || 0),
+          });
+        }
+
+        const [pendingRows] = await sequelize.query(
+          `SELECT oi.listing_id, COUNT(*) AS pending_count
+           FROM order_items oi
+           JOIN orders o ON oi.order_id = o.id
+           WHERE o.seller_id = ? AND o.status = 'pending' AND oi.listing_id IN (?)
+           GROUP BY oi.listing_id`,
+          {
+            replacements: [req.user.id, listingIds],
+            type: sequelize.QueryTypes.SELECT,
+          }
+        );
+
+        const pendingList = Array.isArray(pendingRows) ? pendingRows : [];
+        for (const row of pendingList) {
+          pendingOrdersMap.set(row.listing_id, Number(row.pending_count || 0));
+        }
+      }
+
+      const produce = listings.map(l => {
+        const sales = salesMap.get(l.id) || { kgSold: 0, revenue: 0 };
+        const pendingOrders = pendingOrdersMap.get(l.id) || 0;
+        return {
+          ...l.toJSON(),
+          kgSold: sales.kgSold,
+          revenue: sales.revenue,
+          pendingOrders,
+        };
+      });
+
+      const totals = produce.reduce(
+        (acc, p) => {
+          acc.stock += Number(p.quantityKg || 0);
+          acc.kgSold += p.kgSold;
+          acc.revenue += p.revenue;
+          acc.count += 1;
+          return acc;
+        },
+        { stock: 0, kgSold: 0, revenue: 0, count: 0 }
+      );
+
+      res.render('produce', {
+        user: req.user,
+        currentPage: 'produce',
+        produce,
+        totals,
+      });
+    } catch (err) {
+      console.error('Produce index error:', err.message);
+      next(err);
+    }
+  },
+
   // GET /produce/new
   renderNewForm: (req, res) => {
     if (req.user.role !== 'farmer') {

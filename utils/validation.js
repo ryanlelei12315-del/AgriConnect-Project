@@ -29,6 +29,8 @@ const VALID_CATEGORIES = [
   'Other',
 ];
 
+const VALID_UNITS = ['kg', 'bag', 'crate', 'bunch', 'litre', 'piece'];
+
 const VALID_SERVICE_CATEGORIES = ['Machinery', 'Transport', 'Infrastructure', 'Labour', 'Agronomy', 'Other'];
 
 /** Out of bounds guards prevent passing unusable lengths to the DB. */
@@ -137,6 +139,7 @@ module.exports = {
   dateNotInPast,
   VALID_STATUSES,
   VALID_CATEGORIES,
+  VALID_UNITS,
   VALID_SERVICE_CATEGORIES,
   LIMITS,
 };

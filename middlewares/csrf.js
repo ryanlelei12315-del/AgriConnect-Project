@@ -22,6 +22,9 @@ const COOKIE = '_csrf';
 // eslint-disable-next-line no-undef-init
 const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
+// Lazily required to avoid a circular dependency (pageAuth loads sidebarData).
+const { verifyToken } = require('./pageAuth');
+
 function hmac(token) {
   return crypto
     .createHmac('sha256', process.env.JWT_SECRET || 'insecure-csrf-secret')
@@ -70,6 +73,24 @@ function initCsrf(req, res, next) {
 /** Guards state-changing requests. Mount on mutating routes. */
 function csrfProtect(req, res, next) {
   if (!UNSAFE_METHODS.has(req.method)) return next();
+
+  // API clients that authenticate with a `Authorization: Bearer <token>`
+  // header (e.g. the native mobile app, or any trusted API consumer) are
+  // inherently immune to CSRF: a cross-site forged request could never know
+  // the bearer token. So when a valid Bearer token is present we skip the
+  // double-submit-cookie check. The web app continues to authenticate with
+  // the httpOnly cookie and is still fully protected by the CSRF check below —
+  // this change is purely additive and does not weaken the existing flow.
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const payload = verifyToken(authHeader.slice(7));
+      if (payload) return next();
+    } catch (_e) {
+      // fall through to the normal CSRF check (an unauthenticated/expired
+      // token should still be rejected by csrfProtect before reaching routes)
+    }
+  }
 
   const cookieValue = req.cookies && req.cookies[COOKIE];
   const submitted =

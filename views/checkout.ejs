@@ -1,0 +1,53 @@
+<!-- views/checkout.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>M-Pesa Agricultural Checkout</title>
+  </head>
+  <body>
+    <h2>Checkout: Complete Your Agricultural Order</h2>
+    <p>Total Amount: <strong>KES 1,500</strong></p>
+
+    <form id="mpesaForm">
+      <label for="phone">Enter M-Pesa Phone Number:</label><br />
+      <input
+        type="tel"
+        id="phone"
+        name="phone"
+        placeholder="e.g. 0712345678"
+        required
+      /><br /><br />
+      <button type="submit">Pay with Lipa Na M-Pesa</button>
+    </form>
+
+    <div id="statusMessage"></div>
+
+    <script>
+      document.getElementById('mpesaForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const phone = document.getElementById('phone').value;
+        const statusMessage = document.getElementById('statusMessage');
+
+        statusMessage.innerText = 'Processing... Check your phone for the M-Pesa PIN prompt.';
+
+        try {
+          const response = await fetch('/payment/stk-push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: phone, amount: 1500 }), // Amount static for testing
+          });
+          const result = await response.json();
+
+          if (result.success) {
+            statusMessage.innerText =
+              'STK Push sent successfully! Complete transaction on your phone.';
+          } else {
+            statusMessage.innerText = 'Error: ' + result.error;
+          }
+        } catch (err) {
+          statusMessage.innerText = 'An unexpected network error occurred.';
+        }
+      });
+    </script>
+  </body>
+</html>

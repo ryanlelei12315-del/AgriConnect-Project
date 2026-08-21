@@ -11,8 +11,14 @@
   </div>
   <div class="ai-msgs" id="ai-msgs">
     <div class="msg bot">
-      Habari! I'm your AgriConnect assistant. What do you need — selling produce, finding services,
-      or getting started? 👋
+      Habari! 👋 I'm your AgriConnect assistant. Ask about selling produce, buying, services, market prices,
+      messaging buyers on WhatsApp, or setting up your profile. Quick picks below:
+    </div>
+    <div class="ai-chips">
+      <button class="ai-chip" onclick="askAI('How do I sell my produce?')">Sell produce</button>
+      <button class="ai-chip" onclick="askAI('How do I message a buyer on WhatsApp?')">WhatsApp buyers</button>
+      <button class="ai-chip" onclick="askAI('What are the latest market prices?')">Market prices</button>
+      <button class="ai-chip" onclick="askAI('How do I upload a profile photo?')">Profile photo</button>
     </div>
   </div>
   <div class="ai-footer">
@@ -30,6 +36,10 @@
   // AI
   function toggleAI() {
     document.getElementById('ai-panel').classList.toggle('open');
+  }
+  function askAI(text) {
+    addMsg(text, 'user');
+    setTimeout(function () { addMsg(reply(text), 'bot'); }, 420);
   }
   function sendAI() {
     const inp = document.getElementById('ai-input');
@@ -49,38 +59,36 @@
   }
   function reply(t) {
     t = t.toLowerCase();
+    // WhatsApp / contact a buyer
+    if (t.includes('whatsapp') || t.includes('contact a buyer') || t.includes('message a buyer') || t.includes('message buyer') || t.includes('phone number') || (t.includes('message') && t.includes('number'))) {
+      return '💬 Open the Messages page and tap the pencil (✏️) icon. Search a buyer by their phone number or name, then either chat in-app or hit the WhatsApp button (wa.me) to message them directly on WhatsApp — it uses their real phone number.';
+    }
     if (t.includes('irrigat') || t.includes('pump') || t.includes('water'))
       return '💧 We have irrigation technicians in Meru and Embu available this week. Browse the Services page and filter by "Irrigation".';
-    if (
-      t.includes('transport') ||
-      t.includes('deliver') ||
-      t.includes('truck') ||
-      t.includes('lorry')
-    )
+    if (t.includes('transport') || t.includes('deliver') || t.includes('truck') || t.includes('lorry'))
       return '🚚 Farm transport providers are listed in Nakuru and Naivasha. Head to Services → Transport.';
-    if (t.includes('sell') || t.includes('price') || t.includes('list') || t.includes('post'))
+    if (t.includes('sell') || (t.includes('post') && t.includes('produce')) || (t.includes('list') && (t.includes('produce') || t.includes('crop'))))
       return '📦 Register as a Farmer, go to your Dashboard, then click "Post Produce". Set your own price — no broker takes a cut!';
-    if (
-      t.includes('tractor') ||
-      t.includes('repair') ||
-      t.includes('machine') ||
-      t.includes('broke')
-    )
+    if (t.includes('tractor') || t.includes('repair') || t.includes('machine') || t.includes('broke'))
       return '🚜 Tractor and equipment repair services are listed in Eldoret and Uasin Gishu. View Services for details and contacts.';
-    if (
-      t.includes('buy') ||
-      t.includes('maize') ||
-      t.includes('tomato') ||
-      t.includes('potato') ||
-      t.includes('onion')
-    )
+    if (t.includes('buy') || t.includes('maize') || t.includes('tomato') || t.includes('potato') || t.includes('onion'))
       return '🛒 Browse the Marketplace to find fresh produce from farmers across Kenya. Filter by county and crop type.';
-    if (t.includes('register') || t.includes('join') || t.includes('sign') || t.includes('start'))
+    if (t.includes('register') || t.includes('join') || t.includes('sign up') || t.includes('start') || t.includes('create account'))
       return '✅ Click "Join Free" at the top right. Choose your role: Farmer, Buyer, or Service Provider. It\'s completely free!';
-    if (t.includes('price') || t.includes('ksh') || t.includes('kes') || t.includes('cost'))
-      return '📊 Check our Market Prices section on this page for current farm-gate prices across counties.';
+    if (t.includes('market price') || t.includes('price trend') || t.includes('ksh') || t.includes('kes') || t.includes('cost') || t.includes('how much'))
+      return '📊 Open Market Prices on this page for farm-gate prices. On your dashboard, the sidebar shows a Market Price Trends bar chart too.';
+    if (t.includes('profile photo') || t.includes('profile picture') || t.includes('upload photo') || t.includes('upload image') || t.includes('avatar'))
+      return '🖼️ Go to Profile (from the sidebar), then click the “Upload Photo” button to choose an image. You can also add a short bio about you or your farm there.';
+    if (t.includes('admin') || t.includes('admin panel'))
+      return '🛡️ If your account has the Admin role, an “Admin Panel” link appears in your sidebar for platform overview and moderation.';
+    if (t.includes('notification'))
+      return '🔔 The bell icon in your sidebar shows unread notifications (orders, messages). Open Notifications to see them all; recent ones also appear in the dashboard sidebar.';
+    if (t.includes('sign out') || t.includes('logout') || t.includes('log out'))
+      return '🚪 Click “Sign Out” at the bottom of the sidebar — it will return you safely to the home page.';
     if (t.includes('payment') || t.includes('mpesa') || t.includes('pay'))
       return '💳 M-PESA payment integration is on our roadmap. For now, buyers and farmers connect directly and agree on payment.';
-    return '🌾 I can help with produce listings, farm services, pricing, and getting started. What specifically do you need help with?';
+    if (t.includes('hello') || t.includes('hi') || t.includes('habari') || t.includes('hey'))
+      return '👋 Hello! Ask me about selling produce, buying, services, market prices, WhatsApp messaging, or your profile. Or tap a quick pick above.';
+    return '🌾 I can help with produce listings, farm services, pricing, WhatsApp messaging, and getting started. What specifically do you need help with?';
   }
 </script>

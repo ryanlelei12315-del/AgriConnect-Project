@@ -470,3 +470,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ══ HERO BACKGROUND IMAGE (right panel) ══
+   Size the <img> so it fills + centres correctly behind the live cards
+   instead of overflowing at its natural resolution. */
+.hero-bg-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}

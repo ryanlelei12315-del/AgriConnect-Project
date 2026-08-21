@@ -8,29 +8,40 @@
 
 <aside class="dash-sidebar" id="dashSidebar">
 
+  <!-- ── Brand ─────────────────────────────────────────────────── -->
+  <div class="sidebar-brand">
+    <a href="/dashboard" class="sidebar-brand-logo">
+      <i data-lucide="leaf" style="width:22px;height:22px;"></i>
+      Agri<em>Connect</em>
+    </a>
+    <div class="sidebar-brand-sub">Farm Direct · No Brokers</div>
+  </div>
+
   <!-- ── User Profile Section ──────────────────────────────────── -->
   <div class="sidebar-user">
-    <div class="sidebar-avatar">
+    <a href="/profile" class="sidebar-avatar">
       <% if (typeof user !== 'undefined' && user && user.profileImage) { %>
-        <img src="<%= user.profileImage %>" alt="Profile" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+        <img src="<%= user.profileImage %>" alt="Profile">
       <% } else { %>
         <span><%= (typeof user !== 'undefined' && user) ? (user.fullName || user.full_name || '?').charAt(0).toUpperCase() : '?' %></span>
       <% } %>
-    </div>
+    </a>
     <div class="sidebar-user-info">
       <div class="sidebar-user-name">
-        <% if (typeof user !== 'undefined' && user) { %>
-          <%= user.fullName || user.full_name || 'User' %>
-        <% } %>
+        <a href="/profile">
+          <% if (typeof user !== 'undefined' && user) { %>
+            <%= user.fullName || user.full_name || 'User' %>
+          <% } %>
+        </a>
       </div>
       <div class="sidebar-user-role">
         <% if (typeof user !== 'undefined' && user) { %>
-          <%= user.role === 'farmer' ? 'Farmer' : user.role === 'buyer' ? 'Buyer' : user.role === 'provider' ? 'Service Provider' : user.role %>
+          <%= user.role === 'farmer' ? 'Farmer' : user.role === 'buyer' ? 'Buyer' : user.role === 'provider' ? 'Service Provider' : user.role === 'admin' ? 'Administrator' : user.role %>
         <% } %>
       </div>
       <% if (typeof user !== 'undefined' && user && (user.county || user.location)) { %>
         <div class="sidebar-user-location">
-          <i data-lucide="map-pin" style="width:12px;height:12px;"></i>
+          <i data-lucide="map-pin"></i>
           <%= user.county || user.location %>
         </div>
       <% } %>
@@ -105,6 +116,13 @@
       <span class="sidebar-link-text">Profile</span>
     </a>
 
+    <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+    <a href="/admin" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'admin') ? 'active' : '' %>">
+      <span class="sidebar-link-icon"><i data-lucide="shield"></i></span>
+      <span class="sidebar-link-text">Admin Panel</span>
+    </a>
+    <% } %>
+
     <a href="/settings" class="sidebar-link <%= (typeof currentPage !== 'undefined' && currentPage === 'settings') ? 'active' : '' %>">
       <span class="sidebar-link-icon"><i data-lucide="settings"></i></span>
       <span class="sidebar-link-text">Settings</span>
@@ -112,19 +130,21 @@
 
   </nav>
 
-  <!-- Dashboard widgets (quick actions, transactions, messages, services) —
+  <!-- Dashboard widgets (quick actions, transactions, messages, services, notifications, market prices) —
        rendered only on the dashboard page for a focused sidebar. -->
   <%- include('sidebarPanels') %>
 
   <!-- ── Sign Out ────────────────────────────────────────────────── -->
   <div class="sidebar-footer">
-    <form action="/api/auth/logout" method="POST">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button type="submit" class="sidebar-signout-btn">
-        <i data-lucide="log-out"></i>
-        <span>Sign Out</span>
-      </button>
-    </form>
+    <button type="button" id="sidebarThemeToggle" class="sidebar-signout-btn" style="margin-bottom:0.5rem;">
+      <svg class="sidebar-theme-icon-sun" style="width:17px;height:17px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg class="sidebar-theme-icon-moon" style="width:17px;height:17px; display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <span>Toggle theme</span>
+    </button>
+    <button type="button" id="sidebarSignoutBtn" class="sidebar-signout-btn">
+      <i data-lucide="log-out"></i>
+      <span>Sign Out</span>
+    </button>
   </div>
 
   <!-- ── Collapse Toggle (desktop) ──────────────────────────────── -->
@@ -172,6 +192,29 @@
           icon.setAttribute('data-lucide', isCollapsed ? 'panel-left-open' : 'panel-left-close');
         }
         if (typeof lucide !== 'undefined') lucide.createIcons();
+      });
+    }
+
+    // Sign out → redirect to the public landing page (index.ejs)
+    const signoutBtn = document.getElementById('sidebarSignoutBtn');
+    if (signoutBtn) {
+      signoutBtn.addEventListener('click', async () => {
+        try {
+          await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'same-origin',
+          });
+        } catch (e) { /* ignore */ }
+        window.location.href = '/';
+      });
+    }
+
+    // Sidebar theme toggle — delegate to navbar toggle to avoid double-toggle
+    const sidebarThemeBtn = document.getElementById('sidebarThemeToggle');
+    if (sidebarThemeBtn) {
+      sidebarThemeBtn.addEventListener('click', function () {
+        const navBtn = document.getElementById('themeToggle');
+        if (navBtn) navBtn.click();
       });
     }
   })();

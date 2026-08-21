@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { User } = require('../models/User');
 const { ApiError } = require('../utils/ApiError');
 const { requiredString, email, phone, password, enumValue } = require('../utils/validation');
+const { sanitize } = require('../utils/sanitize');
 
 const SALT_ROUNDS = 10;
 

@@ -4,6 +4,7 @@ const { Order } = require('../models/Order');
 const { User } = require('../models/User');
 const { ApiError } = require('../utils/ApiError');
 const { integerId, positiveNumber, requiredString, LIMITS } = require('../utils/validation');
+const { sanitize } = require('../utils/sanitize');
 
 /**
  * Business rules for who may review whom:
@@ -65,7 +66,7 @@ module.exports = {
         revieweeId: order.sellerId,
         orderId: order.id,
         rating: ratingRes.value,
-        comment: commentRes.value || null,
+        comment: commentRes.value ? sanitize(commentRes.value) : null,
       });
 
       res.redirect('/orders/' + order.id + '?review=submitted');

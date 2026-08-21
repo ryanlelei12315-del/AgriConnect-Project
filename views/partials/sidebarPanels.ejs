@@ -21,6 +21,19 @@
     </div>
   </div>
 
+  <!-- ── Market Price Trends (bar chart) ──────────────────────── -->
+  <% if (typeof marketPriceChartLabels !== 'undefined' && marketPriceChartLabels.length > 0) { %>
+  <div class="sidebar-panel">
+    <div class="sidebar-panel-head">
+      <span class="sidebar-panel-title">Market Price Trends</span>
+      <a href="/market-prices" class="sidebar-panel-more">View all →</a>
+    </div>
+    <div class="sidebar-chart-wrap">
+      <canvas id="marketPriceChart" height="150"></canvas>
+    </div>
+  </div>
+  <% } %>
+
   <!-- ── Transactions (Recent Orders) ──────────────────────────── -->
   <div class="sidebar-panel">
     <div class="sidebar-panel-head">
@@ -77,6 +90,32 @@
     </div>
   </div>
 
+  <!-- ── Notifications (Recent) ───────────────────────────────── -->
+  <div class="sidebar-panel">
+    <div class="sidebar-panel-head">
+      <span class="sidebar-panel-title">Notifications</span>
+      <a href="/notifications" class="sidebar-panel-more">View all →</a>
+    </div>
+    <div class="sidebar-compact-list">
+      <% if (typeof recentNotifications !== 'undefined' && recentNotifications && recentNotifications.length > 0) { %>
+        <% recentNotifications.forEach(function (n) { %>
+          <a href="<%= n.type === 'ORDER' ? '/orders/' + (n.relatedId || '') : n.type === 'MESSAGE' ? '/messages' : '/notifications' %>" class="sidebar-compact-item">
+            <span class="sidebar-compact-ico"><i data-lucide="<%= n.type === 'ORDER' ? 'shopping-bag' : n.type === 'MESSAGE' ? 'message-circle' : 'bell' %>"></i></span>
+            <span class="sidebar-compact-body">
+              <span class="sidebar-compact-title"><%= n.title %></span>
+              <span class="sidebar-compact-sub"><%= n.message ? n.message.substring(0, 40) : '' %><%= n.message && n.message.length > 40 ? '…' : '' %></span>
+            </span>
+            <% if (!n.isRead) { %>
+              <span class="sidebar-badge sidebar-badge-red" title="Unread">●</span>
+            <% } %>
+          </a>
+        <% }) %>
+      <% } else { %>
+        <div class="sidebar-compact-empty">No notifications yet</div>
+      <% } %>
+    </div>
+  </div>
+
   <!-- ── Recommended Services ──────────────────────────────────── -->
   <div class="sidebar-panel">
     <div class="sidebar-panel-head">
@@ -102,4 +141,41 @@
   </div>
 
 </div>
+
+<% if (typeof marketPriceChartLabels !== 'undefined' && marketPriceChartLabels.length > 0) { %>
+<script>
+  (function () {
+    var labels = <%- JSON.stringify(marketPriceChartLabels) %>;
+    var data = <%- JSON.stringify(marketPriceChartData) %>;
+    var unit = <%- JSON.stringify(marketPriceChartUnit || 'kg') %>;
+    var ctx = document.getElementById('marketPriceChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Price (KES/' + unit + ')',
+          data: data,
+          backgroundColor: ['#2c6e45', '#b38234', '#3d7a58', '#cfa153', '#5c8a6e', '#a87028', '#2c6e45', '#b38234', '#3d7a58', '#cfa153'],
+          borderRadius: 4,
+          maxBarThickness: 22,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: '#0f3b21', titleColor: '#fff', bodyColor: '#fff', padding: 8, cornerRadius: 6 },
+        },
+        scales: {
+          x: { ticks: { color: '#636b65', font: { size: 9 } }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: '#636b65', font: { size: 9 } }, grid: { color: '#e8e4d9' } },
+        },
+      },
+    });
+  })();
+</script>
+<% } %>
 <% } %>
