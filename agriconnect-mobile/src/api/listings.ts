@@ -23,6 +23,11 @@ export async function getListings(filters: ListingFilters = {}): Promise<Produce
   return body.listings;
 }
 
+export async function getListing(id: number): Promise<ProduceListing> {
+  const body = await api.get<{ listing: ProduceListing }>(`/api/m/listings/${id}`);
+  return body.listing;
+}
+
 export async function createListing(payload: {
   name: string;
   category: string;

@@ -3,8 +3,10 @@ import type { Role } from '../constants';
 export interface User {
   id: number;
   fullName: string;
+  full_name?: string;
   email: string | null;
   phoneNumber: string | null;
+  phone_number?: string | null;
   county: string | null;
   role: Role | 'admin';
   bio?: string | null;
@@ -13,14 +15,19 @@ export interface User {
   createdAt?: string;
 }
 
-/** Shape returned by /api/auth/me and /api/m/profile (publicUser). */
+/** Shape returned by /api/auth/me (publicUser: snake_case) and /api/m/profile (publicProfile: camelCase). */
 export interface AuthUser {
   id: number;
-  full_name: string;
+  full_name?: string;
+  fullName?: string;
   email: string | null;
-  phone_number: string | null;
+  phone_number?: string | null;
+  phoneNumber?: string | null;
   county: string | null;
   role: Role | 'admin';
+  bio?: string | null;
+  profileImage?: string | null;
+  createdAt?: string;
 }
 
 export interface FarmerRef {
@@ -29,6 +36,7 @@ export interface FarmerRef {
   full_name?: string;
   county?: string | null;
   phoneNumber?: string;
+  profileImage?: string | null;
 }
 
 export interface ProduceListing {
@@ -57,7 +65,13 @@ export interface ServiceListing {
   description?: string | null;
   availability: string;
   createdAt?: string;
-  provider?: FarmerRef;
+  provider?: {
+    id: number;
+    fullName: string;
+    county: string;
+    phoneNumber: string;
+    profileImage?: string | null;
+  };
 }
 
 export interface ServiceRequest {

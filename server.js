@@ -98,6 +98,9 @@ app.use('/farmers', require('./routes/farmerRoutes'));
 // Admin (authenticated + admin role enforced in the route file)
 app.use('/admin', mutatingLimiter, require('./routes/adminRoutes'));
 
+// Mobile JSON API (additive — reuses existing models and services)
+app.use('/api/m', require('./routes/mobileRoutes'));
+
 app.use('/', require('./routes/marketplace'));
 
 app.get('/why-us', (req, res) => res.render('why-us'));

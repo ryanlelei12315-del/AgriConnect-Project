@@ -80,7 +80,7 @@ async function main() {
   r = await req('GET', '/api/m/produce', { token: farmerToken });
   log(r.status === 200, 'GET /api/m/produce (farmer)', `count=${r.body.produce && r.body.produce.length}`);
 
-  r = await req('PUT', '/api/m/profile', { token: farmerToken, json: { fullName: 'Mobile Farmer 2', email: fEmail, phoneNumber: '0711000111', county: 'Kiambu', bio: 'hello' } });
+  r = await req('PUT', '/api/m/profile', { token: farmerToken, json: { fullName: 'Mobile Farmer 2', email: fEmail, phoneNumber: '0710' + stamp.toString().slice(-6), county: 'Kiambu', bio: 'hello' } });
   log(r.status === 200 && r.body.user.fullName === 'Mobile Farmer 2', 'PUT /api/m/profile', `status=${r.status}`);
 
   // ── Order flow ──────────────────────────────────────────────────
@@ -95,6 +95,8 @@ async function main() {
     if (orderId) {
       r = await req('PATCH', `/api/m/orders/${orderId}/status`, { token: farmerToken, json: { status: 'confirmed' } });
       log(r.status === 200 && r.body.order.status === 'confirmed', 'farmer PATCH order → confirmed', `status=${r.status}`);
+      r = await req('PATCH', `/api/m/orders/${orderId}/status`, { token: farmerToken, json: { status: 'shipped' } });
+      log(r.status === 200 && r.body.order.status === 'shipped', 'farmer PATCH order → shipped', `status=${r.status}`);
       r = await req('PATCH', `/api/m/orders/${orderId}/status`, { token: farmerToken, json: { status: 'completed' } });
       log(r.status === 200, 'PATCH order → completed', `status=${r.status}`);
       r = await req('POST', '/api/m/reviews', { token: buyerToken, json: { order_id: orderId, rating: 5, comment: 'Great produce' } });
@@ -104,7 +106,8 @@ async function main() {
 
   // ── Service request flow ────────────────────────────────────────
   r = await req('GET', '/api/m/services', { token: farmerToken });
-  const svc = r.body.services && r.body.services[0];
+  // Find a service provided by Mary Wanjiku (seeded provider)
+    const svc = (r.body.services || []).find((s) => s.provider && s.provider.fullName === 'Mary Wanjiku') || r.body.services[0];
   if (svc) {
     const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
     r = await req('POST', `/api/m/services/${svc.id}/request`, { token: farmerToken, json: { location: 'Kiambu', requested_date: tomorrow, description: 'Need help' } });
@@ -113,10 +116,13 @@ async function main() {
     r = await req('GET', '/api/m/service-requests', { token: farmerToken });
     log(r.status === 200, 'GET /api/m/service-requests (requester)', `count=${r.body.requests && r.body.requests.length}`);
     if (reqId) {
-      const pl = await req('POST', '/api/auth/login', { json: { email: 'mary.wanjiku@example.com', password: 'Password123!' } });
-      const providerToken = pl.body.token;
-      r = await req('PATCH', `/api/m/service-requests/${reqId}/status`, { token: providerToken, json: { status: 'ACCEPTED' } });
-      log(r.status === 200 && r.body.request.status === 'ACCEPTED', 'provider PATCH service-request → ACCEPTED', `status=${r.status}`);
+      // Login as Mary Wanjiku (seeded provider) with CSRF headers
+      const pc2 = await csrfHeaders();
+      const pl2 = await req("POST", "/api/auth/login", { cookie: pc2.cookie, csrf: pc2.csrf, json: { email: "mary.wanjiku@example.com", password: "Password123!" } });
+      const providerToken = pl2.body.token;
+      log(pl2.status === 200 && providerToken, "login as Mary (provider)", "status=" + pl2.status);
+      r = await req("PATCH", `/api/m/service-requests/${reqId}/status`, { token: providerToken, json: { status: "ACCEPTED" } });
+      log(r.status === 200 && r.body.request.status === "ACCEPTED", "provider PATCH service-request to ACCEPTED", "status=" + r.status);
     }
   }
 

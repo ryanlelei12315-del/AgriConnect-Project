@@ -1,25 +1,7 @@
 <%- include('../partials/header') %> <%- include('../partials/navbar') %>
 
-<main
-  class="page-container"
-  style="
-    padding-top: 100px;
-    padding-bottom: 4rem;
-    max-width: 800px;
-    margin: 0 auto;
-    padding-left: 2rem;
-    padding-right: 2rem;
-  "
->
-  <div
-    style="
-      background: var(--white);
-      padding: 2rem;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--stone);
-    "
-  >
+<main class="page-container" style="max-width:800px;">
+  <div class="card" style="padding:2rem;">
     <a
       href="/services/<%= service.id %>"
       style="

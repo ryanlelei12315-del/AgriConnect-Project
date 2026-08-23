@@ -11,7 +11,7 @@ interface AvatarProps {
 }
 
 /** Show an image if present, otherwise a colored initials circle. */
-export default function Avatar({ name, uri, size = 48 }: AvatarProps) {
+export function Avatar({ name, uri, size = 48 }: AvatarProps) {
   const style = { width: size, height: size, borderRadius: size / 2 };
   if (uri) {
     const src = uri.startsWith('http') ? uri : `${API_BASE_URL}${uri}`;
@@ -23,6 +23,8 @@ export default function Avatar({ name, uri, size = 48 }: AvatarProps) {
     </View>
   );
 }
+
+export default Avatar;
 
 const styles = StyleSheet.create({
   circle: {

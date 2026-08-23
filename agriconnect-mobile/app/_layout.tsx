@@ -34,7 +34,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="light" backgroundColor={colors.emeraldDark} />
+        <StatusBar style="light" />
         <Stack
           screenOptions={{
             headerStyle: { backgroundColor: colors.emeraldDark },
@@ -47,6 +47,9 @@ export default function RootLayout() {
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="produce/index" options={{ title: 'My Produce' }} />
           <Stack.Screen name="produce/new" options={{ title: 'New Produce', presentation: 'modal' }} />
+          <Stack.Screen name="produce/[id]" options={{ title: 'Edit Produce' }} />
+          <Stack.Screen name="profile/edit" options={{ title: 'Edit Profile' }} />
+          <Stack.Screen name="profile/password" options={{ title: 'Change Password' }} />
           <Stack.Screen name="orders/index" options={{ title: 'Orders' }} />
           <Stack.Screen name="orders/[id]" options={{ title: 'Order Details' }} />
           <Stack.Screen name="services/[id]" options={{ title: 'Service Details' }} />

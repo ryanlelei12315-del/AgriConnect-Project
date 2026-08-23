@@ -76,6 +76,18 @@ router.get('/services/:id', auth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+
+// ── Listings (single, for mobile detail screen) ───────────────────
+router.get('/listings/:id', auth, async (req, res, next) => {
+  try {
+    const listing = await ProduceListing.findByPk(req.params.id, {
+      include: [{ model: User, as: 'farmer', attributes: ['id', 'fullName', 'county', 'phoneNumber', 'profileImage'] }],
+    });
+    if (!listing) return res.status(404).json({ success: false, message: 'Listing not found.' });
+    res.json({ success: true, listing });
+  } catch (err) { next(err); }
+});
+
 router.post('/services/:id/request', auth, async (req, res, next) => {
   try {
     const { location, requested_date, description } = req.body;

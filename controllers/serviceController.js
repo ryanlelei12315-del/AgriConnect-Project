@@ -68,12 +68,17 @@ module.exports = {
   // GET /services/:id
   renderShow: async (req, res, next) => {
     try {
-      const service = await ServiceListing.findByPk(req.params.id, {
+      const id = req.params.id;
+      const service = await ServiceListing.findByPk(id, {
         include: [
           { model: User, as: 'provider', attributes: ['id', 'fullName', 'county', 'phoneNumber'] },
         ],
       });
-      if (!service) return next(new ApiError(404, 'Service not found.'));
+
+      if (!service) {
+        console.error('[service-404] GET /services/' + id + ' — no such service');
+        return res.status(404).render('index', { notFound: true, message: 'Service not found.' });
+      }
 
       const token = getToken(req);
       const user = token ? verifyToken(token) : null;
@@ -138,6 +143,51 @@ module.exports = {
       });
 
       res.redirect('/dashboard?request=success');
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // GET /services/new — provider creates a new service listing
+  renderNewForm: async (req, res, next) => {
+    try {
+      res.render('services/new', { user: req.user, error: null, service: null });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // POST /services — provider creates a new service listing
+  createService: async (req, res, next) => {
+    try {
+      const { title, category, price_kes, county, description, availability } = req.body;
+
+      const titleRes = requiredString(title, 'Title', { maxLen: LIMITS.serviceTitle });
+      if (!titleRes.ok) throw new ApiError(400, titleRes.error);
+
+      const catRes = enumValue(category, VALID_CATEGORIES, 'category');
+      if (!catRes.ok) throw new ApiError(400, 'Please choose a valid category.');
+
+      const priceRes = positiveNumber(price_kes, 'price', { min: 0 });
+      if (!priceRes.ok) throw new ApiError(400, priceRes.error);
+
+      const countyRes = requiredString(county, 'County', { maxLen: LIMITS.county });
+      if (!countyRes.ok) throw new ApiError(400, countyRes.error);
+
+      const availRes = enumValue(availability, ['AVAILABLE', 'BOOKED', 'UNAVAILABLE'], 'availability');
+      if (!availRes.ok) throw new ApiError(400, 'Invalid availability status.');
+
+      const service = await ServiceListing.create({
+        providerId: req.user.id,
+        title: titleRes.value,
+        category: catRes.value,
+        priceKes: priceRes.value,
+        county: countyRes.value,
+        description: description ? sanitize(String(description).trim()) : null,
+        availability: availRes.value,
+      });
+
+      res.redirect('/services/' + service.id + '?created=success');
     } catch (err) {
       next(err);
     }

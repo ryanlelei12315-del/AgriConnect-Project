@@ -1,0 +1,87 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="max-width:1000px;">
+  <div class="text-center mb-2">
+    <h1 style="color:var(--emerald); font-size:2.5rem; margin-bottom:1rem;">Service Requests</h1>
+    <p style="color:var(--ink-soft); font-size:1.1rem;">Manage incoming requests for your services.</p>
+  </div>
+
+  <% if (requests && requests.length > 0) { %>
+    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+      <% requests.forEach(function (req) { %>
+        <div class="card" style="padding:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+            <div style="flex:1; min-width:200px;">
+              <div style="font-size:0.85rem; font-weight:600; color:var(--emerald); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.25rem;">
+                <%= req.service ? req.service.category : 'Service' %>
+              </div>
+              <h3 style="margin:0 0 0.5rem 0; font-size:1.15rem;"><%= req.service ? req.service.title : 'Service #' + req.id %></h3>
+              <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:0.5rem;">
+                Requested by <strong><%= req.requester ? req.requester.fullName : 'Unknown' %></strong>
+                <% if (req.requester && req.requester.county) { %> · <%= req.requester.county %><% } %>
+              </p>
+              <p style="color:var(--ink-soft); font-size:0.85rem; margin-bottom:0.25rem;">
+                <i data-lucide="map-pin" style="width:14px; height:14px; display:inline; vertical-align:middle;"></i>
+                <%= req.location %>
+              </p>
+              <p style="color:var(--ink-soft); font-size:0.85rem;">
+                <i data-lucide="calendar" style="width:14px; height:14px; display:inline; vertical-align:middle;"></i>
+                <%= new Date(req.requestedDate).toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+              </p>
+              <% if (req.description) { %>
+                <p style="color:var(--ink-mid); font-size:0.9rem; margin-top:0.75rem; line-height:1.5; background:var(--cream); padding:0.75rem; border-radius:8px; border:1px solid var(--stone);">
+                  <%= req.description %>
+                </p>
+              <% } %>
+            </div>
+            <div style="text-align:right; min-width:120px;">
+              <div style="
+                display:inline-block;
+                padding:0.35rem 0.9rem;
+                border-radius:999px;
+                font-size:0.8rem;
+                font-weight:600;
+                text-transform:uppercase;
+                letter-spacing:0.5px;
+                margin-bottom:1rem;
+                <%= req.status === 'PENDING' ? 'background:#fef3c7; color:#92400e;' : '' %>
+                <%= req.status === 'ACCEPTED' ? 'background:#d1fae5; color:#065f46;' : '' %>
+                <%= req.status === 'COMPLETED' ? 'background:#dbeafe; color:#1e40af;' : '' %>
+                <%= req.status === 'REJECTED' || req.status === 'CANCELLED' ? 'background:#fee2e2; color:#991b1b;' : '' %>
+              "><%= req.status %></div>
+              <% if (req.status === 'PENDING') { %>
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                  <form action="/services/requests/<%= req.id %>/status" method="POST" style="display:inline;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <input type="hidden" name="status" value="ACCEPTED" />
+                    <button type="submit" class="btn btn-emerald" style="width:100%; padding:0.6rem; font-size:0.9rem;">Accept</button>
+                  </form>
+                  <form action="/services/requests/<%= req.id %>/status" method="POST" style="display:inline;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <input type="hidden" name="status" value="REJECTED" />
+                    <button type="submit" class="btn btn-outline" style="width:100%; padding:0.6rem; font-size:0.9rem; border-color:#e74c3c; color:#e74c3c;">Decline</button>
+                  </form>
+                </div>
+              <% } %>
+              <% if (req.status === 'ACCEPTED') { %>
+                <form action="/services/requests/<%= req.id %>/status" method="POST" style="display:inline;">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <input type="hidden" name="status" value="COMPLETED" />
+                  <button type="submit" class="btn btn-amber" style="width:100%; padding:0.6rem; font-size:0.9rem;">Mark Complete</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <i data-lucide="inbox"></i>
+      <h3 style="margin-bottom:0.5rem;">No requests yet</h3>
+      <p style="color:var(--ink-soft);">When buyers request your services, they'll appear here.</p>
+      <a href="/services" class="btn btn-outline mt-2">Browse Services</a>
+    </div>
+  <% } %>
+</main>

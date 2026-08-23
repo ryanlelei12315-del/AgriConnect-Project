@@ -31,7 +31,7 @@ export async function deleteProduce(id: number): Promise<ProduceListing> {
 }
 
 export async function getFarmer(id: number): Promise<{
-  farmer: import('../types').AuthUser;
+  farmer: import('../types').User;
   listings: ProduceListing[];
   reviews: import('../types').Review[];
   averageRating: number | null;

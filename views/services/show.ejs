@@ -1,12 +1,12 @@
 <%- include('../partials/header') %>
 <%- include('../partials/navbar') %>
 
-<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1000px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+<main class="page-container" style="max-width:1000px;">
   <div style="margin-bottom:1.5rem;">
     <a href="/services" style="color:var(--emerald); text-decoration:none;">← Back to Services</a>
   </div>
 
-  <div style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; background:var(--white); padding:2rem; border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
+  <div class="card" style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; padding:2rem;">
     <!-- Details Section -->
     <div style="display:flex; flex-direction:column;">
       <span style="font-size:0.9rem; font-weight:600; color:var(--emerald); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.5rem;"><%= service.category %></span>
@@ -55,7 +55,7 @@
             <a href="<%= user ? '/services/' + service.id + '/request' : '/login' %>" class="btn btn-amber" style="text-align:center; padding:1rem; font-size:1.1rem;" <%= service.availability !== 'AVAILABLE' ? 'disabled style="pointer-events:none; opacity:0.6;"' : '' %>>
               <%= service.availability === 'AVAILABLE' ? 'Request Service' : 'Currently Unavailable' %>
             </a>
-            <a href="<%= user ? '/messages/new?to=' + service.providerId : '/login' %>" class="btn btn-outline" style="text-align:center; padding:1rem; font-size:1.1rem;">Contact Provider</a>
+             <a href="<%= user ? '/messages/' + service.providerId : '/login' %>" class="btn btn-outline" style="text-align:center; padding:1rem; font-size:1.1rem;">Contact Provider</a>
           </div>
         <% } %>
       </div>
