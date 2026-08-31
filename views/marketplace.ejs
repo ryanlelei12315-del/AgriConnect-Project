@@ -1,18 +1,21 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
- <!-- wrap cards in <main class="page-container"> instead of inline styles. -->
+
 <main class="page-container">
-  <div class="text-center mb-2">
-    <h1 style="color:var(--emerald); font-size:3rem; margin-bottom:1rem;">Fresh Farm Produce</h1>
-    <p style="color:var(--ink-soft); font-size:1.2rem; max-width:600px; margin:0 auto;">Buy directly from Kenyan farmers. Transparent prices, fresh quality, no middlemen.</p>
+  <div class="page-header">
+    <div class="page-header-text">
+      <span class="page-eyebrow">Marketplace</span>
+      <h1 class="page-title">Fresh Farm Produce</h1>
+      <p class="page-subtitle">Buy directly from Kenyan farmers. Transparent prices, fresh quality, no middlemen.</p>
+    </div>
   </div>
 
   <form action="/marketplace" method="GET" class="filter-bar">
-    <div style="flex:1; min-width:200px;">
-      <input type="text" name="search" placeholder="Search produce..." value="<%= search %>" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px;">
+    <div>
+      <input type="text" name="search" placeholder="Search produce..." value="<%= search %>">
     </div>
-    <div style="min-width:150px;">
-      <select name="category" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+    <div>
+      <select name="category">
         <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
         <option value="Cereals" <%= category === 'Cereals' ? 'selected' : '' %>>Cereals</option>
         <option value="Vegetables" <%= category === 'Vegetables' ? 'selected' : '' %>>Vegetables</option>
@@ -23,8 +26,8 @@
         <option value="Poultry" <%= category === 'Poultry' ? 'selected' : '' %>>Poultry</option>
       </select>
     </div>
-    <div style="min-width:150px;">
-      <select name="county" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+    <div>
+      <select name="county">
         <option value="All" <%= county === 'All' ? 'selected' : '' %>>All Counties</option>
         <option value="Uasin Gishu" <%= county === 'Uasin Gishu' ? 'selected' : '' %>>Uasin Gishu</option>
         <option value="Nakuru" <%= county === 'Nakuru' ? 'selected' : '' %>>Nakuru</option>
@@ -39,71 +42,60 @@
     <button type="submit" class="btn btn-emerald">Search</button>
   </form>
 
-  <% if (error) { %>
-    <div style="background:#f8d7da; color:#842029; padding:1rem; border-radius:8px; margin-bottom:2rem;">
-      <%= error %>
-    </div>
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-error"><%= error %></div>
   <% } %>
-  
+
   <% if (listings && listings.length > 0) { %>
-    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:2rem;">
+    <div class="product-grid">
       <% listings.forEach(listing => { %>
-        <div class="card">
-          <div class="img-placeholder">
+        <div class="product-card">
+          <div class="product-card-media">
             <% if (listing.imageUrl) { %>
-              <img src="<%= listing.imageUrl %>" alt="<%= listing.name %>" style="width:100%; height:100%; object-fit:cover;">
+              <img src="<%= listing.imageUrl %>" alt="<%= listing.name %>">
             <% } else { %>
-              <i data-lucide="image" style="width:48px; height:48px; opacity:0.3;"></i>
+              <span class="ph-icon"><i data-lucide="image"></i></span>
             <% } %>
-            <div style="position:absolute; top:12px; right:12px; background:var(--white); padding:4px 12px; border-radius:16px; font-size:0.8rem; font-weight:600; color:var(--emerald); box-shadow:var(--shadow-sm);">
-              <%= listing.category %>
-            </div>
+            <span class="product-card-badge"><%= listing.category %></span>
           </div>
-          <div style="padding:1.5rem;">
-            <h3 style="margin-bottom:0.5rem; font-size:1.25rem;"><%= listing.name %></h3>
-            <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:4px;">
-              <i data-lucide="map-pin" style="width:16px; height:16px;"></i> <%= listing.county %>
-            </p>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-              <div>
-                <div style="font-weight:700; color:var(--gold); font-size:1.1rem;">KES <%= Number(listing.pricePerKgKes).toLocaleString() %></div>
-                <div style="font-size:0.8rem; color:var(--ink-soft);">per kg</div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-weight:600; color:var(--ink-mid);"><%= Number(listing.quantityKg).toLocaleString() %></div>
-                <div style="font-size:0.8rem; color:var(--ink-soft);">kg available</div>
-              </div>
+          <div class="product-card-body">
+            <h3 class="product-card-title"><%= listing.name %></h3>
+            <div class="product-card-meta"><i data-lucide="map-pin"></i> <%= listing.county %></div>
+            <div class="product-card-foot">
+              <div class="product-card-price">KES <%= Number(listing.pricePerKgKes).toLocaleString() %><small>per kg</small></div>
+              <div class="product-card-qty"><%= Number(listing.quantityKg).toLocaleString() %><small>kg available</small></div>
             </div>
-            
-            <a href="/produce/<%= listing.id %>" class="btn btn-outline" style="width:100%; text-align:center; display:block;">View Details</a>
+            <div class="product-card-actions">
+              <a href="/produce/<%= listing.id %>" class="btn btn-outline btn-block">View Details</a>
+            </div>
           </div>
         </div>
       <% }) %>
     </div>
 
     <% if (totalPages > 1) { %>
-      <div style="display:flex; justify-content:center; align-items:center; gap:1.5rem; margin-top:3rem;">
+      <div class="pagination">
         <% if (currentPage > 1) { %>
-          <a href="/marketplace?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search) %>&category=<%= encodeURIComponent(category) %>&county=<%= encodeURIComponent(county) %>" class="btn btn-outline" style="padding:0.5rem 1rem;">← Previous</a>
+          <a href="/marketplace?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search) %>&category=<%= encodeURIComponent(category) %>&county=<%= encodeURIComponent(county) %>" class="btn btn-outline btn-sm">← Previous</a>
         <% } else { %>
-          <span class="btn btn-outline" style="padding:0.5rem 1rem; opacity:0.5; cursor:not-allowed;">← Previous</span>
+          <span class="btn btn-outline btn-sm" style="opacity:0.5; cursor:not-allowed;">← Previous</span>
         <% } %>
 
-        <span style="font-weight:600; color:var(--ink-mid);">Page <%= currentPage %> of <%= totalPages %></span>
+        <span class="page-info">Page <%= currentPage %> of <%= totalPages %></span>
 
         <% if (currentPage < totalPages) { %>
-          <a href="/marketplace?page=<%= currentPage + 1 %>&search=<%= encodeURIComponent(search) %>&category=<%= encodeURIComponent(category) %>&county=<%= encodeURIComponent(county) %>" class="btn btn-outline" style="padding:0.5rem 1rem;">Next →</a>
+          <a href="/marketplace?page=<%= currentPage + 1 %>&search=<%= encodeURIComponent(search) %>&category=<%= encodeURIComponent(category) %>&county=<%= encodeURIComponent(county) %>" class="btn btn-outline btn-sm">Next →</a>
         <% } else { %>
-          <span class="btn btn-outline" style="padding:0.5rem 1rem; opacity:0.5; cursor:not-allowed;">Next →</span>
+          <span class="btn btn-outline btn-sm" style="opacity:0.5; cursor:not-allowed;">Next →</span>
         <% } %>
       </div>
     <% } %>
   <% } else { %>
     <div class="empty-state">
       <i data-lucide="search-x"></i>
-      <h3 style="margin-bottom:0.5rem;">No produce found</h3>
-      <p style="color:var(--ink-soft);">We couldn't find any listings matching your search criteria.</p>
-      <a href="/marketplace" class="btn btn-outline mt-2">Clear Filters</a>
+      <h3>No produce found</h3>
+      <p>We couldn't find any listings matching your search criteria.</p>
+      <a href="/marketplace" class="btn btn-outline">Clear Filters</a>
     </div>
   <% } %>
 </main>

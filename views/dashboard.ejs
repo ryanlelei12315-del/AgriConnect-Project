@@ -29,34 +29,36 @@
 
     <!-- ── KPI Cards ─────────────────────────────────────────────── -->
     <div class="dash-stats">
-      <a href="/produce" class="stat-card" style="text-decoration:none; color:inherit;">
+      <a href="/produce" class="stat-card">
         <div class="stat-icon emerald"><i data-lucide="package"></i></div>
         <div class="stat-info">
           <div class="stat-num"><%= stats.activeListings %></div>
           <div class="stat-label">Active Listings</div>
         </div>
       </a>
-      <a href="/orders?status=pending" class="stat-card" style="text-decoration:none; color:inherit;">
+      <a href="/orders?status=pending" class="stat-card">
         <div class="stat-icon gold"><i data-lucide="shopping-bag"></i></div>
         <div class="stat-info">
           <div class="stat-num"><%= stats.pendingOrders %></div>
           <div class="stat-label">Pending Orders</div>
         </div>
       </a>
-      <a href="/messages" class="stat-card" style="text-decoration:none; color:inherit;">
+      <a href="/messages" class="stat-card">
         <div class="stat-icon blue"><i data-lucide="message-circle"></i></div>
         <div class="stat-info">
           <div class="stat-num"><%= stats.unreadMessages %></div>
           <div class="stat-label">Unread Messages</div>
         </div>
       </a>
-      <a href="/orders?status=completed" class="stat-card" style="text-decoration:none; color:inherit;">
+      <% if (user.role === 'farmer') { %>
+      <a href="/orders?status=completed" class="stat-card">
         <div class="stat-icon purple"><i data-lucide="banknote"></i></div>
         <div class="stat-info">
           <div class="stat-num">KES <%= Number(stats.totalSales).toLocaleString() %></div>
           <div class="stat-label">Total Sales</div>
         </div>
       </a>
+      <% } %>
     </div>
 
     <!-- ── Farm Analytics ──────────────────────────────────────── -->
@@ -140,6 +142,7 @@
     <% } %>
 
     <!-- ── Main Content Grid ─────────────────────────────────── -->
+    <div class="section-eyebrow">Recent Activity</div>
     <div class="dash-content-grid">
 
       <!-- ── My Produce ──────────────────────────── -->
@@ -189,13 +192,50 @@
       </div>
       <% } %>
 
+      <!-- ── Recent Orders ──────────────────────────── -->
+      <div class="dash-section" style="grid-column: 1 / -1;">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Recent Orders</h2>
+          <a href="/orders" class="dash-section-link">View All →</a>
+        </div>
+        <% if (recentOrders && recentOrders.length > 0) { %>
+          <div class="order-mini-list">
+            <% recentOrders.forEach(o => {
+              const isFarmer = user.role === 'farmer';
+              const otherParty = isFarmer ? o.buyer : o.seller;
+              const otherName = otherParty ? (otherParty.fullName || 'Unknown') : 'Unknown';
+              const itemName = (o.items && o.items[0] && o.items[0].listing) ? o.items[0].listing.name : 'Order';
+              const status = (o.status || 'pending');
+              const statusClass = status === 'completed' ? 'badge-active' : 'badge-inactive';
+              const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+            %>
+              <a href="/orders" class="recent-row">
+                <div class="recent-row-main">
+                  <div class="recent-row-title"><%= itemName %> · <%= otherName %></div>
+                  <div class="recent-row-meta">KES <%= Number(o.totalKes).toLocaleString() %> · <%= new Date(o.createdAt).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' }) %></div>
+                </div>
+                <span class="produce-status-badge <%= statusClass %>"><%= statusLabel %></span>
+              </a>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="shopping-bag"></i>
+            <h4>No orders yet</h4>
+            <p>Your recent orders will appear here.</p>
+            <a href="/marketplace" class="btn btn-amber" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Browse Marketplace</a>
+          </div>
+        <% } %>
+      </div>
+
     </div><!-- end .dash-content-grid -->
 
     <!-- ── Market Info + Messages Row ─────────────────────── -->
+    <div class="section-eyebrow">Market Insights</div>
     <div class="dash-bottom-grid">
 
       <!-- Market Prices -->
-      <div class="dash-section" style="grid-column: 1 / -1;">
+      <div class="dash-section">
         <div class="dash-section-header">
           <h2 class="dash-section-title">Market Prices</h2>
           <a href="/market-prices" class="dash-section-link">View All →</a>
@@ -222,6 +262,39 @@
             <div class="empty-state-card"><p>No market data available.</p></div>
           <% } %>
         </div>
+      </div>
+
+      <!-- Recent Messages -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Recent Messages</h2>
+          <a href="/messages" class="dash-section-link">View All →</a>
+        </div>
+        <% if (recentMessages && recentMessages.length > 0) { %>
+          <div class="recent-msg-list">
+            <% recentMessages.forEach(m => { %>
+              <a href="/messages/<%= m.other_user_id %>" class="recent-msg-item">
+                <div class="recent-msg-avatar"><%= (m.other_user_name || '?').charAt(0).toUpperCase() %></div>
+                <div class="recent-msg-body">
+                  <div class="recent-msg-top">
+                    <span class="recent-msg-name"><%= m.other_user_name %></span>
+                    <span class="recent-msg-time"><%= new Date(m.last_at).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' }) %></span>
+                  </div>
+                  <div class="recent-msg-preview-row">
+                    <span class="recent-msg-preview"><%= m.last_message %></span>
+                    <% if (Number(m.unread_count) > 0) { %><span class="chat-unread-badge"><%= m.unread_count %></span><% } %>
+                  </div>
+                </div>
+              </a>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="message-square"></i>
+            <h4>No messages yet</h4>
+            <p>Your recent conversations will appear here.</p>
+          </div>
+        <% } %>
       </div>
 
       </div><!-- end .dash-bottom-grid -->

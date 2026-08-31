@@ -59,7 +59,7 @@
         </div>
 
         <div class="form-actions">
-          <a href="/dashboard" class="btn btn-outline">Cancel</a>
+          <a href="/dashboard" class="btn btn-ghost">Cancel</a>
           <button type="submit" class="btn btn-amber">Save Changes</button>
         </div>
       </form>
@@ -84,7 +84,7 @@
           </div>
         </div>
         <div class="form-actions">
-          <a href="/dashboard" class="btn btn-outline">Cancel</a>
+          <a href="/dashboard" class="btn btn-ghost">Cancel</a>
           <button type="submit" class="btn btn-outline">Update Password</button>
         </div>
       </form>
@@ -92,19 +92,19 @@
 
     <div class="profile-section">
       <h2 class="profile-section-title">Profile Photo</h2>
-      <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
-        <div class="profile-avatar" style="width:80px; height:80px; font-size:1.75rem; margin:0;">
+      <div class="profile-photo-row">
+        <div class="profile-avatar profile-avatar-lg">
           <% if (user.profileImage) { %>
             <img src="<%= user.profileImage %>" alt="Profile">
           <% } else { %>
             <%= user.fullName ? user.fullName.charAt(0).toUpperCase() : '?' %>
           <% } %>
         </div>
-        <div style="flex:1; min-width:200px;">
-          <p style="margin:0 0 0.5rem; color:var(--ink-soft); font-size:0.9rem;">Upload a new photo to update your profile picture across the platform.</p>
-          <form action="/profile/image" method="POST" enctype="multipart/form-data" class="profile-upload-form" style="margin-top:0;">
+        <div class="profile-photo-info">
+          <p>Upload a new photo to update your profile picture across the platform.</p>
+          <form action="/profile/image" method="POST" enctype="multipart/form-data" class="profile-upload-form">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <label class="btn btn-outline" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            <label class="btn btn-outline" style="cursor:pointer;">
               <i data-lucide="camera"></i> Upload Photo
               <input type="file" name="image" accept="image/*" style="display:none;" onchange="this.form.submit()">
             </label>
@@ -126,4 +126,3 @@
     }
   });
 </script>
-

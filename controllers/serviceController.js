@@ -5,7 +5,7 @@ const { User } = require('../models/User');
 const { Notification } = require('../models/Notification');
 const { getToken, verifyToken } = require('../middlewares/pageAuth');
 const { ApiError } = require('../utils/ApiError');
-const { requiredString, dateNotInPast, enumValue, LIMITS } = require('../utils/validation');
+const { requiredString, dateNotInPast, positiveNumber, enumValue, LIMITS } = require('../utils/validation');
 const { sanitize } = require('../utils/sanitize');
 
 const { Op } = require('sequelize');

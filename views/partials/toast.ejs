@@ -1,0 +1,28 @@
+<!-- ══ TOASTS ══ -->
+<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+<script>
+  (function () {
+    window.showToast = function (message, type) {
+      type = type || 'info';
+      var container = document.getElementById('toastContainer');
+      if (!container) return;
+      var icons = { success: 'check-circle', error: 'alert-circle', info: 'info' };
+      var toast = document.createElement('div');
+      toast.className = 'toast toast-' + type;
+      toast.setAttribute('role', 'status');
+      toast.innerHTML =
+        '<i data-lucide="' + (icons[type] || 'info') + '" class="toast-icon"></i>' +
+        '<span class="toast-msg"></span>' +
+        '<button type="button" class="toast-close" aria-label="Dismiss">&times;</button>';
+      toast.querySelector('.toast-msg').textContent = message;
+      var close = function () {
+        toast.style.opacity = '0';
+        setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 200);
+      };
+      toast.querySelector('.toast-close').addEventListener('click', close);
+      container.appendChild(toast);
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      setTimeout(close, 4000);
+    };
+  })();
+</script>

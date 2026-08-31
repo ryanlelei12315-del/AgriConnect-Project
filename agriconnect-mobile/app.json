@@ -18,7 +18,10 @@
       "package": "ke.co.agriconnect.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#0f3b21"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -31,7 +34,11 @@
       "expo-secure-store"
     ],
     "extra": {
-      "apiUrl": "http://10.0.2.2:3000"
+      "apiUrl": "http://10.0.2.2:3000",
+      "router": {},
+      "eas": {
+        "projectId": "0b0b0397-6c3e-4896-9c12-83500996ad7d"
+      }
     }
   }
 }
