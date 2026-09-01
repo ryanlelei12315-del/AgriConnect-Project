@@ -52,8 +52,11 @@ module.exports = {
     try {
       const userId = req.user.id;
       const role = req.user.role;
+      // Admins have a dedicated workspace; /dashboard has no admin-specific data.
+      if (role === 'admin') return res.redirect('/admin');
       const isFarmer = role === 'farmer';
       const isProvider = role === 'provider';
+      const isBuyer = role === 'buyer';
       const period = req.query.period || '6m';
       const monthsBack = periodToMonths(period);
 
@@ -200,19 +203,59 @@ module.exports = {
         console.error('Recent messages query error:', e.message);
       }
 
-      // ── 8. Market Prices ─────────────────────────────────────────────────────
-      const marketPrices = await MarketPrice.findAll({
-        order: [['recordedAt', 'DESC']],
-        limit: 4,
-      });
+      // ── 8. Market Prices (farmers and buyers) ──────────────────────────────
+      const marketPrices = (isFarmer || isBuyer)
+        ? await MarketPrice.findAll({
+            order: [['recordedAt', 'DESC']],
+            limit: 4,
+          })
+        : [];
 
-      // ── 9. Recommended Services ──────────────────────────────────────────────
-      const recommendedServices = await ServiceListing.findAll({
-        where: { availability: 'AVAILABLE' },
-        include: [{ model: User, as: 'provider', attributes: ['fullName'] }],
-        order: [['createdAt', 'DESC']],
-        limit: 3,
-      });
+      // ── 9. Recommended Services (farmers and buyers) ───────────────────────
+      const recommendedServices = (isFarmer || isBuyer)
+        ? await ServiceListing.findAll({
+            where: { availability: 'AVAILABLE' },
+            include: [{ model: User, as: 'provider', attributes: ['fullName'] }],
+            order: [['createdAt', 'DESC']],
+            limit: 3,
+          })
+        : [];
+
+      // ── 10. Service Requests (role-aware) ──────────────────────────────────
+      let serviceRequests = [];
+      if (isProvider) {
+        // Incoming requests for jobs the provider would fulfil.
+        serviceRequests = await ServiceRequest.findAll({
+          where: { providerId: userId },
+          include: [
+            { model: ServiceListing, as: 'service', attributes: ['id', 'title', 'category', 'county'] },
+            { model: User, as: 'requester', attributes: ['id', 'fullName'] },
+          ],
+          order: [['createdAt', 'DESC']],
+          limit: 5,
+        }).catch(() => []);
+      } else if (isFarmer || isBuyer) {
+        // Requests this user has made to service providers.
+        serviceRequests = await ServiceRequest.findAll({
+          where: { requesterId: userId },
+          include: [
+            { model: ServiceListing, as: 'service', attributes: ['id', 'title', 'category', 'county'] },
+            { model: User, as: 'provider', attributes: ['id', 'fullName'] },
+          ],
+          order: [['createdAt', 'DESC']],
+          limit: 5,
+        }).catch(() => []);
+      }
+
+      // ── 11. Fresh marketplace produce (buyer discovery) ────────────────────
+      const freshProduce = isBuyer
+        ? await ProduceListing.findAll({
+            where: { status: 'LISTED' },
+            include: [{ model: User, as: 'farmer', attributes: ['id', 'fullName', 'county'] }],
+            order: [['createdAt', 'DESC']],
+            limit: 4,
+          }).catch(() => [])
+        : [];
 
       // ── Render ───────────────────────────────────────────────────────────────
       res.render('dashboard', {
@@ -242,6 +285,8 @@ module.exports = {
         recentMessages,
         marketPrices,
         recommendedServices,
+        serviceRequests,
+        freshProduce,
       });
     } catch (err) {
       console.error('Dashboard render error:', err);

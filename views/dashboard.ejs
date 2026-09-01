@@ -5,7 +5,7 @@
 
 <main class="dash-main">
 
-  <%- include('partials/sidebar', { currentPage: 'dashboard', showDashboardPanels: true }) %>
+  <%- include('partials/sidebar', { currentPage: 'dashboard' }) %>
 
   <!-- ══ Main Content ══ -->
   <div class="dash-content">
@@ -20,7 +20,11 @@
         <% if (user.role === 'farmer') { %>
           <a href="/produce/new" class="btn btn-amber"><i data-lucide="plus"></i> Post Produce</a>
         <% } else if (user.role === 'provider') { %>
-          <a href="/services/new" class="btn btn-amber"><i data-lucide="plus"></i> List a Service</a>
+          <% if (stats.pendingServiceRequests > 0) { %>
+            <a href="/services/requests/mine" class="btn btn-amber"><i data-lucide="clipboard-list"></i> Review Requests</a>
+          <% } else { %>
+            <a href="/services/new" class="btn btn-amber"><i data-lucide="plus"></i> List a Service</a>
+          <% } %>
         <% } else { %>
           <a href="/marketplace" class="btn btn-amber"><i data-lucide="store"></i> Browse Market</a>
         <% } %>
@@ -29,37 +33,74 @@
 
     <!-- ── KPI Cards ─────────────────────────────────────────────── -->
     <div class="dash-stats">
-      <a href="<%= user.role === 'farmer' ? '/produce' : user.role === 'provider' ? '/services' : '/marketplace' %>" class="stat-card">
-        <div class="stat-icon emerald"><i data-lucide="<%= user.role === 'provider' ? 'briefcase-business' : user.role === 'buyer' ? 'store' : 'package' %>"></i></div>
-        <div class="stat-info">
-          <div class="stat-num"><%= user.role === 'farmer' ? stats.activeListings : user.role === 'provider' ? stats.activeServices : stats.availableProduce %></div>
-          <div class="stat-label"><%= user.role === 'farmer' ? 'Active Listings' : user.role === 'provider' ? 'Available Services' : 'Available Produce' %></div>
-        </div>
+      <a href="<%= user.role === 'farmer' ? '/produce' : user.role === 'provider' ? '/services' : '/marketplace' %>" class="stat-card stat-card--primary">
+        <span class="stat-body">
+          <span class="stat-label"><%= user.role === 'farmer' ? 'Active Listings' : user.role === 'provider' ? 'Available Services' : 'Available Produce' %></span>
+          <span class="stat-num is-primary"><%= user.role === 'farmer' ? stats.activeListings : user.role === 'provider' ? stats.activeServices : stats.availableProduce %></span>
+          <span class="stat-hint"><%= user.role === 'farmer' ? 'listed on the marketplace' : user.role === 'provider' ? 'marked as available' : 'live listings right now' %></span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
       </a>
       <a href="<%= user.role === 'provider' ? '/services/requests/mine' : '/orders?status=pending' %>" class="stat-card">
-        <div class="stat-icon gold"><i data-lucide="shopping-bag"></i></div>
-        <div class="stat-info">
-          <div class="stat-num"><%= user.role === 'provider' ? stats.pendingServiceRequests : stats.pendingOrders %></div>
-          <div class="stat-label"><%= user.role === 'provider' ? 'New Requests' : 'Pending Orders' %></div>
-        </div>
+        <span class="stat-body">
+          <span class="stat-label"><%= user.role === 'provider' ? 'New Requests' : 'Pending Orders' %></span>
+          <span class="stat-num"><%= user.role === 'provider' ? stats.pendingServiceRequests : stats.pendingOrders %></span>
+          <span class="stat-hint"><%= user.role === 'provider' ? 'need your response' : 'awaiting completion' %></span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
       </a>
       <a href="/messages" class="stat-card">
-        <div class="stat-icon blue"><i data-lucide="message-circle"></i></div>
-        <div class="stat-info">
-          <div class="stat-num"><%= stats.unreadMessages %></div>
-          <div class="stat-label">Unread Messages</div>
-        </div>
+        <span class="stat-body">
+          <span class="stat-label">Unread Messages</span>
+          <span class="stat-num"><%= stats.unreadMessages %></span>
+          <span class="stat-hint">awaiting your reply</span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
       </a>
       <% if (user.role === 'farmer') { %>
       <a href="/orders?status=completed" class="stat-card">
-        <div class="stat-icon purple"><i data-lucide="banknote"></i></div>
-        <div class="stat-info">
-          <div class="stat-num">KES <%= Number(stats.totalSales).toLocaleString() %></div>
-          <div class="stat-label">Total Sales</div>
-        </div>
+        <span class="stat-body">
+          <span class="stat-label">Total Sales</span>
+          <span class="stat-num is-financial">KES <%= Number(stats.totalSales).toLocaleString() %></span>
+          <span class="stat-hint">completed orders only</span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
       </a>
       <% } %>
     </div>
+
+    <!-- ── Provider: Incoming Service Requests ────────────────── -->
+    <% if (user.role === 'provider') { %>
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Incoming Service Requests</h2>
+        <a href="/services/requests/mine" class="dash-section-link">View All →</a>
+      </div>
+      <% if (serviceRequests && serviceRequests.length > 0) { %>
+        <div class="order-mini-list">
+          <% serviceRequests.forEach(r => {
+            const st = r.status || 'PENDING';
+            const stClass = st === 'PENDING' ? 'badge-sold' : (st === 'ACCEPTED' || st === 'COMPLETED') ? 'badge-active' : 'badge-inactive';
+          %>
+            <a href="/services/requests/mine" class="recent-row">
+              <div class="recent-row-main">
+                <div class="recent-row-title"><%= r.service ? r.service.title : 'Service' %> · <%= r.requester ? (r.requester.fullName || 'Customer') : 'Customer' %></div>
+                <div class="recent-row-meta"><%= r.location %> · <%= new Date(r.requestedDate).toLocaleDateString('en-KE', { weekday: 'short', month: 'short', day: 'numeric' }) %></div>
+              </div>
+              <span class="produce-status-badge <%= stClass %>"><%= st.charAt(0) + st.slice(1).toLowerCase() %></span>
+            </a>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state-card">
+          <i data-lucide="inbox"></i>
+          <h4>No service requests yet</h4>
+          <p>When customers request your services, they'll appear here.</p>
+          <a href="/services/new" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">List a Service</a>
+        </div>
+      <% } %>
+    </div>
+    <% } %>
 
     <!-- ── Farm Analytics ──────────────────────────────────────── -->
     <% if (user.role === 'farmer') { %>
@@ -87,15 +128,38 @@
               <p class="analytics-card-sub">Your completed sales over the selected period</p>
             </div>
           </div>
-          <% if (salesData && salesData.some(v => v > 0)) { %>
-            <div class="chart-wrapper">
-              <canvas id="salesChart"></canvas>
-            </div>
-          <% } else { %>
+          <%
+            const salesPoints = (salesData || []).length;
+            const activeSalesPoints = (salesData || []).filter(v => Number(v) > 0).length;
+            const salesTotal = (salesData || []).reduce((s, v) => s + Number(v || 0), 0);
+            const periodLabel = period === '30d' ? 'the last 30 days' : period === '3m' ? 'the last 3 months' : period === '12m' ? 'the last 12 months' : 'the last 6 months';
+          %>
+          <% if (salesPoints === 0 || activeSalesPoints === 0) { %>
             <div class="chart-empty-state">
               <i data-lucide="bar-chart-2"></i>
               <h4>No sales data yet</h4>
               <p>Your sales analytics will appear here after your first completed order.</p>
+            </div>
+          <% } else if (salesPoints <= 2) { %>
+            <div class="sales-summary">
+              <div class="sales-summary-total">KES <%= salesTotal.toLocaleString() %></div>
+              <p class="sales-summary-note">Completed sales in <%= periodLabel %>. A chart will appear as more history builds up.</p>
+              <ul class="sales-summary-list">
+                <% salesLabels.forEach((lbl, i) => { %>
+                  <li>
+                    <span><%= lbl %></span>
+                    <strong><%= Number(salesData[i]) > 0 ? 'KES ' + Number(salesData[i]).toLocaleString() : 'No sales' %></strong>
+                  </li>
+                <% }) %>
+              </ul>
+            </div>
+          <% } else if (salesPoints <= 5) { %>
+            <div class="chart-wrapper chart-wrapper--compact">
+              <canvas id="salesChart"></canvas>
+            </div>
+          <% } else { %>
+            <div class="chart-wrapper">
+              <canvas id="salesChart"></canvas>
             </div>
           <% } %>
         </div>
@@ -186,13 +250,58 @@
             <i data-lucide="package-open"></i>
             <h4>No produce listed yet</h4>
             <p>Start selling to buyers across Kenya.</p>
-            <a href="/produce/new" class="btn btn-amber" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Post First Listing</a>
+            <a href="/produce/new" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Post First Listing</a>
           </div>
         <% } %>
       </div>
       <% } %>
 
-      <!-- ── Recent Orders ──────────────────────────── -->
+      <!-- ── Fresh on the Marketplace (buyer) ───────── -->
+      <% if (user.role === 'buyer') { %>
+      <div class="dash-section" style="grid-column: 1 / -1;">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Fresh on the Marketplace</h2>
+          <a href="/marketplace" class="dash-section-link">Browse All →</a>
+        </div>
+        <% if (freshProduce && freshProduce.length > 0) { %>
+          <div class="produce-mini-list">
+            <% freshProduce.forEach(p => { %>
+              <div class="produce-mini-card">
+                <div class="produce-mini-img">
+                  <% if (p.imageUrl) { %>
+                    <img src="<%= p.imageUrl %>" alt="<%= p.name %>">
+                  <% } else { %>
+                    <i data-lucide="image"></i>
+                  <% } %>
+                </div>
+                <div class="produce-mini-info">
+                  <div class="produce-mini-name"><%= p.name %></div>
+                  <div class="produce-mini-price">KES <%= Number(p.pricePerKgKes).toLocaleString() %> / kg</div>
+                  <div class="produce-mini-meta"><%= p.county %><%= p.farmer ? ' · ' + p.farmer.fullName : '' %></div>
+                </div>
+                <div class="produce-mini-right">
+                  <span class="produce-status-badge badge-active">Available</span>
+                  <div class="produce-mini-actions">
+                    <a href="/produce/<%= p.id %>" class="table-action-link">View</a>
+                    <a href="/orders/new?produce=<%= p.id %>" class="table-action-link">Order</a>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="store"></i>
+            <h4>No produce listed right now</h4>
+            <p>New listings appear here as farmers post them.</p>
+            <a href="/marketplace" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Browse Marketplace</a>
+          </div>
+        <% } %>
+      </div>
+      <% } %>
+
+      <!-- ── Recent Orders (farmer + buyer) ─────────── -->
+      <% if (user.role !== 'provider') { %>
       <div class="dash-section" style="grid-column: 1 / -1;">
         <div class="dash-section-header">
           <h2 class="dash-section-title">Recent Orders</h2>
@@ -201,15 +310,15 @@
         <% if (recentOrders && recentOrders.length > 0) { %>
           <div class="order-mini-list">
             <% recentOrders.forEach(o => {
-              const isFarmer = user.role === 'farmer';
-              const otherParty = isFarmer ? o.buyer : o.seller;
+              const isFarmerRow = user.role === 'farmer';
+              const otherParty = isFarmerRow ? o.buyer : o.seller;
               const otherName = otherParty ? (otherParty.fullName || 'Unknown') : 'Unknown';
               const itemName = (o.items && o.items[0] && o.items[0].listing) ? o.items[0].listing.name : 'Order';
               const status = (o.status || 'pending');
-              const statusClass = status === 'completed' ? 'badge-active' : 'badge-inactive';
+              const statusClass = status === 'completed' ? 'badge-active' : status === 'pending' ? 'badge-sold' : 'badge-inactive';
               const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
             %>
-              <a href="/orders" class="recent-row">
+              <a href="/orders/<%= o.id %>" class="recent-row">
                 <div class="recent-row-main">
                   <div class="recent-row-title"><%= itemName %> · <%= otherName %></div>
                   <div class="recent-row-meta">KES <%= Number(o.totalKes).toLocaleString() %> · <%= new Date(o.createdAt).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' }) %></div>
@@ -222,22 +331,31 @@
           <div class="empty-state-card">
             <i data-lucide="shopping-bag"></i>
             <h4>No orders yet</h4>
-            <p>Your recent orders will appear here.</p>
-            <a href="/marketplace" class="btn btn-amber" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Browse Marketplace</a>
+            <% if (user.role === 'buyer') { %>
+              <p>When you order produce, it will show up here.</p>
+              <a href="/marketplace" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Browse Marketplace</a>
+            <% } else { %>
+              <p>When buyers order your produce, it will show up here.</p>
+            <% } %>
           </div>
         <% } %>
       </div>
+      <% } %>
 
     </div><!-- end .dash-content-grid -->
 
     <!-- ── Market Info + Messages Row ─────────────────────── -->
-    <div class="section-eyebrow">Market Insights</div>
+    <div class="section-eyebrow"><%= user.role === 'provider' ? 'Communication' : 'Market Insights' %></div>
     <div class="dash-bottom-grid">
 
       <!-- Market Prices -->
+      <% if (user.role !== 'provider') { %>
       <div class="dash-section">
         <div class="dash-section-header">
-          <h2 class="dash-section-title">Market Prices</h2>
+          <div>
+            <h2 class="dash-section-title">Market Prices</h2>
+            <p class="dash-section-sub">Stored reference prices — <a href="/market-prices">check live feed status</a></p>
+          </div>
           <a href="/market-prices" class="dash-section-link">View All →</a>
         </div>
         <div class="market-price-list">
@@ -263,9 +381,10 @@
           <% } %>
         </div>
       </div>
+      <% } %>
 
       <!-- Recent Messages -->
-      <div class="dash-section">
+      <div class="dash-section"<%= user.role === 'provider' ? ' style="grid-column: 1 / -1;"' : '' %>>
         <div class="dash-section-header">
           <h2 class="dash-section-title">Recent Messages</h2>
           <a href="/messages" class="dash-section-link">View All →</a>
@@ -298,6 +417,72 @@
       </div>
 
       </div><!-- end .dash-bottom-grid -->
+
+    <!-- ── Service Requests + Recommendations (farmer/buyer) ─ -->
+    <% if (user.role === 'farmer' || user.role === 'buyer') { %>
+    <div class="dash-bottom-grid">
+
+      <!-- My Service Requests -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">My Service Requests</h2>
+          <a href="/services/requests/mine" class="dash-section-link">View All →</a>
+        </div>
+        <% if (serviceRequests && serviceRequests.length > 0) { %>
+          <div class="order-mini-list">
+            <% serviceRequests.forEach(r => {
+              const st = r.status || 'PENDING';
+              const stClass = st === 'PENDING' ? 'badge-sold' : (st === 'ACCEPTED' || st === 'COMPLETED') ? 'badge-active' : 'badge-inactive';
+              const other = r.provider;
+            %>
+              <a href="/services/requests/mine" class="recent-row">
+                <div class="recent-row-main">
+                  <div class="recent-row-title"><%= r.service ? r.service.title : 'Service' %> · <%= other ? (other.fullName || 'Provider') : 'Provider' %></div>
+                  <div class="recent-row-meta"><%= r.location %> · <%= new Date(r.requestedDate).toLocaleDateString('en-KE', { weekday: 'short', month: 'short', day: 'numeric' }) %></div>
+                </div>
+                <span class="produce-status-badge <%= stClass %>"><%= st.charAt(0) + st.slice(1).toLowerCase() %></span>
+              </a>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="clipboard-list"></i>
+            <h4>No service requests yet</h4>
+            <p>Find trusted providers for irrigation, transport and more.</p>
+            <a href="/services" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Browse Services</a>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Services You May Need -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Services You May Need</h2>
+          <a href="/services" class="dash-section-link">View All →</a>
+        </div>
+        <% if (recommendedServices && recommendedServices.length > 0) { %>
+          <div class="order-mini-list">
+            <% recommendedServices.forEach(s => { %>
+              <a href="/services/<%= s.id %>" class="recent-row">
+                <div class="recent-row-main">
+                  <div class="recent-row-title"><%= s.title %></div>
+                  <div class="recent-row-meta"><%= s.category %> · <%= s.county %><%= s.provider ? ' · ' + s.provider.fullName : '' %></div>
+                </div>
+                <i data-lucide="arrow-right" style="width:16px;height:16px;color:var(--ink-soft);" aria-hidden="true"></i>
+              </a>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="tractor"></i>
+            <h4>No services listed yet</h4>
+            <p>Provider listings will appear here as they join the platform.</p>
+          </div>
+        <% } %>
+      </div>
+
+    </div>
+    <% } %>
 
   </div><!-- end .dash-content -->
 </main>

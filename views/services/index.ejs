@@ -3,8 +3,8 @@
 
 <main class="page-container">
   <div class="text-center mb-2">
-    <h1 style="color:var(--emerald); font-size:3rem; margin-bottom:1rem;">Agricultural Services</h1>
-    <p style="color:var(--ink-soft); font-size:1.2rem; max-width:600px; margin:0 auto;">Find reliable tractors, transport, labor, and agronomy services for your farm.</p>
+    <h1 style="color:var(--ink); font-size:2rem; margin-bottom:0.5rem;">Agricultural Services</h1>
+    <p style="color:var(--ink-soft); font-size:1rem; max-width:600px; margin:0 auto;">Find reliable tractors, transport, labor, and agronomy services for your farm.</p>
   </div>
 
   <form action="/services" method="GET" class="filter-bar">
@@ -12,7 +12,7 @@
       <input type="text" name="search" placeholder="Search services..." value="<%= search %>" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px;">
     </div>
     <div style="min-width:150px;">
-      <select name="category" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+      <select name="category" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:rgb(12, 69, 12);">
         <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
         <option value="Machinery" <%= category === 'Machinery' ? 'selected' : '' %>>Machinery</option>
         <option value="Transport" <%= category === 'Transport' ? 'selected' : '' %>>Transport</option>
@@ -32,23 +32,32 @@
   <% } %>
 
   <% if (services && services.length > 0) { %>
-    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:2rem;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
       <% services.forEach(service => { %>
-        <div class="card">
-          <div class="img-placeholder" style="height:160px; background:var(--cream); display:flex; align-items:center; justify-content:center; color:var(--emerald);">
-            <i data-lucide="<%= service.category === 'Transport' ? 'truck' : service.category === 'Machinery' ? 'tractor' : service.category === 'Labour' ? 'users' : 'wrench' %>" style="width:64px; height:64px; opacity:0.8;"></i>
+        <div class="service-card">
+          <div class="service-card-icon" aria-hidden="true">
+            <i data-lucide="<%= service.category === 'Transport' ? 'truck' : service.category === 'Machinery' ? 'tractor' : service.category === 'Labour' ? 'users' : 'wrench' %>"></i>
           </div>
-          <div style="padding:1.5rem; flex:1; display:flex; flex-direction:column;">
-            <div style="margin-bottom:auto;">
-              <span style="font-size:0.8rem; font-weight:600; color:var(--emerald); text-transform:uppercase; letter-spacing:0.5px;"><%= service.category %></span>
-              <h3 style="margin:0.25rem 0 0.5rem 0; font-size:1.25rem;"><%= service.title %></h3>
-              <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:1rem; display:flex; align-items:center; gap:4px;">
-                <i data-lucide="map-pin" style="width:16px; height:16px;"></i> <%= service.county %>
-              </p>
-              <div style="font-weight:700; color:var(--gold); font-size:1.1rem; margin-bottom:1rem;">KES <%= Number(service.priceKes).toLocaleString() %></div>
+          <div class="service-card-body">
+            <div class="service-card-top">
+              <span class="service-card-category"><%= service.category %></span>
+              <% if (service.availability === 'AVAILABLE') { %>
+                <span class="svc-avail svc-avail--available">Available</span>
+              <% } else if (service.availability === 'BOOKED') { %>
+                <span class="svc-avail svc-avail--booked">Booked</span>
+              <% } else { %>
+                <span class="svc-avail svc-avail--unavailable">Unavailable</span>
+              <% } %>
             </div>
-            
-            <a href="/services/<%= service.id %>" class="btn btn-outline" style="width:100%; text-align:center; display:block;">View Details</a>
+            <h3 class="service-card-title"><%= service.title %></h3>
+            <p class="service-card-meta">
+              <i data-lucide="map-pin" aria-hidden="true"></i>
+              <%= service.county %><%= service.provider ? ' · ' + service.provider.fullName : '' %>
+            </p>
+            <div class="service-card-foot">
+              <span class="service-card-price">KES <%= Number(service.priceKes).toLocaleString() %> <span class="service-card-price-note">/ service</span></span>
+              <a href="/services/<%= service.id %>" class="btn btn-outline">View details</a>
+            </div>
           </div>
         </div>
       <% }) %>

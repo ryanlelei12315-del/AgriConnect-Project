@@ -50,12 +50,19 @@
     if (!toggle || !drawer) return;
 
     function isOpen() { return drawer.classList.contains('open'); }
+    var lastFocused = null;
+    function getFocusable() {
+      return Array.prototype.slice.call(
+        drawer.querySelectorAll('a[href], button:not([disabled])')
+      );
+    }
     function open() {
       drawer.classList.add('open');
       toggle.classList.add('open');
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', 'Close menu');
-      var first = drawer.querySelector('a');
+      lastFocused = document.activeElement;
+      var first = getFocusable()[0];
       if (first) first.focus();
     }
     function close(refocus) {
@@ -64,7 +71,7 @@
       toggle.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', 'Open menu');
-      if (refocus) toggle.focus();
+      if (refocus && lastFocused && lastFocused.focus) lastFocused.focus();
     }
 
     toggle.addEventListener('click', function () {
@@ -73,8 +80,22 @@
     document.addEventListener('click', function (e) {
       if (!drawer.contains(e.target) && !toggle.contains(e.target)) close(false);
     });
+    // Escape closes and restores focus; Tab is trapped inside the open drawer
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && isOpen()) close(true);
+      if (!isOpen()) return;
+      if (e.key === 'Escape') { close(true); return; }
+      if (e.key !== 'Tab') return;
+      var focusable = getFocusable();
+      if (!focusable.length) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
+        e.preventDefault();
+        first.focus();
+      }
     });
     drawer.querySelectorAll('a').forEach(function (a) {
       a.addEventListener('click', function () { close(false); });

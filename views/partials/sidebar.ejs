@@ -145,12 +145,19 @@
     const COLLAPSE_KEY = 'agriSidebarCollapsed';
 
     function isMobileOpen() { return sidebar.classList.contains('open'); }
+    var lastFocused = null;
+    function getFocusable() {
+      return Array.prototype.slice.call(
+        sidebar.querySelectorAll('a[href], button:not([disabled])')
+      );
+    }
 
     function openSidebar() {
       sidebar.classList.add('open');
       overlay.classList.add('open');
       toggle.setAttribute('aria-expanded', 'true');
-      const first = sidebar.querySelector('a, button');
+      lastFocused = document.activeElement;
+      const first = getFocusable()[0];
       if (first) first.focus();
     }
     function closeSidebar(refocus) {
@@ -158,7 +165,7 @@
       sidebar.classList.remove('open');
       overlay.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
-      if (refocus) toggle.focus();
+      if (refocus && lastFocused && lastFocused.focus) lastFocused.focus();
     }
 
     if (toggle) toggle.addEventListener('click', openSidebar);
@@ -201,15 +208,31 @@
       });
     }
 
-    // Escape closes the user menu first, then the mobile drawer
+    // Escape closes the user menu first, then the mobile drawer (focus restored).
+    // Tab is trapped inside the open mobile drawer so focus cannot reach the
+    // page behind the overlay.
     document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape') return;
       if (userArea && userArea.classList.contains('open')) {
-        closeUserMenu();
-        userBtn.focus();
+        if (e.key === 'Escape') {
+          closeUserMenu();
+          userBtn.focus();
+        }
         return;
       }
-      if (isMobileOpen()) closeSidebar(true);
+      if (!isMobileOpen()) return;
+      if (e.key === 'Escape') { closeSidebar(true); return; }
+      if (e.key !== 'Tab') return;
+      const focusable = getFocusable();
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !sidebar.contains(document.activeElement))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !sidebar.contains(document.activeElement))) {
+        e.preventDefault();
+        first.focus();
+      }
     });
 
     // Sign out (the global fetch patch injects the CSRF header)
