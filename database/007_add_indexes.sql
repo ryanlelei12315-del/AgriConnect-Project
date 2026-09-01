@@ -26,8 +26,6 @@
 -- Reversible (up): re-run the dropped index names in reverse order.
 -- ============================================================
 
-USE Smart_Kilimo;
-
 -- 1. users.is_active (1 = active, 0 = deactivated)
 ALTER TABLE users
     ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1;

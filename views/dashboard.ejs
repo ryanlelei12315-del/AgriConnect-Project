@@ -14,7 +14,7 @@
     <div class="dash-header">
       <div>
         <h1 class="dash-greeting">Welcome back, <%= (user.fullName || user.full_name || 'User').split(' ')[0] %>!</h1>
-        <p class="dash-sub">Here's what's happening with your farm today.</p>
+        <p class="dash-sub"><%= user.role === 'farmer' ? "Here's what's happening with your farm today." : user.role === 'provider' ? "Here are the requests and services that need your attention." : "Here are the orders and market opportunities that need your attention." %></p>
       </div>
       <div class="dash-header-actions">
         <% if (user.role === 'farmer') { %>
@@ -29,18 +29,18 @@
 
     <!-- ── KPI Cards ─────────────────────────────────────────────── -->
     <div class="dash-stats">
-      <a href="/produce" class="stat-card">
-        <div class="stat-icon emerald"><i data-lucide="package"></i></div>
+      <a href="<%= user.role === 'farmer' ? '/produce' : user.role === 'provider' ? '/services' : '/marketplace' %>" class="stat-card">
+        <div class="stat-icon emerald"><i data-lucide="<%= user.role === 'provider' ? 'briefcase-business' : user.role === 'buyer' ? 'store' : 'package' %>"></i></div>
         <div class="stat-info">
-          <div class="stat-num"><%= stats.activeListings %></div>
-          <div class="stat-label">Active Listings</div>
+          <div class="stat-num"><%= user.role === 'farmer' ? stats.activeListings : user.role === 'provider' ? stats.activeServices : stats.availableProduce %></div>
+          <div class="stat-label"><%= user.role === 'farmer' ? 'Active Listings' : user.role === 'provider' ? 'Available Services' : 'Available Produce' %></div>
         </div>
       </a>
-      <a href="/orders?status=pending" class="stat-card">
+      <a href="<%= user.role === 'provider' ? '/services/requests/mine' : '/orders?status=pending' %>" class="stat-card">
         <div class="stat-icon gold"><i data-lucide="shopping-bag"></i></div>
         <div class="stat-info">
-          <div class="stat-num"><%= stats.pendingOrders %></div>
-          <div class="stat-label">Pending Orders</div>
+          <div class="stat-num"><%= user.role === 'provider' ? stats.pendingServiceRequests : stats.pendingOrders %></div>
+          <div class="stat-label"><%= user.role === 'provider' ? 'New Requests' : 'Pending Orders' %></div>
         </div>
       </a>
       <a href="/messages" class="stat-card">

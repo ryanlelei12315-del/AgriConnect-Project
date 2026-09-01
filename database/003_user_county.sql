@@ -5,8 +5,6 @@
 -- Run: mysql -u root -p Smart_Kilimo < database/003_user_county.sql
 -- ============================================================
 
-USE Smart_Kilimo;
-
 -- NOTE: plain ADD COLUMN (no IF NOT EXISTS) for MySQL < 8.0.29 compatibility.
 ALTER TABLE users
     ADD COLUMN county VARCHAR(50) NULL AFTER phone_number;

@@ -55,6 +55,23 @@ async function main() {
   const [appliedRows] = await connection.query('SELECT filename FROM schema_migrations');
   const appliedSet = new Set(appliedRows.map((r) => r.filename));
 
+  // Numbered migrations predate the tracking table. Do not guess which
+  // historical DDL has already run on a populated installation: the old files
+  // include ALTER statements that are deliberately not re-applied. A new
+  // database starts from database.sql, where this table is absent.
+  if (appliedSet.size === 0) {
+    const [tables] = await connection.query(
+      `SELECT COUNT(*) AS count FROM information_schema.tables
+       WHERE table_schema = DATABASE() AND table_name = 'produce_listings'`
+    );
+    if (Number(tables[0]?.count || 0) > 0) {
+      throw new Error(
+        'This database has application tables but no migration history. Refusing to guess its schema state. ' +
+        'Back up the database, record its verified migration baseline in schema_migrations, then rerun.'
+      );
+    }
+  }
+
   let appliedCount = 0;
   for (const file of files) {
     if (appliedSet.has(file)) {

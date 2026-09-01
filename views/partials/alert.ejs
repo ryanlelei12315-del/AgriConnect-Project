@@ -1,0 +1,4 @@
+<% const alertKind = typeof type === 'string' ? type : 'info'; %>
+<div class="alert alert--<%= alertKind %>" role="<%= alertKind === 'danger' ? 'alert' : 'status' %>">
+  <% if (typeof message !== 'undefined' && message) { %><span><%= message %></span><% } %>
+</div>

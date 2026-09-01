@@ -6,8 +6,6 @@
 -- Run: mysql -u root -p Smart_Kilimo < database/002_marketplace_engine.sql
 -- ============================================================
 
-USE Smart_Kilimo;
-
 -- ------------------------------------------------------------
 -- 1. Produce listings (the farmer's "sell" side)
 -- ------------------------------------------------------------

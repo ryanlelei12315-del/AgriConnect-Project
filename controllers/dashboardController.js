@@ -5,6 +5,7 @@ const { OrderItem } = require('../models/OrderItem');
 const { Message } = require('../models/Message');
 const { MarketPrice } = require('../models/MarketPrice');
 const { ServiceListing } = require('../models/ServiceListing');
+const { ServiceRequest } = require('../models/ServiceRequest');
 const { User } = require('../models/User');
 const { Notification } = require('../models/Notification');
 const { Op, fn, col, literal } = require('sequelize');
@@ -52,18 +53,30 @@ module.exports = {
       const userId = req.user.id;
       const role = req.user.role;
       const isFarmer = role === 'farmer';
+      const isProvider = role === 'provider';
       const period = req.query.period || '6m';
       const monthsBack = periodToMonths(period);
 
       // ── 1. KPI Stats ─────────────────────────────────────────────────────────
-      const [activeListingsCount, pendingOrdersCount, unreadMessagesCount] = await Promise.all([
+      const [activeListingsCount, pendingOrdersCount, unreadMessagesCount, activeServicesCount, pendingServiceRequestsCount, availableProduceCount] = await Promise.all([
         isFarmer
           ? ProduceListing.count({ where: { farmerId: userId, status: 'LISTED' } })
           : Promise.resolve(0),
         isFarmer
           ? Order.count({ where: { sellerId: userId, status: 'pending' } })
-          : Order.count({ where: { userId: userId, status: 'pending' } }),
+          : isProvider
+            ? Promise.resolve(0)
+            : Order.count({ where: { userId: userId, status: 'pending' } }),
         Message.count({ where: { recipientId: userId, read: false } }),
+        isProvider
+          ? ServiceListing.count({ where: { providerId: userId, availability: 'AVAILABLE' } })
+          : Promise.resolve(0),
+        isProvider
+          ? ServiceRequest.count({ where: { providerId: userId, status: 'PENDING' } })
+          : Promise.resolve(0),
+        role === 'buyer'
+          ? ProduceListing.count({ where: { status: 'LISTED' } })
+          : Promise.resolve(0),
       ]);
 
       // Total Sales (sum of completed orders)
@@ -211,6 +224,9 @@ module.exports = {
           pendingOrders: pendingOrdersCount,
           unreadMessages: unreadMessagesCount,
           totalSales,
+          activeServices: activeServicesCount,
+          pendingServiceRequests: pendingServiceRequestsCount,
+          availableProduce: availableProduceCount,
         },
         // Chart data
         salesLabels,

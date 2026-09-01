@@ -1,0 +1,12 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:1rem; margin-bottom:2rem; flex-wrap:wrap;"><div><p style="color:var(--ink-soft); margin-bottom:.4rem;">Platform administration</p><h1 style="color:var(--emerald); margin:0;">Users</h1></div><a href="/admin" class="btn btn-outline">Back to overview</a></div>
+  <div class="table-responsive" style="background:var(--white);">
+    <% if (users.length) { %><table class="data-table"><thead><tr><th>Name</th><th>Role</th><th>County</th><th>Contact</th><th>Joined</th></tr></thead><tbody>
+      <% users.forEach((account) => { %><tr><td style="font-weight:600;"><%= account.fullName %></td><td><%= account.role %></td><td><%= account.county || '—' %></td><td><%= account.email || account.phoneNumber || '—' %></td><td><%= new Date(account.createdAt).toLocaleDateString('en-KE') %></td></tr><% }) %>
+    </tbody></table><% } else { %><div class="empty-state" style="padding:3rem 1.5rem;"><h3>No users found</h3><p>Newly registered accounts will appear here.</p></div><% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

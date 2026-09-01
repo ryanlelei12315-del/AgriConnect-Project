@@ -4,8 +4,6 @@
 -- and INACTIVE status for produce_listings.
 -- ============================================================
 
-USE Smart_Kilimo;
-
 -- 1. Modify produce_listings to support INACTIVE
 ALTER TABLE produce_listings
     MODIFY COLUMN status ENUM('LISTED','PENDING','SOLD','INACTIVE') NOT NULL DEFAULT 'LISTED';

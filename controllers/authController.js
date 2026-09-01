@@ -158,6 +158,9 @@ exports.login = async (req, res) => {
 exports.logout = (req, res) => {
   res.clearCookie(TOKEN_COOKIE, { path: '/' });
   res.clearCookie('_csrf', { path: '/' });
+  // Server-rendered forms should return to a useful page; API/mobile clients
+  // retain the JSON contract used by the existing clients.
+  if (req.accepts(['html', 'json']) === 'html') return res.redirect('/');
   return res.json({ success: true, message: 'Logged out.' });
 };
 

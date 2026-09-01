@@ -1,8 +1,6 @@
 -- AgriConnect KE - Migration 004: Normalize messages to snake_case
 -- Old Sequelize sync() created camelCase columns; align to canonical schema.
-USE Smart_Kilimo;
-
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     messages (
         id INT PRIMARY KEY AUTO_INCREMENT,
         sender_id INT NOT NULL,

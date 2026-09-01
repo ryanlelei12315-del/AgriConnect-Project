@@ -1,67 +1,32 @@
-<!-- ══ NAV ══ -->
-<nav>
-  <a href="/" class="nav-logo">
-    <div class="nav-logo-mark"><i data-lucide="leaf"></i></div>
+<!-- Primary public navigation. Authenticated state is server-rendered. -->
+<nav aria-label="Primary navigation">
+  <a href="/" class="nav-logo" aria-label="AgriConnect KE home">
+    <span class="nav-logo-mark"><i data-lucide="leaf" aria-hidden="true"></i></span>
     <span class="nav-logo-text">Agri<em>Connect</em> KE</span>
   </a>
   <div class="nav-center">
     <a href="/marketplace">Marketplace</a>
     <a href="/services">Services</a>
-    <a href="/market-prices">Market Prices</a>
-    <a href="/why-us">Why Us</a>
+    <a href="/market-prices">Market prices</a>
+    <a href="/why-us">How it works</a>
   </div>
-  <div class="nav-right" id="nav-right">
+  <div class="nav-right">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-      <svg class="theme-icon-sun" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      <svg class="theme-icon-moon" style="width:18px;height:18px; display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="theme-icon-sun" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="theme-icon-moon" style="width:18px;height:18px; display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
-    <span class="nav-skeleton">Loading…</span>
+    <% if (typeof user !== 'undefined' && user) { %>
+      <a href="/dashboard" class="nav-user-chip" aria-label="Open your dashboard">
+        <span class="nav-user-avatar"><%= (user.fullName || user.full_name || '?').charAt(0).toUpperCase() %></span>
+        <span class="nav-user-name"><%= (user.fullName || user.full_name || 'User').split(' ')[0] %></span>
+      </a>
+      <form action="/api/auth/logout" method="POST" style="display:inline;">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+        <button class="btn btn-outline" type="submit">Sign out</button>
+      </form>
+    <% } else { %>
+      <a href="/login" class="btn btn-outline">Sign in</a>
+      <a href="/register" class="btn btn-amber">Join free</a>
+    <% } %>
   </div>
 </nav>
-
-<script>
-  (function () {
-    const el = document.getElementById('nav-right');
-
-    // Check auth state server-side via the httpOnly cookie (no localStorage token).
-    fetch('/api/auth/me', { credentials: 'same-origin' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data && data.success) {
-          const user = data.user;
-          const role = user.role || 'farmer';
-
-          el.innerHTML = `
-          <a href="/dashboard" class="nav-user-chip">
-            <span class="nav-user-avatar">${(user.full_name || '?').charAt(0).toUpperCase()}</span>
-            <span class="nav-user-name">${(user.full_name || 'User').split(' ')[0]}</span>
-          </a>
-          <button class="btn btn-outline" id="logout-btn">Sign out</button>
-        `;
-
-          document.getElementById('logout-btn').addEventListener('click', async () => {
-            try {
-              await fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'same-origin',
-              });
-            } catch (e) {
-              /* ignore */
-            }
-            window.location.href = '/';
-          });
-        } else {
-          el.innerHTML = `
-          <a href="/login" class="btn btn-outline">Sign in</a>
-          <a href="/register" class="btn btn-amber">Join Free →</a>
-        `;
-        }
-      })
-      .catch(() => {
-        el.innerHTML = `
-        <a href="/login" class="btn btn-outline">Sign in</a>
-        <a href="/register" class="btn btn-amber">Join Free →</a>
-      `;
-      });
-  })();
-</script>

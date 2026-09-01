@@ -11,13 +11,11 @@
 --     works on all versions.
 -- ============================================================
 
-USE Smart_Kilimo;
-
 -- Add the column only if it does not already exist
 SET @col_exists := (
     SELECT COUNT(*)
     FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = 'Smart_Kilimo'
+    WHERE TABLE_SCHEMA = DATABASE()
       AND TABLE_NAME   = 'users'
       AND COLUMN_NAME  = 'is_active'
 );

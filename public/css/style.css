@@ -1,25 +1,60 @@
 :root {
-  /* Premium Organic Palette */
-  --emerald-dark: #0f3b21; /* Deep rich emerald */
-  --emerald: #1b4a2e; /* Primary premium green */
-  --emerald-light: #2c6e45; /* Hover state */
-  --gold: #b38234; /* Elegant muted gold */
-  --gold-glow: #cfa153; /* Warm accent */
-  --cream: #fdfbf7; /* Softest warm white */
-  --linen: #f5f2ea; /* Ambient background */
-  --stone: #e8e4d9; /* Borders */
+  /* Brand and action */
+  --color-primary: #1b4a2e;
+  --color-primary-hover: #0f3b21;
+  --color-primary-active: #0a2b18;
+  --color-secondary: #465749;
+  --color-accent: #b38234;
+  --color-market: #8a5b13;
 
-  --ink: #1a1f1b; /* Premium dark text */
-  --ink-mid: #465749; /* Body text */
-  --ink-soft: #636b65; /* Meta text */
-  --white: #ffffff;
+  /* Surfaces, text, borders */
+  --color-page: #fdfbf7;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f2ea;
+  --color-surface-elevated: #ffffff;
+  --color-overlay: rgba(15, 31, 23, 0.56);
+  --color-text: #1a1f1b;
+  --color-text-secondary: #465749;
+  --color-text-muted: #636b65;
+  --color-text-inverse: #ffffff;
+  --color-text-disabled: #8a918c;
+  --color-border: #e8e4d9;
+  --color-border-subtle: #f0ede6;
+  --color-border-strong: #b8c0b8;
+  --color-focus: #2c6e45;
 
-  /* Shadows & UI */
-  --shadow-sm: 0 4px 12px rgba(15, 59, 33, 0.04);
-  --shadow-md: 0 12px 32px rgba(15, 59, 33, 0.06);
-  --shadow-lg: 0 24px 64px rgba(15, 59, 33, 0.08);
-  --radius: 12px;
-  --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Status */
+  --color-success: #146c43; --color-success-bg: #dff3e7;
+  --color-warning: #8a5b13; --color-warning-bg: #fff3d5;
+  --color-danger: #b42318; --color-danger-bg: #fee4e2;
+  --color-info: #175cd3; --color-info-bg: #e8f1ff;
+  --color-neutral: #475467; --color-neutral-bg: #eef1f3;
+
+  /* Spacing, radius, elevation, type, motion */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-full: 999px;
+  --shadow-sm: 0 1px 2px rgba(15, 31, 23, .06), 0 2px 8px rgba(15, 31, 23, .04);
+  --shadow-md: 0 8px 24px rgba(15, 31, 23, .08);
+  --shadow-lg: 0 18px 48px rgba(15, 31, 23, .12);
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Outfit', system-ui, sans-serif;
+  --text-xs: .75rem; --text-sm: .875rem; --text-base: 1rem; --text-md: 1.125rem;
+  --text-lg: 1.25rem; --text-xl: 1.5rem; --text-2xl: 1.875rem; --text-display: 2.5rem;
+  --ease-standard: cubic-bezier(.2, 0, 0, 1);
+  --transition-fast: 150ms var(--ease-standard);
+  --transition: 250ms var(--ease-standard);
+
+  /* Compatibility aliases: remove only as each page is migrated. */
+  --emerald: var(--color-primary); --emerald-dark: var(--color-primary-hover); --emerald-light: #2c6e45;
+  --gold: var(--color-accent); --gold-glow: #cfa153;
+  --cream: var(--color-page); --linen: var(--color-surface-muted); --stone: var(--color-border);
+  --ink: var(--color-text); --ink-mid: var(--color-text-secondary); --ink-soft: var(--color-text-muted); --white: var(--color-surface);
+  --primary: var(--color-primary); --primary-dark: var(--color-primary-hover); --primary-light: var(--emerald-light);
+  --surface: var(--color-surface); --bg: var(--color-page); --border: var(--color-border); --muted: var(--color-text-muted);
+  --success: var(--color-success); --success-bg: var(--color-success-bg); --warning: var(--color-warning); --warning-bg: var(--color-warning-bg);
+  --danger: var(--color-danger); --danger-bg: var(--color-danger-bg); --info: var(--color-info); --info-bg: var(--color-info-bg);
+  --neutral: var(--color-neutral); --neutral-bg: var(--color-neutral-bg); --radius: var(--radius-md);
 }
 
 *,
@@ -3312,6 +3347,22 @@ a.chat-wa-btn:hover {
 /* ══ DARK MODE ══ */
 [data-theme="dark"] {
   color-scheme: dark;
+  --color-page: #111713;
+  --color-surface: #18221b;
+  --color-surface-muted: #202c23;
+  --color-surface-elevated: #243128;
+  --color-text: #eef5ee;
+  --color-text-secondary: #c5d2c6;
+  --color-text-muted: #9bab9d;
+  --color-text-disabled: #6f7e72;
+  --color-border: #344337;
+  --color-border-subtle: #29352c;
+  --color-border-strong: #516055;
+  --color-success-bg: #163d26;
+  --color-warning-bg: #4a3511;
+  --color-danger-bg: #4a1f1b;
+  --color-info-bg: #172f58;
+  --color-neutral-bg: #2c3630;
 }
 
 [data-theme="dark"] body {
@@ -4222,38 +4273,6 @@ a.chat-wa-btn:hover {
    AGRI CONNECT DESIGN SYSTEM
    Cohesive tokens + reusable components. One product, one language.
    ════════════════════════════════════════════════════════════════ */
-
-:root {
-  /* Spacing scale (4px base) */
-  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
-  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
-
-  /* Radius scale */
-  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px;
-  --radius-full: 999px;
-
-  /* Semantic color roles */
-  --primary: var(--emerald);
-  --primary-dark: var(--emerald-dark);
-  --primary-light: var(--emerald-light);
-  --surface: var(--white);
-  --bg: var(--cream);
-  --border: var(--stone);
-  --muted: var(--ink-soft);
-
-  --success: #0f5132;       --success-bg: #d1e7dd;
-  --warning: #856404;       --warning-bg: #fff3cd;
-  --danger: #842029;        --danger-bg: #f8d7da;
-  --info: #084298;          --info-bg: #cfe2ff;
-  --neutral: #383d41;       --neutral-bg: #e2e3e5;
-
-  /* Typography scale */
-  --text-xs: 0.75rem;  --text-sm: 0.85rem;  --text-base: 0.95rem;
-  --text-md: 1.05rem;  --text-lg: 1.25rem;  --text-xl: 1.5rem;
-  --text-2xl: 1.85rem; --text-display: 2.5rem;
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'Outfit', system-ui, sans-serif;
-}
 
 /* ── Buttons: clear hierarchy ─────────────────────────────────── */
 .btn {

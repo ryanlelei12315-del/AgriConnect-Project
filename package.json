@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node -r dotenv/config server.js",
     "dev": "node -r dotenv/config --watch server.js",
-    "db:migrate": "mysql -u root -p Smart_Kilimo < database/002_marketplace_engine.sql && mysql -u root -p Smart_Kilimo < database/003_user_county.sql && mysql -u root -p Smart_Kilimo < database/004_messages_snake_case.sql && mysql -u root -p Smart_Kilimo < database/005_order_items_updated_at.sql",
+    "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
     "db:migrate:profile": "node scripts/apply_009.js"
   },
