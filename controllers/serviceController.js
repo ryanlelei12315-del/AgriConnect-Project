@@ -58,6 +58,7 @@ module.exports = {
         services,
         category: category || 'All',
         search: search || '',
+        activeNav: 'services',
         error: null,
       });
     } catch (err) {

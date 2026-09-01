@@ -103,7 +103,7 @@ app.use('/api/m', require('./routes/mobileRoutes'));
 
 app.use('/', require('./routes/marketplace'));
 
-app.get('/why-us', (req, res) => res.render('why-us'));
+app.get('/why-us', (req, res) => res.render('why-us', { activeNav: 'why-us' }));
 
 // ── Page routes (server-side guarded) ───────────────────────────────────────
 app.get('/', redirectIfAuthed, (req, res) => res.render('index'));

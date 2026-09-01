@@ -40,6 +40,7 @@ module.exports = {
         orders,
         isFarmer,
         currentPage: page,
+        activeNav: 'orders',
         totalPages: Math.ceil(count / limit),
         status: status || 'All',
       });

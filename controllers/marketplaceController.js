@@ -28,6 +28,7 @@ module.exports = {
         minPrice: filters.minPrice,
         maxPrice: filters.maxPrice,
         currentPage: page,
+        activeNav: 'marketplace',
         totalPages: Math.ceil(count / PAGE_SIZE),
         error: null,
       });

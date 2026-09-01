@@ -13,7 +13,6 @@
     rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/foundation.css">
-  <link rel="stylesheet" href="/css/pages/produce.css">
   <script>
     (function () {
       var stored = localStorage.getItem('theme');
@@ -67,16 +66,19 @@
   </script>
   <script>
     (function () {
-      var btn = document.getElementById('themeToggle');
-      if (!btn) return;
+      // Bind every theme toggle (navbar, topbar, sidebar) to the same behavior.
+      var btns = document.querySelectorAll('[data-theme-toggle]');
+      if (!btns.length) return;
 
       function updateIcons(isDark) {
-        var sun = btn.querySelector('.theme-icon-sun');
-        var moon = btn.querySelector('.theme-icon-moon');
-        if (sun && moon) {
-          sun.style.display = isDark ? 'none' : 'inline';
-          moon.style.display = isDark ? 'inline' : 'none';
-        }
+        btns.forEach(function (btn) {
+          var sun = btn.querySelector('.theme-icon-sun');
+          var moon = btn.querySelector('.theme-icon-moon');
+          if (sun && moon) {
+            sun.style.display = isDark ? 'none' : 'inline';
+            moon.style.display = isDark ? 'inline' : 'none';
+          }
+        });
         if (typeof lucide !== 'undefined') {
           lucide.createIcons();
         }
@@ -91,11 +93,13 @@
         updateIcons(theme === 'dark');
       }
 
-      btn.addEventListener('click', function () {
-        var current = document.documentElement.getAttribute('data-theme');
-        var next = current === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('theme', next);
-        applyTheme(next);
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var current = document.documentElement.getAttribute('data-theme');
+          var next = current === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('theme', next);
+          applyTheme(next);
+        });
       });
 
       var stored = localStorage.getItem('theme');

@@ -59,6 +59,7 @@ module.exports = {
         prices,
         category: category || 'All',
         county: county || 'All',
+        activeNav: 'market-prices',
         isDemo,
       });
     } catch (err) {

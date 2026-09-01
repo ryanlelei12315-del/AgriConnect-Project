@@ -1,19 +1,24 @@
 <!-- Primary public navigation. Authenticated state is server-rendered. -->
+<% const navId = (typeof activeNav !== 'undefined' && activeNav) ? activeNav : (typeof currentPage === 'string' ? currentPage : ''); %>
 <nav aria-label="Primary navigation">
   <a href="/" class="nav-logo" aria-label="AgriConnect KE home">
     <span class="nav-logo-mark"><i data-lucide="leaf" aria-hidden="true"></i></span>
     <span class="nav-logo-text">Agri<em>Connect</em> KE</span>
   </a>
   <div class="nav-center">
-    <a href="/marketplace">Marketplace</a>
-    <a href="/services">Services</a>
-    <a href="/market-prices">Market prices</a>
-    <a href="/why-us">How it works</a>
+    <a href="/marketplace" class="<%= navId === 'marketplace' ? 'active' : '' %>"<%= navId === 'marketplace' ? ' aria-current="page"' : '' %>>Marketplace</a>
+    <a href="/services" class="<%= navId === 'services' ? 'active' : '' %>"<%= navId === 'services' ? ' aria-current="page"' : '' %>>Services</a>
+    <a href="/market-prices" class="<%= navId === 'market-prices' ? 'active' : '' %>"<%= navId === 'market-prices' ? ' aria-current="page"' : '' %>>Market prices</a>
+    <a href="/why-us" class="<%= navId === 'why-us' ? 'active' : '' %>"<%= navId === 'why-us' ? ' aria-current="page"' : '' %>>How it works</a>
   </div>
   <div class="nav-right">
-    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
       <svg class="theme-icon-sun" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       <svg class="theme-icon-moon" style="width:18px;height:18px; display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navDrawer" aria-label="Open menu">
+      <svg class="nav-toggle-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="nav-toggle-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
     </button>
     <% if (typeof user !== 'undefined' && user) { %>
       <a href="/dashboard" class="nav-user-chip" aria-label="Open your dashboard">
@@ -29,4 +34,53 @@
       <a href="/register" class="btn btn-amber">Join free</a>
     <% } %>
   </div>
+
+  <!-- Mobile navigation drawer (hidden on desktop) -->
+  <div class="nav-drawer" id="navDrawer">
+    <a href="/marketplace" class="<%= navId === 'marketplace' ? 'active' : '' %>"<%= navId === 'marketplace' ? ' aria-current="page"' : '' %>>Marketplace</a>
+    <a href="/services" class="<%= navId === 'services' ? 'active' : '' %>"<%= navId === 'services' ? ' aria-current="page"' : '' %>>Services</a>
+    <a href="/market-prices" class="<%= navId === 'market-prices' ? 'active' : '' %>"<%= navId === 'market-prices' ? ' aria-current="page"' : '' %>>Market prices</a>
+    <a href="/why-us" class="<%= navId === 'why-us' ? 'active' : '' %>"<%= navId === 'why-us' ? ' aria-current="page"' : '' %>>How it works</a>
+  </div>
 </nav>
+<script>
+  (function () {
+    var toggle = document.getElementById('navToggle');
+    var drawer = document.getElementById('navDrawer');
+    if (!toggle || !drawer) return;
+
+    function isOpen() { return drawer.classList.contains('open'); }
+    function open() {
+      drawer.classList.add('open');
+      toggle.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close menu');
+      var first = drawer.querySelector('a');
+      if (first) first.focus();
+    }
+    function close(refocus) {
+      if (!isOpen()) return;
+      drawer.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
+      if (refocus) toggle.focus();
+    }
+
+    toggle.addEventListener('click', function () {
+      if (isOpen()) { close(true); } else { open(); }
+    });
+    document.addEventListener('click', function (e) {
+      if (!drawer.contains(e.target) && !toggle.contains(e.target)) close(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && isOpen()) close(true);
+    });
+    drawer.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { close(false); });
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 860) close(false);
+    });
+  })();
+</script>
