@@ -222,45 +222,75 @@
   const chatInput = document.getElementById('chatInput');
   const chatMessages = document.getElementById('chatMessages');
 
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function sendMessage() {
-    if (!sendBtn || !chatInput || !chatInput.value.trim()) return;
-    const content = chatInput.value.trim();
+    if (!sendBtn || !chatInput) return;
+    const content = (chatInput.value || '').trim();
+    if (!content) return;
     const recipientId = <%- JSON.stringify(activeUserId || null) %>;
     if (!recipientId) return;
 
+    // Lock the button while in flight to prevent double-sends.
+    sendBtn.disabled = true;
+    const originalLabel = sendBtn.innerHTML;
+    sendBtn.innerHTML = '<i data-lucide="loader" class="chat-spin"></i>';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
     fetch('/api/messages', {
       method: 'POST',
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
-        'x-csrf-token': document.querySelector('meta[name="csrf-token"]')?.content || ''
       },
       body: JSON.stringify({ recipient_id: recipientId, content }),
     })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (ok && d && d.success) {
           chatInput.value = '';
           if (chatMessages) {
             const row = document.createElement('div');
             row.className = 'chat-msg-row outgoing';
-            row.innerHTML = `
-              <div class="chat-msg-bubble">
-                <span class="chat-msg-text">${content}</span>
-                <span class="chat-msg-time">Just now <i data-lucide="check-check" class="chat-msg-tick"></i></span>
-              </div>`;
+            row.innerHTML =
+              '<div class="chat-msg-bubble">' +
+                '<span class="chat-msg-text">' + escapeHtml(content) + '</span>' +
+                '<span class="chat-msg-time">Just now <i data-lucide="check-check" class="chat-msg-tick"></i></span>' +
+              '</div>';
             chatMessages.appendChild(row);
             chatMessages.scrollTop = chatMessages.scrollHeight;
             if (typeof lucide !== 'undefined') lucide.createIcons();
           }
+        } else {
+          const msg = (d && d.message) ? d.message : 'Failed to send. Please try again.';
+          if (typeof window.showToast === 'function') window.showToast(msg, 'error');
+          else alert(msg);
         }
       })
-      .catch(() => { /* ignore */ });
+      .catch(() => {
+        if (typeof window.showToast === 'function') window.showToast('Network error. Please try again.', 'error');
+      })
+      .finally(() => {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = originalLabel;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      });
   }
 
   if (sendBtn) sendBtn.addEventListener('click', sendMessage);
   if (chatInput) {
     chatInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') sendMessage();
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
     });
   }
 

@@ -106,7 +106,45 @@ app.use('/', require('./routes/marketplace'));
 app.get('/why-us', (req, res) => res.render('why-us', { activeNav: 'why-us' }));
 
 // ── Page routes (server-side guarded) ───────────────────────────────────────
-app.get('/', redirectIfAuthed, (req, res) => res.render('index'));
+// Landing page: real platform data (all queries degrade gracefully so the
+// landing never fails because a table is empty or the DB hiccups).
+app.get('/', redirectIfAuthed, async (req, res, next) => {
+  try {
+    const { ProduceListing, ServiceListing, MarketPrice, User } = require('./models/associations');
+    const softFail = (fallback) => (e) => {
+      console.error('[Landing] data query failed:', e.message);
+      return fallback;
+    };
+
+    const [produce, services, marketPrices, produceCount, serviceCount] = await Promise.all([
+      ProduceListing.findAll({
+        where: { status: 'LISTED' },
+        include: [{ model: User, as: 'farmer', attributes: ['id', 'fullName'] }],
+        order: [['createdAt', 'DESC']],
+        limit: 6,
+      }).catch(softFail([])),
+      ServiceListing.findAll({
+        where: { availability: 'AVAILABLE' },
+        include: [{ model: User, as: 'provider', attributes: ['id', 'fullName'] }],
+        order: [['createdAt', 'DESC']],
+        limit: 4,
+      }).catch(softFail([])),
+      MarketPrice.findAll({ order: [['recordedAt', 'DESC']], limit: 6 }).catch(softFail([])),
+      ProduceListing.count({ where: { status: 'LISTED' } }).catch(softFail(0)),
+      ServiceListing.count({ where: { availability: 'AVAILABLE' } }).catch(softFail(0)),
+    ]);
+
+    res.render('index', {
+      produce,
+      services,
+      marketPrices,
+      produceCount,
+      serviceCount,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.get('/login', redirectIfAuthed, (req, res) => res.render('login'));
 

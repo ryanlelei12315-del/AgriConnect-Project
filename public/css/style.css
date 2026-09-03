@@ -773,7 +773,7 @@ nav {
 
 /* ══ FOOTER ══ */
 footer {
-  background: var(--ink);
+  background: var(--color-overlay);
   color: var(--white);
   padding: 5rem clamp(1.5rem, 5vw, 4rem) 2rem;
   text-align: center;
@@ -786,6 +786,7 @@ footer > div {
   font-family: 'Playfair Display', serif;
   font-size: 1.75rem;
   margin-bottom: 16px;
+  color:#14532d
 }
 .footer-logo-text em {
   color: var(--gold);
@@ -1047,7 +1048,7 @@ footer p {
 
 .ticker-section {
   padding: 6rem clamp(1.5rem, 5vw, 4rem);
-  background: var(--ink);
+  background: var(--color-primary-hover);
 }
 .ticker-grid {
   display: grid;
@@ -2646,11 +2647,12 @@ footer p {
   justify-content: space-between;
   align-items: center;
   gap: 6px;
+  color: #1f2926;
 }
 .chat-thread-time {
-  font-size: 0.68rem;
-  color: var(--ink-soft);
-  font-weight: 400;
+  font-size: 0.72rem;
+  color: #6b726d;
+  font-weight: 500;
   flex-shrink: 0;
 }
 .chat-thread-preview-row {
@@ -2661,8 +2663,8 @@ footer p {
   margin-top: 3px;
 }
 .chat-thread-preview {
-  font-size: 0.78rem;
-  color: var(--ink-soft);
+  font-size: 0.8rem;
+  color: #4a524d;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2791,12 +2793,12 @@ footer p {
 }
 .chat-msg-row.incoming .chat-msg-bubble {
   background: var(--white);
-  color: var(--ink);
+  color: #1f2926;
   border-top-left-radius: 2px;
 }
 .chat-msg-row.outgoing .chat-msg-bubble {
   background: #d9fdd3;
-  color: var(--ink);
+  color: #0f3b21;
   border-top-right-radius: 2px;
 }
 .chat-msg-text {
@@ -2804,8 +2806,8 @@ footer p {
   word-break: break-word;
 }
 .chat-msg-time {
-  font-size: 0.62rem;
-  color: rgba(0, 0, 0, 0.45);
+  font-size: 0.68rem;
+  color: rgba(0, 0, 0, 0.5);
   text-align: right;
   margin-top: 2px;
   line-height: 1;
@@ -2885,6 +2887,8 @@ footer p {
   width: 20px;
   height: 20px;
 }
+.chat-spin { width: 18px; height: 18px; animation: chatSpin 0.9s linear infinite; }
+@keyframes chatSpin { to { transform: rotate(360deg); } }
 
 /* Responsive chat */
 @media (max-width: 900px) {
@@ -4818,4 +4822,88 @@ a.chat-wa-btn:hover {
   .dash-content { padding: 5.5rem 1.1rem 2rem; }
   .service-card-foot { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
   .service-card-foot .btn { width: 100%; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Slice 5: landing page — real-data sections
+   ══════════════════════════════════════════════════════════════ */
+
+/* Hero + listing cards become real links */
+.live-cards .lc { text-decoration: none; color: inherit; }
+.produce_section .pc { text-decoration: none; color: inherit; }
+.svc-grid .sc { text-decoration: none; color: inherit; }
+
+/* Missing listing image fallback */
+.pc-img-fallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: var(--linen);
+  color: var(--ink-soft);
+}
+.pc-img-fallback svg { width: 28px; height: 28px; opacity: 0.5; }
+
+/* Hero: honest capability line when there is nothing to count yet */
+.hero-capabilities {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin-top: 1.25rem;
+}
+
+/* How it works (three flows) */
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+.how-card {
+  background: var(--white);
+  border: 1px solid var(--stone);
+  border-radius: 12px;
+  padding: 1.5rem 1.4rem;
+}
+.how-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--linen);
+  color: var(--emerald);
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.9rem;
+}
+.how-icon svg { width: 20px; height: 20px; }
+.how-title {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 0.5rem 0;
+}
+.how-desc {
+  font-size: 0.88rem;
+  color: var(--ink-mid);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Market price ticker provenance + empty state */
+.ticker-note {
+  margin-top: 1.25rem;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+.ticker-note a { color: var(--amber-glow); font-weight: 500; }
+.ticker-empty {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+}
+.ticker-empty a { color: var(--amber-glow); font-weight: 500; }
+
+@media (max-width: 1024px) {
+  .how-grid { grid-template-columns: 1fr; }
 }
