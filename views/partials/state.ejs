@@ -1,0 +1,6 @@
+<section class="<%= typeof state === 'string' && state === 'error' ? 'error-state' : 'empty-state' %>" <%= typeof state === 'string' && state === 'error' ? 'role="alert"' : '' %>>
+  <% if (typeof icon !== 'undefined' && icon) { %><i data-lucide="<%= icon %>" aria-hidden="true"></i><% } %>
+  <% if (typeof title !== 'undefined' && title) { %><h3><%= title %></h3><% } %>
+  <% if (typeof description !== 'undefined' && description) { %><p><%= description %></p><% } %>
+  <% if (typeof actionHref !== 'undefined' && actionHref && typeof actionLabel !== 'undefined' && actionLabel) { %><a href="<%= actionHref %>" class="btn btn-primary"><%= actionLabel %></a><% } %>
+</section>

@@ -1,0 +1,72 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <p style="margin-bottom:1.5rem;"><a href="/marketplace" style="color:var(--emerald);">Back to marketplace</a></p>
+
+  <article style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:2rem; background:var(--white); padding:clamp(1.25rem, 4vw, 2rem); border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--stone);">
+    <div style="border-radius:var(--radius); background:var(--cream); overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:320px; border:1px solid var(--stone);">
+      <% if (listing.imageUrl) { %><img src="<%= listing.imageUrl %>" alt="<%= listing.name %>" style="width:100%; height:100%; object-fit:cover;"><% } else { %><div class="empty-state" style="padding:2rem;"><i data-lucide="image" aria-hidden="true"></i><p>No image has been added.</p></div><% } %>
+    </div>
+
+    <div style="display:flex; flex-direction:column;">
+      <div style="display:flex; justify-content:space-between; gap:1rem; align-items:flex-start;">
+        <div><p style="color:var(--ink-soft); margin-bottom:.35rem;"><%= listing.category %> · <%= listing.county %></p><h1 style="color:var(--emerald); margin:0;"><%= listing.name %></h1></div>
+        <span class="status-badge status-<%= listing.status.toLowerCase() %>"><%= listing.status %></span>
+      </div>
+      <p style="font-size:1.5rem; font-weight:700; color:var(--gold); margin:1.25rem 0;">KES <%= Number(listing.pricePerKgKes).toLocaleString() %><span style="font-size:1rem; font-weight:500; color:var(--ink-soft);"> / <%= listing.unit || 'kg' %></span></p>
+
+      <dl style="display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin:0 0 1.5rem;">
+        <div style="background:var(--cream); padding:.85rem; border-radius:8px; border:1px solid var(--stone);"><dt style="font-size:.82rem; color:var(--ink-soft);">Available</dt><dd style="margin:.25rem 0 0; font-weight:600;"><%= Number(listing.quantityKg).toLocaleString() %> <%= listing.unit || 'kg' %></dd></div>
+        <div style="background:var(--cream); padding:.85rem; border-radius:8px; border:1px solid var(--stone);"><dt style="font-size:.82rem; color:var(--ink-soft);">Posted</dt><dd style="margin:.25rem 0 0; font-weight:600;"><%= new Date(listing.createdAt).toLocaleDateString('en-KE') %></dd></div>
+      </dl>
+
+      <section style="margin-bottom:1.5rem;"><h2 style="font-size:1rem; margin-bottom:.5rem;">About this produce</h2><p style="color:var(--ink-mid); line-height:1.6;"><%= listing.description || 'The farmer has not added a description.' %></p></section>
+      <section style="border-top:1px solid var(--stone); padding-top:1rem;"><h2 style="font-size:1rem; margin-bottom:.35rem;">Farmer</h2><p style="color:var(--ink-mid);"><%= listing.farmer ? listing.farmer.fullName : 'Farmer details unavailable' %></p></section>
+
+      <div style="display:flex; flex-wrap:wrap; gap:.75rem; margin-top:auto; padding-top:1.5rem;">
+        <% if (user && user.id === listing.farmerId) { %>
+          <a href="/produce/<%= listing.id %>/edit" class="btn btn-outline">Edit listing</a>
+          <form action="/produce/<%= listing.id %>/delete" method="POST" onsubmit="return confirm('Delete this listing? This cannot be undone.');"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button type="submit" class="btn btn-outline" style="color:var(--danger, #b42318); border-color:var(--danger, #b42318);">Delete listing</button></form>
+        <% } else { %>
+          <% if (listing.status === 'LISTED') { %><a href="<%= user ? '/orders/new?produce=' + listing.id : '/login' %>" class="btn btn-amber">Place order</a><% } else { %><span class="btn btn-outline" aria-disabled="true" style="opacity:.65; cursor:not-allowed;">Not available</span><% } %>
+          <% if (listing.farmerId) { %><a href="<%= user ? '/messages/' + listing.farmerId : '/login' %>" class="btn btn-outline">Contact farmer</a><% } %>
+        <% } %>
+      </div>
+    </div>
+  </article>
+
+  <% if (user && user.id === listing.farmerId) { %>
+  <section style="margin-top:1.5rem; max-width:560px; background:var(--white); border:1px solid var(--stone); border-radius:var(--radius); padding:1.25rem;">
+    <h2 style="font-size:1.1rem; margin-bottom:.3rem;">Listing image</h2><p style="color:var(--ink-soft); margin-bottom:1rem;">Use a clear image of the produce to help buyers make a decision.</p>
+    <form id="imageUploadForm" data-listing-id="<%= listing.id %>"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><div class="form-field"><label class="form-label" for="image">Choose image</label><input type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp,image/gif" required></div><button type="submit" class="btn btn-amber">Upload image</button><p id="uploadFeedback" class="form-feedback" role="status"></p></form>
+  </section>
+  <% } %>
+</main>
+
+<script>
+  lucide.createIcons();
+  (function () {
+    const form = document.getElementById('imageUploadForm');
+    if (!form) return;
+    const feedback = document.getElementById('uploadFeedback');
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const fileInput = document.getElementById('image');
+      if (!fileInput.files.length) { feedback.textContent = 'Choose an image before uploading.'; return; }
+      const button = form.querySelector('button[type="submit"]');
+      button.disabled = true; button.textContent = 'Uploading…'; feedback.textContent = '';
+      const data = new FormData(form);
+      try {
+        const response = await fetch('/api/listings/' + form.dataset.listingId + '/image', { method: 'POST', body: data });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || 'Upload failed.');
+        window.location.reload();
+      } catch (error) {
+        feedback.textContent = error.message || 'Network error. Please try again.';
+        button.disabled = false; button.textContent = 'Upload image';
+      }
+    });
+  })();
+</script>
+<%- include('../partials/footer') %>

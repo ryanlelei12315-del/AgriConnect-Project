@@ -1,0 +1,670 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<main class="dash-main">
+
+  <%- include('partials/sidebar', { currentPage: 'dashboard' }) %>
+
+  <!-- ══ Main Content ══ -->
+  <div class="dash-content">
+
+    <!-- ── Welcome Header ──────────────────────────────────────── -->
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-greeting">Welcome back, <%= (user.fullName || user.full_name || 'User').split(' ')[0] %>!</h1>
+        <p class="dash-sub"><%= user.role === 'farmer' ? "Here's what's happening with your farm today." : user.role === 'provider' ? "Here are the requests and services that need your attention." : "Here are the orders and market opportunities that need your attention." %></p>
+      </div>
+      <div class="dash-header-actions">
+        <% if (user.role === 'farmer') { %>
+          <a href="/produce/new" class="btn btn-amber"><i data-lucide="plus"></i> Post Produce</a>
+        <% } else if (user.role === 'provider') { %>
+          <% if (stats.pendingServiceRequests > 0) { %>
+            <a href="/services/requests/mine" class="btn btn-amber"><i data-lucide="clipboard-list"></i> Review Requests</a>
+          <% } else { %>
+            <a href="/services/new" class="btn btn-amber"><i data-lucide="plus"></i> List a Service</a>
+          <% } %>
+        <% } else { %>
+          <a href="/marketplace" class="btn btn-amber"><i data-lucide="store"></i> Browse Market</a>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- ── KPI Cards ─────────────────────────────────────────────── -->
+    <div class="dash-stats">
+      <a href="<%= user.role === 'farmer' ? '/produce' : user.role === 'provider' ? '/services' : '/marketplace' %>" class="stat-card stat-card--primary">
+        <span class="stat-body">
+          <span class="stat-label"><%= user.role === 'farmer' ? 'Active Listings' : user.role === 'provider' ? 'Available Services' : 'Available Produce' %></span>
+          <span class="stat-num is-primary"><%= user.role === 'farmer' ? stats.activeListings : user.role === 'provider' ? stats.activeServices : stats.availableProduce %></span>
+          <span class="stat-hint"><%= user.role === 'farmer' ? 'listed on the marketplace' : user.role === 'provider' ? 'marked as available' : 'live listings right now' %></span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
+      </a>
+      <a href="<%= user.role === 'provider' ? '/services/requests/mine' : '/orders?status=pending' %>" class="stat-card">
+        <span class="stat-body">
+          <span class="stat-label"><%= user.role === 'provider' ? 'New Requests' : 'Pending Orders' %></span>
+          <span class="stat-num"><%= user.role === 'provider' ? stats.pendingServiceRequests : stats.pendingOrders %></span>
+          <span class="stat-hint"><%= user.role === 'provider' ? 'need your response' : 'awaiting completion' %></span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
+      </a>
+      <a href="/messages" class="stat-card">
+        <span class="stat-body">
+          <span class="stat-label">Unread Messages</span>
+          <span class="stat-num"><%= stats.unreadMessages %></span>
+          <span class="stat-hint">awaiting your reply</span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
+      </a>
+      <% if (user.role === 'farmer') { %>
+      <a href="/orders?status=completed" class="stat-card">
+        <span class="stat-body">
+          <span class="stat-label">Total Sales</span>
+          <span class="stat-num is-financial">KES <%= Number(stats.totalSales).toLocaleString() %></span>
+          <span class="stat-hint">completed orders only</span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
+      </a>
+      <% } %>
+    </div>
+
+    <!-- ── Provider: Incoming Service Requests ────────────────── -->
+    <% if (user.role === 'provider') { %>
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Incoming Service Requests</h2>
+        <a href="/services/requests/mine" class="dash-section-link">View All →</a>
+      </div>
+      <% if (serviceRequests && serviceRequests.length > 0) { %>
+        <div class="order-mini-list">
+          <% serviceRequests.forEach(r => {
+            const st = r.status || 'PENDING';
+            const stClass = st === 'PENDING' ? 'badge-sold' : (st === 'ACCEPTED' || st === 'COMPLETED') ? 'badge-active' : 'badge-inactive';
+          %>
+            <a href="/services/requests/mine" class="recent-row">
+              <div class="recent-row-main">
+                <div class="recent-row-title"><%= r.service ? r.service.title : 'Service' %> · <%= r.requester ? (r.requester.fullName || 'Customer') : 'Customer' %></div>
+                <div class="recent-row-meta"><%= r.location %> · <%= new Date(r.requestedDate).toLocaleDateString('en-KE', { weekday: 'short', month: 'short', day: 'numeric' }) %></div>
+              </div>
+              <span class="produce-status-badge <%= stClass %>"><%= st.charAt(0) + st.slice(1).toLowerCase() %></span>
+            </a>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state-card">
+          <i data-lucide="inbox"></i>
+          <h4>No service requests yet</h4>
+          <p>When customers request your services, they'll appear here.</p>
+          <a href="/services/new" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">List a Service</a>
+        </div>
+      <% } %>
+    </div>
+    <% } %>
+
+    <!-- ── Farm Analytics ──────────────────────────────────────── -->
+    <% if (user.role === 'farmer') { %>
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <div>
+          <h2 class="dash-section-title">Farm Analytics</h2>
+          <p class="dash-section-sub">Track your sales, orders and marketplace activity.</p>
+        </div>
+        <!-- Period Filter -->
+        <div class="analytics-period-filter">
+          <a href="/dashboard?period=30d" class="period-btn <%= period === '30d' ? 'active' : '' %>">30 Days</a>
+          <a href="/dashboard?period=3m" class="period-btn <%= period === '3m' ? 'active' : '' %>">3 Months</a>
+          <a href="/dashboard?period=6m" class="period-btn <%= (period === '6m' || !period) ? 'active' : '' %>">6 Months</a>
+          <a href="/dashboard?period=12m" class="period-btn <%= period === '12m' ? 'active' : '' %>">12 Months</a>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <!-- Sales Overview Chart -->
+        <div class="analytics-card">
+          <div class="analytics-card-header">
+            <div>
+              <h3 class="analytics-card-title">Sales Overview</h3>
+              <p class="analytics-card-sub">Your completed sales over the selected period</p>
+            </div>
+          </div>
+          <%
+            const salesPoints = (salesData || []).length;
+            const activeSalesPoints = (salesData || []).filter(v => Number(v) > 0).length;
+            const salesTotal = (salesData || []).reduce((s, v) => s + Number(v || 0), 0);
+            const periodLabel = period === '30d' ? 'the last 30 days' : period === '3m' ? 'the last 3 months' : period === '12m' ? 'the last 12 months' : 'the last 6 months';
+          %>
+          <% if (salesPoints === 0 || activeSalesPoints === 0) { %>
+            <div class="chart-empty-state">
+              <i data-lucide="bar-chart-2"></i>
+              <h4>No sales data yet</h4>
+              <p>Your sales analytics will appear here after your first completed order.</p>
+            </div>
+          <% } else if (salesPoints <= 2) { %>
+            <div class="sales-summary">
+              <div class="sales-summary-total">KES <%= salesTotal.toLocaleString() %></div>
+              <p class="sales-summary-note">Completed sales in <%= periodLabel %>. A chart will appear as more history builds up.</p>
+              <ul class="sales-summary-list">
+                <% salesLabels.forEach((lbl, i) => { %>
+                  <li>
+                    <span><%= lbl %></span>
+                    <strong><%= Number(salesData[i]) > 0 ? 'KES ' + Number(salesData[i]).toLocaleString() : 'No sales' %></strong>
+                  </li>
+                <% }) %>
+              </ul>
+            </div>
+          <% } else if (salesPoints <= 5) { %>
+            <div class="chart-wrapper chart-wrapper--compact">
+              <canvas id="salesChart"></canvas>
+            </div>
+          <% } else { %>
+            <div class="chart-wrapper">
+              <canvas id="salesChart"></canvas>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Order Status Doughnut -->
+        <div class="analytics-card">
+          <div class="analytics-card-header">
+            <div>
+              <h3 class="analytics-card-title">Order Status</h3>
+              <p class="analytics-card-sub">Distribution of all your orders</p>
+            </div>
+          </div>
+          <% if (hasOrders && orderStatusLabels && orderStatusLabels.length > 0) { %>
+            <div class="chart-wrapper chart-wrapper-doughnut">
+              <canvas id="orderChart"></canvas>
+            </div>
+            <div class="chart-legend" id="orderChartLegend"></div>
+          <% } else { %>
+            <div class="chart-empty-state">
+              <i data-lucide="pie-chart"></i>
+              <h4>No orders yet</h4>
+              <p>Once buyers order your produce, you'll see your order distribution here.</p>
+              <a href="/marketplace" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1rem;">Browse Marketplace</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Produce Category Chart (smaller, optional) -->
+      <% if (produceCategoryLabels && produceCategoryLabels.length > 0) { %>
+      <div class="analytics-card analytics-card-wide" style="margin-top:1.5rem;">
+        <div class="analytics-card-header">
+          <div>
+            <h3 class="analytics-card-title">Produce by Category</h3>
+            <p class="analytics-card-sub">Your active listings across categories</p>
+          </div>
+        </div>
+        <div class="chart-wrapper" style="height:200px;">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+      <% } %>
+    </div>
+    <% } %>
+
+    <!-- ── Main Content Grid ─────────────────────────────────── -->
+    <div class="section-eyebrow">Recent Activity</div>
+    <div class="dash-content-grid">
+
+      <!-- ── My Produce ──────────────────────────── -->
+      <% if (user.role === 'farmer') { %>
+      <div class="dash-section" style="grid-column: 1 / -1;">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">My Produce</h2>
+          <a href="/produce" class="dash-section-link">View All →</a>
+        </div>
+        <% if (recentProduce && recentProduce.length > 0) { %>
+          <div class="produce-mini-list">
+            <% recentProduce.forEach(p => {
+              const statusClass = p.status === 'LISTED' ? 'badge-active' : p.status === 'SOLD' ? 'badge-sold' : 'badge-inactive';
+              const statusLabel = p.status === 'LISTED' ? 'Active' : p.status === 'SOLD' ? 'Sold' : 'Inactive';
+            %>
+              <div class="produce-mini-card">
+                <div class="produce-mini-img">
+                  <% if (p.imageUrl) { %>
+                    <img src="<%= p.imageUrl %>" alt="<%= p.name %>">
+                  <% } else { %>
+                    <i data-lucide="image"></i>
+                  <% } %>
+                </div>
+                <div class="produce-mini-info">
+                  <div class="produce-mini-name"><%= p.name %></div>
+                  <div class="produce-mini-price">KES <%= Number(p.pricePerKgKes).toLocaleString() %> / kg</div>
+                  <div class="produce-mini-meta"><%= p.county %></div>
+                </div>
+                <div class="produce-mini-right">
+                  <span class="produce-status-badge <%= statusClass %>"><%= statusLabel %></span>
+                  <div class="produce-mini-actions">
+                    <a href="/produce/<%= p.id %>" class="table-action-link">View</a>
+                    <a href="/produce/<%= p.id %>/edit" class="table-action-link">Edit</a>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="package-open"></i>
+            <h4>No produce listed yet</h4>
+            <p>Start selling to buyers across Kenya.</p>
+            <a href="/produce/new" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Post First Listing</a>
+          </div>
+        <% } %>
+      </div>
+      <% } %>
+
+      <!-- ── Fresh on the Marketplace (buyer) ───────── -->
+      <% if (user.role === 'buyer') { %>
+      <div class="dash-section" style="grid-column: 1 / -1;">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Fresh on the Marketplace</h2>
+          <a href="/marketplace" class="dash-section-link">Browse All →</a>
+        </div>
+        <% if (freshProduce && freshProduce.length > 0) { %>
+          <div class="produce-mini-list">
+            <% freshProduce.forEach(p => { %>
+              <div class="produce-mini-card">
+                <div class="produce-mini-img">
+                  <% if (p.imageUrl) { %>
+                    <img src="<%= p.imageUrl %>" alt="<%= p.name %>">
+                  <% } else { %>
+                    <i data-lucide="image"></i>
+                  <% } %>
+                </div>
+                <div class="produce-mini-info">
+                  <div class="produce-mini-name"><%= p.name %></div>
+                  <div class="produce-mini-price">KES <%= Number(p.pricePerKgKes).toLocaleString() %> / kg</div>
+                  <div class="produce-mini-meta"><%= p.county %><%= p.farmer ? ' · ' + p.farmer.fullName : '' %></div>
+                </div>
+                <div class="produce-mini-right">
+                  <span class="produce-status-badge badge-active">Available</span>
+                  <div class="produce-mini-actions">
+                    <a href="/produce/<%= p.id %>" class="table-action-link">View</a>
+                    <a href="/orders/new?produce=<%= p.id %>" class="table-action-link">Order</a>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="store"></i>
+            <h4>No produce listed right now</h4>
+            <p>New listings appear here as farmers post them.</p>
+            <a href="/marketplace" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Browse Marketplace</a>
+          </div>
+        <% } %>
+      </div>
+      <% } %>
+
+      <!-- ── Recent Orders (farmer + buyer) ─────────── -->
+      <% if (user.role !== 'provider') { %>
+      <div class="dash-section" style="grid-column: 1 / -1;">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Recent Orders</h2>
+          <a href="/orders" class="dash-section-link">View All →</a>
+        </div>
+        <% if (recentOrders && recentOrders.length > 0) { %>
+          <div class="order-mini-list">
+            <% recentOrders.forEach(o => {
+              const isFarmerRow = user.role === 'farmer';
+              const otherParty = isFarmerRow ? o.buyer : o.seller;
+              const otherName = otherParty ? (otherParty.fullName || 'Unknown') : 'Unknown';
+              const itemName = (o.items && o.items[0] && o.items[0].listing) ? o.items[0].listing.name : 'Order';
+              const status = (o.status || 'pending');
+              const statusClass = status === 'completed' ? 'badge-active' : status === 'pending' ? 'badge-sold' : 'badge-inactive';
+              const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+            %>
+              <a href="/orders/<%= o.id %>" class="recent-row">
+                <div class="recent-row-main">
+                  <div class="recent-row-title"><%= itemName %> · <%= otherName %></div>
+                  <div class="recent-row-meta">KES <%= Number(o.totalKes).toLocaleString() %> · <%= new Date(o.createdAt).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' }) %></div>
+                </div>
+                <span class="produce-status-badge <%= statusClass %>"><%= statusLabel %></span>
+              </a>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="shopping-bag"></i>
+            <h4>No orders yet</h4>
+            <% if (user.role === 'buyer') { %>
+              <p>When you order produce, it will show up here.</p>
+              <a href="/marketplace" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Browse Marketplace</a>
+            <% } else { %>
+              <p>When buyers order your produce, it will show up here.</p>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+      <% } %>
+
+    </div><!-- end .dash-content-grid -->
+
+    <!-- ── Market Info + Messages Row ─────────────────────── -->
+    <div class="section-eyebrow"><%= user.role === 'provider' ? 'Communication' : 'Market Insights' %></div>
+    <div class="dash-bottom-grid">
+
+      <!-- Market Prices -->
+      <% if (user.role !== 'provider') { %>
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <div>
+            <h2 class="dash-section-title">Market Prices</h2>
+            <p class="dash-section-sub">Stored reference prices — <a href="/market-prices">check live feed status</a></p>
+          </div>
+          <a href="/market-prices" class="dash-section-link">View All →</a>
+        </div>
+        <div class="market-price-list">
+          <% if (marketPrices && marketPrices.length > 0) { %>
+            <% marketPrices.forEach(m => { %>
+              <div class="market-price-row">
+                <div>
+                  <div class="market-price-name"><%= m.produceName %></div>
+                  <div class="market-price-market"><%= m.marketName || '' %></div>
+                </div>
+                <div class="market-price-right">
+                  <div class="market-price-value">KES <%= Number(m.price).toLocaleString() %> / <%= m.unit %></div>
+                  <% if (m.priceChange > 0) { %>
+                    <div class="market-price-change up">↑ <%= m.priceChange %>%</div>
+                  <% } else if (m.priceChange < 0) { %>
+                    <div class="market-price-change down">↓ <%= Math.abs(m.priceChange) %>%</div>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="empty-state-card"><p>No market data available.</p></div>
+          <% } %>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Recent Messages -->
+      <div class="dash-section"<%= user.role === 'provider' ? ' style="grid-column: 1 / -1;"' : '' %>>
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Recent Messages</h2>
+          <a href="/messages" class="dash-section-link">View All →</a>
+        </div>
+        <% if (recentMessages && recentMessages.length > 0) { %>
+          <div class="recent-msg-list">
+            <% recentMessages.forEach(m => { %>
+              <a href="/messages/<%= m.other_user_id %>" class="recent-msg-item">
+                <div class="recent-msg-avatar"><%= (m.other_user_name || '?').charAt(0).toUpperCase() %></div>
+                <div class="recent-msg-body">
+                  <div class="recent-msg-top">
+                    <span class="recent-msg-name"><%= m.other_user_name %></span>
+                    <span class="recent-msg-time"><%= new Date(m.last_at).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' }) %></span>
+                  </div>
+                  <div class="recent-msg-preview-row">
+                    <span class="recent-msg-preview"><%= m.last_message %></span>
+                    <% if (Number(m.unread_count) > 0) { %><span class="chat-unread-badge"><%= m.unread_count %></span><% } %>
+                  </div>
+                </div>
+              </a>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="message-square"></i>
+            <h4>No messages yet</h4>
+            <p>Your recent conversations will appear here.</p>
+          </div>
+        <% } %>
+      </div>
+
+      </div><!-- end .dash-bottom-grid -->
+
+    <!-- ── Service Requests + Recommendations (farmer/buyer) ─ -->
+    <% if (user.role === 'farmer' || user.role === 'buyer') { %>
+    <div class="dash-bottom-grid">
+
+      <!-- My Service Requests -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">My Service Requests</h2>
+          <a href="/services/requests/mine" class="dash-section-link">View All →</a>
+        </div>
+        <% if (serviceRequests && serviceRequests.length > 0) { %>
+          <div class="order-mini-list">
+            <% serviceRequests.forEach(r => {
+              const st = r.status || 'PENDING';
+              const stClass = st === 'PENDING' ? 'badge-sold' : (st === 'ACCEPTED' || st === 'COMPLETED') ? 'badge-active' : 'badge-inactive';
+              const other = r.provider;
+            %>
+              <a href="/services/requests/mine" class="recent-row">
+                <div class="recent-row-main">
+                  <div class="recent-row-title"><%= r.service ? r.service.title : 'Service' %> · <%= other ? (other.fullName || 'Provider') : 'Provider' %></div>
+                  <div class="recent-row-meta"><%= r.location %> · <%= new Date(r.requestedDate).toLocaleDateString('en-KE', { weekday: 'short', month: 'short', day: 'numeric' }) %></div>
+                </div>
+                <span class="produce-status-badge <%= stClass %>"><%= st.charAt(0) + st.slice(1).toLowerCase() %></span>
+              </a>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="clipboard-list"></i>
+            <h4>No service requests yet</h4>
+            <p>Find trusted providers for irrigation, transport and more.</p>
+            <a href="/services" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Browse Services</a>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Services You May Need -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Services You May Need</h2>
+          <a href="/services" class="dash-section-link">View All →</a>
+        </div>
+        <% if (recommendedServices && recommendedServices.length > 0) { %>
+          <div class="order-mini-list">
+            <% recommendedServices.forEach(s => { %>
+              <a href="/services/<%= s.id %>" class="recent-row">
+                <div class="recent-row-main">
+                  <div class="recent-row-title"><%= s.title %></div>
+                  <div class="recent-row-meta"><%= s.category %> · <%= s.county %><%= s.provider ? ' · ' + s.provider.fullName : '' %></div>
+                </div>
+                <i data-lucide="arrow-right" style="width:16px;height:16px;color:var(--ink-soft);" aria-hidden="true"></i>
+              </a>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state-card">
+            <i data-lucide="tractor"></i>
+            <h4>No services listed yet</h4>
+            <p>Provider listings will appear here as they join the platform.</p>
+          </div>
+        <% } %>
+      </div>
+
+    </div>
+    <% } %>
+
+  </div><!-- end .dash-content -->
+</main>
+
+<!-- ── Chart.js Initialization ───────────────────────────────── -->
+<script>
+  // Data injected safely from Express controller — no arbitrary user content
+  const salesLabels = <%- JSON.stringify(salesLabels || []) %>;
+  const salesData   = <%- JSON.stringify(salesData || []) %>;
+  const orderStatusLabels = <%- JSON.stringify(orderStatusLabels || []) %>;
+  const orderStatusData   = <%- JSON.stringify(orderStatusData || []) %>;
+  const produceCategoryLabels = <%- JSON.stringify(produceCategoryLabels || []) %>;
+  const produceCategoryData   = <%- JSON.stringify(produceCategoryData || []) %>;
+
+  // AgriConnect design tokens
+  const EMERALD      = '#1b4a2e';
+  const EMERALD_LIGHT = '#2c6e45';
+  const GOLD         = '#b38234';
+  const GOLD_LIGHT   = '#cfa153';
+  const STONE        = '#e8e4d9';
+  const INK_SOFT     = '#636b65';
+
+  const STATUS_COLORS = ['#2c6e45','#b38234','#cfa153','#1b4a2e','#e74c3c'];
+
+  // Currency formatter
+  function fmtKES(val) {
+    return 'KES ' + Number(val).toLocaleString('en-KE', { maximumFractionDigits: 0 });
+  }
+
+  // ── Sales Bar Chart ─────────────────────────────────────────
+  const salesCtx = document.getElementById('salesChart');
+  if (salesCtx && salesData.length > 0) {
+    new Chart(salesCtx, {
+      type: 'bar',
+      data: {
+        labels: salesLabels,
+        datasets: [{
+          label: 'Sales',
+          data: salesData,
+          backgroundColor: 'rgba(44, 110, 69, 0.75)',
+          borderColor: EMERALD,
+          borderWidth: 1.5,
+          borderRadius: 6,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => fmtKES(ctx.raw),
+            },
+            backgroundColor: EMERALD,
+            titleColor: '#fff',
+            bodyColor: '#cfa153',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: v => 'KES ' + v.toLocaleString(),
+              color: INK_SOFT,
+              font: { size: 11 },
+            },
+            grid: { color: STONE },
+            border: { display: false },
+          },
+          x: {
+            ticks: { color: INK_SOFT, font: { size: 11 } },
+            grid: { display: false },
+            border: { display: false },
+          },
+        },
+      },
+    });
+  }
+
+  // ── Order Status Doughnut ───────────────────────────────────
+  const orderCtx = document.getElementById('orderChart');
+  if (orderCtx && orderStatusData.length > 0) {
+    const orderChart = new Chart(orderCtx, {
+      type: 'doughnut',
+      data: {
+        labels: orderStatusLabels,
+        datasets: [{
+          data: orderStatusData,
+          backgroundColor: STATUS_COLORS.slice(0, orderStatusLabels.length),
+          borderColor: '#fff',
+          borderWidth: 3,
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.raw}`,
+            },
+            backgroundColor: EMERALD,
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+      },
+    });
+
+    // Build custom legend
+    const legendEl = document.getElementById('orderChartLegend');
+    if (legendEl) {
+      orderStatusLabels.forEach((label, i) => {
+        const div = document.createElement('div');
+        div.className = 'legend-item';
+        div.innerHTML = `
+          <span class="legend-dot" style="background:${STATUS_COLORS[i] || '#ccc'}"></span>
+          <span class="legend-label">${label}</span>
+          <span class="legend-value">${orderStatusData[i]}</span>
+        `;
+        legendEl.appendChild(div);
+      });
+    }
+  }
+
+  // ── Produce Category Bar Chart ──────────────────────────────
+  const catCtx = document.getElementById('categoryChart');
+  if (catCtx && produceCategoryData.length > 0) {
+    new Chart(catCtx, {
+      type: 'bar',
+      data: {
+        labels: produceCategoryLabels,
+        datasets: [{
+          label: 'Listings',
+          data: produceCategoryData,
+          backgroundColor: [EMERALD_LIGHT, GOLD, '#5c8a6e', GOLD_LIGHT, '#3d7a58', '#a87028'],
+          borderRadius: 5,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => ` ${ctx.raw} listing${ctx.raw !== 1 ? 's' : ''}` },
+            backgroundColor: EMERALD,
+            titleColor: '#fff',
+            bodyColor: '#cfa153',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, color: INK_SOFT, font: { size: 11 } },
+            grid: { color: STONE },
+            border: { display: false },
+          },
+          y: {
+            ticks: { color: INK_SOFT, font: { size: 11 } },
+            grid: { display: false },
+            border: { display: false },
+          },
+        },
+      },
+    });
+  }
+
+  // Init Lucide icons
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+</script>
+
+<%- include('partials/chatbot') %>

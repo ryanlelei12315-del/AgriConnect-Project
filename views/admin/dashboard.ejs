@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:1rem; margin-bottom:2rem; flex-wrap:wrap;">
+    <div>
+      <p style="color:var(--ink-soft); margin-bottom:0.4rem;">Platform administration</p>
+      <h1 style="color:var(--emerald); margin:0;">Operations overview</h1>
+    </div>
+    <a href="/admin/users" class="btn btn-outline">Manage users</a>
+  </div>
+
+  <section class="dash-stats" aria-label="Platform statistics">
+    <div class="stat-card"><div class="stat-info"><div class="stat-num"><%= stats.users %></div><div class="stat-label">Registered users</div></div></div>
+    <div class="stat-card"><div class="stat-info"><div class="stat-num"><%= stats.listings %></div><div class="stat-label">Produce listings</div></div></div>
+    <div class="stat-card"><div class="stat-info"><div class="stat-num"><%= stats.orders %></div><div class="stat-label">Orders</div></div></div>
+    <div class="stat-card gold"><div class="stat-info"><div class="stat-num">KES <%= Number(stats.totalSales).toLocaleString() %></div><div class="stat-label">Completed-order value</div></div></div>
+  </section>
+
+  <section style="margin-top:2rem;" aria-labelledby="recent-listings-heading">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;"><h2 id="recent-listings-heading" style="margin:0;">Recent listings</h2><span style="color:var(--ink-soft); font-size:.9rem;"><%= stats.services %> services on the platform</span></div>
+    <div class="table-responsive" style="background:var(--white);">
+      <% if (recentListings.length) { %>
+      <table class="data-table"><thead><tr><th>Produce</th><th>Farmer</th><th>County</th><th>Status</th><th>Moderation</th></tr></thead><tbody>
+        <% recentListings.forEach((listing) => { %><tr>
+          <td><a href="/produce/<%= listing.id %>" style="color:var(--emerald); font-weight:600;"><%= listing.name %></a></td>
+          <td><%= listing.farmer ? listing.farmer.fullName : 'Unknown' %></td><td><%= listing.county %></td>
+          <td><span class="status-badge status-<%= listing.status.toLowerCase() %>"><%= listing.status %></span></td>
+          <td><% if (listing.status !== 'INACTIVE') { %><form action="/admin/listings/<%= listing.id %>/deactivate" method="POST"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-outline btn-sm" type="submit">Deactivate</button></form><% } else { %><span style="color:var(--ink-soft);">Inactive</span><% } %></td>
+        </tr><% }) %>
+      </tbody></table>
+      <% } else { %><div class="empty-state" style="padding:3rem 1.5rem;"><h3>No listings yet</h3><p>Listings will appear here when farmers publish produce.</p></div><% } %>
+    </div>
+  </section>
+
+  <section style="margin-top:2rem;" aria-labelledby="recent-orders-heading">
+    <h2 id="recent-orders-heading" style="margin-bottom:1rem;">Recent orders</h2>
+    <div class="table-responsive" style="background:var(--white);">
+      <% if (recentOrders.length) { %><table class="data-table"><thead><tr><th>Order</th><th>Buyer</th><th>Seller</th><th>Total</th><th>Status</th></tr></thead><tbody>
+        <% recentOrders.forEach((order) => { %><tr><td><a href="/orders/<%= order.id %>" style="color:var(--emerald); font-weight:600;">#ORD-<%= order.id %></a></td><td><%= order.buyer ? order.buyer.fullName : 'Unknown' %></td><td><%= order.seller ? order.seller.fullName : 'Unknown' %></td><td>KES <%= Number(order.totalKes || 0).toLocaleString() %></td><td><span class="status-badge status-<%= order.status %>"><%= order.status %></span></td></tr><% }) %>
+      </tbody></table><% } else { %><div class="empty-state" style="padding:3rem 1.5rem;"><h3>No orders yet</h3><p>Order activity will appear here when marketplace purchases begin.</p></div><% } %>
+    </div>
+  </section>
+</main>
+<script>lucide.createIcons();</script>
+<%- include('../partials/footer') %>

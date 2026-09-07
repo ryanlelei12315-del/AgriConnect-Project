@@ -1,0 +1,204 @@
+<%- include('partials/header') %> <%- include('partials/navbar') %>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-head">
+      <h1 class="auth-title">Create an Account</h1>
+      <p class="auth-sub">Join Kenya's leading direct-trade agricultural network.</p>
+    </div>
+
+    <!-- Error / success banner -->
+    <div id="auth-banner" class="auth-banner" style="display: none"></div>
+
+    <form id="register-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="form-group">
+        <label class="form-label">I am registering as a:</label>
+        <div class="role-options">
+          <label class="role-label">
+            <input type="radio" name="role" value="farmer" checked />
+            <div class="role-icon"><i data-lucide="tractor"></i></div>
+            <div class="role-text">Farmer / Producer</div>
+          </label>
+          <label class="role-label">
+            <input type="radio" name="role" value="buyer" />
+            <div class="role-icon"><i data-lucide="shopping-cart"></i></div>
+            <div class="role-text">Buyer / Vendor</div>
+          </label>
+          <label class="role-label">
+            <input type="radio" name="role" value="provider" />
+            <div class="role-icon"><i data-lucide="wrench"></i></div>
+            <div class="role-text">Service Provider</div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input
+          id="full_name"
+          type="text"
+          class="form-input"
+          placeholder="e.g. John Kamau"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">County</label>
+        <select id="county" class="form-input" required>
+          <option value="">Select your county…</option>
+          <option>Uasin Gishu</option>
+          <option>Nakuru</option>
+          <option>Meru</option>
+          <option>Kajiado</option>
+          <option>Nairobi</option>
+          <option>Kiambu</option>
+          <option>Kisumu</option>
+          <option>Eldoret</option>
+          <option>Embu</option>
+          <option>Naivasha</option>
+          <option>Trans Nzoia</option>
+          <option>Kakamega</option>
+          <option>Kericho</option>
+          <option>Machakos</option>
+          <option>Nyeri</option>
+          <option>Thika</option>
+          <option>Kitale</option>
+          <option>Garissa</option>
+          <option>Wajir</option>
+          <option>Mandera</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input
+          id="phone_number"
+          type="tel"
+          class="form-input"
+          placeholder="07XX XXX XXX"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address <span style="opacity: 0.5">(Required)</span></label>
+        <input id="email" type="email" class="form-input" placeholder="john@example.com" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input
+          id="password"
+          type="password"
+          class="form-input"
+          placeholder="Create a secure password"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input
+          id="confirm_password"
+          type="password"
+          class="form-input"
+          placeholder="Confirm your password"
+          required
+        />
+      </div>
+
+      <button type="submit" id="reg-btn" class="btn btn-fill btn-full">Register Account</button>
+    </form>
+
+    <div class="auth-footer">Already have an account? <a href="/login">Sign in here</a></div>
+  </div>
+</div>
+
+<%- include('partials/scripts') %>
+
+<script>
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('reg-btn');
+    const banner = document.getElementById('auth-banner');
+
+    // ── Confirm password validation ──────────────────────────────
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    if (password !== confirmPassword) {
+      banner.className = 'auth-banner error';
+      banner.textContent = 'Passwords do not match. Please re-enter your password.';
+      banner.style.display = 'block';
+      document.getElementById('confirm_password').focus();
+      return;
+    }
+
+    // ── Password length validation ──────────────────────────────
+    if (password.length < 8) {
+      banner.className = 'auth-banner error';
+      banner.textContent = 'Password must be at least 8 characters long.';
+      banner.style.display = 'block';
+      document.getElementById('password').focus();
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = 'Creating account…';
+    banner.style.display = 'none';
+
+    const role = document.querySelector('input[name="role"]:checked').value;
+    const body = {
+      full_name: document.getElementById('full_name').value.trim(),
+      phone_number: document.getElementById('phone_number').value.trim(),
+      email: document.getElementById('email').value.trim() || undefined,
+      county: document.getElementById('county').value,
+      password: document.getElementById('password').value,
+      role,
+    };
+
+    try {
+      // POST once; if rejected because the CSRF token went stale (403),
+      // fetch a fresh token+cookie and retry the exact same request once.
+      const doSubmit = async (token, isRetry) => {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': token,
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+
+        if (res.status === 403 && !isRetry) {
+          const fresh = await (window.agriRefreshCsrfToken
+            ? window.agriRefreshCsrfToken()
+            : null);
+          if (fresh) return doSubmit(fresh, true);
+        }
+
+        if (!res.ok) {
+          banner.className = 'auth-banner error';
+          banner.textContent = data.message || 'Registration failed.';
+          banner.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Register Account';
+          return;
+        }
+
+        // Auth cookie is set httpOnly by the server — just redirect.
+        // (No localStorage token = no XSS token theft.)
+        window.location.href = '/dashboard';
+      };
+
+      await doSubmit(window.agriCsrfToken || '', false);
+    } catch (err) {
+      banner.className = 'auth-banner error';
+      banner.textContent = 'Network error. Please try again.';
+      banner.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Register Account';
+    }
+  });
+</script>

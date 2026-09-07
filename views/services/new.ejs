@@ -1,0 +1,110 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container" style="max-width:800px;">
+  <div style="margin-bottom:2rem;">
+    <a href="/services" style="color:var(--emerald); text-decoration:none;">← Back to Services</a>
+  </div>
+
+  <div class="card" style="padding:2rem;">
+    <h1 style="color:var(--ink); font-size:1.5rem; margin-bottom:0.5rem;">List a New Service</h1>
+    <p style="color:var(--ink-soft); margin-bottom:2rem;">Create a service listing so buyers can find and request your services.</p>
+
+    <% if (error) { %>
+      <div class="alert alert--danger" style="margin-bottom:1.5rem;" role="alert">
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <form action="/services" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+      <div class="form-field">
+        <label for="title" class="form-label">Service Title <span class="form-required">*</span></label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          class="form-input"
+          required
+          maxlength="100"
+          placeholder="e.g. Tractor Repair, Farm Transport, Irrigation Setup"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="category" class="form-label">Category <span class="form-required">*</span></label>
+        <select id="category" name="category" required class="form-select">
+          <option value="">Select a category…</option>
+          <option value="Machinery">Machinery</option>
+          <option value="Transport">Transport</option>
+          <option value="Infrastructure">Infrastructure</option>
+          <option value="Labour">Labour</option>
+          <option value="Agronomy">Agronomy</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+        <div class="form-field">
+          <label for="price_kes" class="form-label">Price (KES) <span class="form-required">*</span></label>
+          <input
+            type="number"
+            id="price_kes"
+            name="price_kes"
+            class="form-input"
+            required
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+          />
+        </div>
+        <div class="form-field">
+          <label for="county" class="form-label">County <span class="form-required">*</span></label>
+          <input
+            type="text"
+            id="county"
+            name="county"
+            class="form-input"
+            required
+            maxlength="50"
+            placeholder="e.g. Uasin Gishu"
+          />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="availability" class="form-label">Availability <span class="form-required">*</span></label>
+        <select id="availability" name="availability" required class="form-select">
+          <option value="AVAILABLE">Available</option>
+          <option value="BOOKED">Booked</option>
+          <option value="UNAVAILABLE">Unavailable</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="description" class="form-label">Description <span style="font-weight:400; color:var(--ink-soft);">(optional)</span></label>
+        <textarea
+          id="description"
+          name="description"
+          class="form-textarea"
+          rows="4"
+          maxlength="2000"
+          placeholder="Describe your service, experience, and what buyers can expect…"
+        ></textarea>
+      </div>
+
+      <div style="display:flex; gap:1rem;">
+        <button type="submit" class="btn btn-amber" style="flex:1;">Create Service Listing</button>
+        <a href="/services" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+<%- include('../partials/footer') %>
+<%- include('../partials/scripts') %>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' && csrfToken ? csrfToken : '' %>">
+  <title>AgriConnect KE — Farm Direct. No Brokers.</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/foundation.css">
+  <script>
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = stored || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    })();
+  </script>
+  <script>
+    // Global CSRF wiring: expose the token and auto-inject it into every
+    // state-changing fetch (login/register, messages, order/listings APIs,
+    // logout). Server-rendered POST forms carry a hidden `_csrf` field instead.
+    (function () {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      var token = meta ? meta.content : '';
+      window.agriCsrfToken = token;
+
+      // Self-heal helper: fetch a fresh, matching token(+cookie) from the server.
+      // Called when a POST was rejected with 403 because the page's token went
+      // stale (e.g. the 1-hour _csrf cookie expired while a tab stayed open).
+      window.agriRefreshCsrfToken = function () {
+        return fetch('/api/auth/csrf', { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (d && d.csrfToken) {
+              window.agriCsrfToken = d.csrfToken;
+              return d.csrfToken;
+            }
+            return null;
+          })
+          .catch(function () { return null; });
+      };
+
+      if (token) {
+        var orig = window.fetch;
+        window.fetch = function (input, init) {
+          init = init || {};
+          var method = (init.method || 'GET').toUpperCase();
+          if (['POST', 'PUT', 'PATCH', 'DELETE'].indexOf(method) !== -1) {
+            init.headers = Object.assign({}, init.headers || {}, { 'X-CSRF-Token': token });
+            init.credentials = init.credentials || 'same-origin';
+          }
+          return orig(input, init);
+        };
+      }
+    })();
+  </script>
+  <script>
+    (function () {
+      // Bind every theme toggle (navbar, topbar, sidebar) to the same behavior.
+      var btns = document.querySelectorAll('[data-theme-toggle]');
+      if (!btns.length) return;
+
+      function updateIcons(isDark) {
+        btns.forEach(function (btn) {
+          var sun = btn.querySelector('.theme-icon-sun');
+          var moon = btn.querySelector('.theme-icon-moon');
+          if (sun && moon) {
+            sun.style.display = isDark ? 'none' : 'inline';
+            moon.style.display = isDark ? 'inline' : 'none';
+          }
+        });
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+
+      function applyTheme(theme) {
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+        updateIcons(theme === 'dark');
+      }
+
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var current = document.documentElement.getAttribute('data-theme');
+          var next = current === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('theme', next);
+          applyTheme(next);
+        });
+      });
+
+      var stored = localStorage.getItem('theme');
+      if (stored) {
+        applyTheme(stored);
+      } else {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        updateIcons(prefersDark);
+      }
+    })();
+  </script>
+</head>
+
+<body>

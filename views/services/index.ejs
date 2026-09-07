@@ -1,0 +1,79 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="page-container">
+  <div class="text-center mb-2">
+    <h1 style="color:var(--ink); font-size:2rem; margin-bottom:0.5rem;">Agricultural Services</h1>
+    <p style="color:var(--ink-soft); font-size:1rem; max-width:600px; margin:0 auto;">Find reliable tractors, transport, labor, and agronomy services for your farm.</p>
+  </div>
+
+  <form action="/services" method="GET" class="filter-bar">
+    <div style="flex:1; min-width:200px;">
+      <input type="text" name="search" placeholder="Search services..." value="<%= search %>" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px;">
+    </div>
+    <div style="min-width:150px;">
+      <select name="category" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:rgb(12, 69, 12);">
+        <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
+        <option value="Machinery" <%= category === 'Machinery' ? 'selected' : '' %>>Machinery</option>
+        <option value="Transport" <%= category === 'Transport' ? 'selected' : '' %>>Transport</option>
+        <option value="Infrastructure" <%= category === 'Infrastructure' ? 'selected' : '' %>>Infrastructure</option>
+        <option value="Labour" <%= category === 'Labour' ? 'selected' : '' %>>Labour</option>
+        <option value="Agronomy" <%= category === 'Agronomy' ? 'selected' : '' %>>Agronomy</option>
+        <option value="Other" <%= category === 'Other' ? 'selected' : '' %>>Other</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-emerald">Search</button>
+  </form>
+
+  <% if (error) { %>
+    <div style="background:#f8d7da; color:#842029; padding:1rem; border-radius:8px; margin-bottom:2rem;">
+      <%= error %>
+    </div>
+  <% } %>
+
+  <% if (services && services.length > 0) { %>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
+      <% services.forEach(service => { %>
+        <div class="service-card">
+          <div class="service-card-icon" aria-hidden="true">
+            <i data-lucide="<%= service.category === 'Transport' ? 'truck' : service.category === 'Machinery' ? 'tractor' : service.category === 'Labour' ? 'users' : 'wrench' %>"></i>
+          </div>
+          <div class="service-card-body">
+            <div class="service-card-top">
+              <span class="service-card-category"><%= service.category %></span>
+              <% if (service.availability === 'AVAILABLE') { %>
+                <span class="svc-avail svc-avail--available">Available</span>
+              <% } else if (service.availability === 'BOOKED') { %>
+                <span class="svc-avail svc-avail--booked">Booked</span>
+              <% } else { %>
+                <span class="svc-avail svc-avail--unavailable">Unavailable</span>
+              <% } %>
+            </div>
+            <h3 class="service-card-title"><%= service.title %></h3>
+            <p class="service-card-meta">
+              <i data-lucide="map-pin" aria-hidden="true"></i>
+              <%= service.county %><%= service.provider ? ' · ' + service.provider.fullName : '' %>
+            </p>
+            <div class="service-card-foot">
+              <span class="service-card-price">KES <%= Number(service.priceKes).toLocaleString() %> <span class="service-card-price-note">/ service</span></span>
+              <a href="/services/<%= service.id %>" class="btn btn-outline">View details</a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <i data-lucide="wrench"></i>
+      <h3 style="margin-bottom:0.5rem;">No services found</h3>
+      <p style="color:var(--ink-soft);">We couldn't find any services matching your search criteria.</p>
+      <a href="/services" class="btn btn-outline mt-2">Clear Filters</a>
+    </div>
+  <% } %>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+<%- include('../partials/footer') %>

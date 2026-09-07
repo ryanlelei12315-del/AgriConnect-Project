@@ -1,0 +1,37 @@
+<!-- ══ APP TOP HEADER ══ -->
+<header class="app-topbar">
+  <div class="topbar-left">
+    <% if (typeof breadcrumb !== 'undefined' && breadcrumb && breadcrumb.length) { %>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <% breadcrumb.forEach(function (b, i) { %>
+          <% if (i > 0) { %><span class="sep">/</span><% } %>
+          <% if (b.href) { %><a href="<%= b.href %>"><%= b.label %></a><% } else { %><span class="current"><%= b.label %></span><% } %>
+        <% }) %>
+      </nav>
+    <% } %>
+    <h1 class="topbar-title"><%= (typeof title !== 'undefined' && title) ? title : 'Dashboard' %></h1>
+    <% if (typeof description !== 'undefined' && description) { %><p class="topbar-desc"><%= description %></p><% } %>
+  </div>
+
+  <div class="topbar-actions">
+    <% if (typeof showSearch !== 'undefined' && showSearch) { %>
+      <div class="topbar-search">
+        <i data-lucide="search"></i>
+        <input type="search" placeholder="Search produce, services…" aria-label="Search" />
+      </div>
+    <% } %>
+
+    <% if (typeof user !== 'undefined' && user) { %>
+      <a href="/notifications" class="icon-btn" aria-label="Notifications">
+        <i data-lucide="bell"></i>
+        <% if (typeof unreadNotificationsCount !== 'undefined' && unreadNotificationsCount > 0) { %><span class="icon-badge"><%= unreadNotificationsCount %></span><% } %>
+      </a>
+    <% } %>
+
+    <button type="button" class="icon-btn" data-theme-toggle aria-label="Toggle dark mode" title="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+
+    <% if (typeof actions !== 'undefined' && actions) { %><%- actions %><% } %>
+  </div>
+</header>
