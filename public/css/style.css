@@ -141,6 +141,12 @@ nav {
   place-items: center;
   border-radius: 8px;
 }
+.nav-logo-favicon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
 .nav-logo-text {
   font-family: 'Playfair Display', serif;
   font-weight: 700;

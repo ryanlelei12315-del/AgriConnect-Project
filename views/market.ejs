@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 20px; }
+    .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h1 { color: #2e7d32; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+    th { background-color: #2e7d32; color: white; }
+    tr:hover { background-color: #f1f8e9; }
+    .badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🌾 AgriConnect Market Monitor</h1>
+    <p>Live actual pricing sourced from Kenya Agricultural Market Information System (KAMIS).</p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Produce / Crop</th>
+          <th>Market Hub</th>
+          <th>Unit Size</th>
+          <th>Wholesale (KES)</th>
+          <th>Retail (KES)</th>
+          <th>As Of</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (prices.length > 0) { %>
+          <% prices.forEach(item => { %>
+            <tr>
+              <td><strong><%= item.crop %></strong></td>
+              <td><%= item.market %></td>
+              <td><span class="badge"><%= item.unit %></span></td>
+              <td>Ksh <%= item.wholesalePrice %></td>
+              <td>Ksh <%= item.retailPrice %></td>
+              <td><%= item.updatedAt %></td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" style="text-align: center;">No price feeds currently available. Please check back shortly.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>

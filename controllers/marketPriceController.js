@@ -1,36 +1,29 @@
 /* eslint-env node */
-const { fetchLatestPrices } = require('../services/shabaRecordsService');
+const { getKamisPrices, clearCache, getCacheStats } = require('../services/kamisService');
 const { MarketPrice } = require('../models/MarketPrice');
 
 module.exports = {
   renderIndex: async (req, res, next) => {
     try {
-      const { category, county } = req.query;
+      const { category, county, refresh } = req.query;
       let prices = [];
-      let isDemo = false;
 
       try {
-        // Try live API first
-        prices = await fetchLatestPrices({ limit: 50 });
+        if (refresh === 'true') {
+          clearCache();
+        }
+        prices = await getKamisPrices();
       } catch (apiErr) {
-        console.error(
-          '[MarketPrices] API fetch failed, falling back to seed data:',
-          apiErr.message
-        );
-        // Fallback to database seed data
+        console.error('[MarketPrices] KAMIS fetch failed, falling back to DB:', apiErr.message);
         const where = {};
         if (category && category !== 'All') where.category = category;
         if (county && county !== 'All') where.county = county;
 
         prices = await MarketPrice.findAll({
           where,
-          order: [
-            ['recordedAt', 'DESC'],
-            ['produceName', 'ASC'],
-          ],
+          order: [['recordedAt', 'DESC'], ['produceName', 'ASC']],
         });
 
-        // Map DB fields to view shape
         prices = prices.map((p) => ({
           produceName: p.produceName,
           category: p.category,
@@ -42,11 +35,8 @@ module.exports = {
           source: p.source || 'AgriConnect Data',
           recordedAt: p.recordedAt,
         }));
-
-        isDemo = true;
       }
 
-      // Client-side filter by category and county (API does not support these filters directly in latest endpoint)
       if (category && category !== 'All') {
         prices = prices.filter((p) => p.category === category);
       }
@@ -54,16 +44,28 @@ module.exports = {
         prices = prices.filter((p) => p.county === county);
       }
 
+      const stats = getCacheStats();
+
       res.render('market-prices', {
         user: req.user || null,
         prices,
         category: category || 'All',
         county: county || 'All',
         activeNav: 'market-prices',
-        isDemo,
+        isDemo: false,
+        cacheStats: stats
       });
     } catch (err) {
       next(err);
     }
   },
+
+  clearCache: async (req, res) => {
+    clearCache();
+    res.json({ success: true, message: 'KAMIS cache cleared' });
+  },
+
+  getCacheStats: async (req, res) => {
+    res.json(getCacheStats());
+  }
 };
