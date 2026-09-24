@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="726c506a42f9fd32d693b1834ef9d435e734b5879aebf4d3.271f2cc435e8432cf5646fae5a6efee333e88d4a5b0ef45bfb15cbf1dc003348">
+  <link rel="icon" href="/favicon/favicon.png" type="image/png">
+  <title>AgriConnect KE — Farm Direct. No Brokers.</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/foundation.css">
+  <script>
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = stored || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    })();
+  </script>
+  <script>
+    // Global CSRF wiring: expose the token and auto-inject it into every
+    // state-changing fetch (login/register, messages, order/listings APIs,
+    // logout). Server-rendered POST forms carry a hidden `_csrf` field instead.
+    (function () {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      var token = meta ? meta.content : '';
+      window.agriCsrfToken = token;
+
+      // Self-heal helper: fetch a fresh, matching token(+cookie) from the server.
+      // Called when a POST was rejected with 403 because the page's token went
+      // stale (e.g. the 1-hour _csrf cookie expired while a tab stayed open).
+      window.agriRefreshCsrfToken = function () {
+        return fetch('/api/auth/csrf', { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (d && d.csrfToken) {
+              window.agriCsrfToken = d.csrfToken;
+              return d.csrfToken;
+            }
+            return null;
+          })
+          .catch(function () { return null; });
+      };
+
+      if (token) {
+        var orig = window.fetch;
+        window.fetch = function (input, init) {
+          init = init || {};
+          var method = (init.method || 'GET').toUpperCase();
+          if (['POST', 'PUT', 'PATCH', 'DELETE'].indexOf(method) !== -1) {
+            init.headers = Object.assign({}, init.headers || {}, { 'X-CSRF-Token': token });
+            init.credentials = init.credentials || 'same-origin';
+          }
+          return orig(input, init);
+        };
+      }
+    })();
+  </script>
+  <script>
+    (function () {
+      // Bind every theme toggle (navbar, topbar, sidebar) to the same behavior.
+      var btns = document.querySelectorAll('[data-theme-toggle]');
+      if (!btns.length) return;
+
+      function updateIcons(isDark) {
+        btns.forEach(function (btn) {
+          var sun = btn.querySelector('.theme-icon-sun');
+          var moon = btn.querySelector('.theme-icon-moon');
+          if (sun && moon) {
+            sun.style.display = isDark ? 'none' : 'inline';
+            moon.style.display = isDark ? 'inline' : 'none';
+          }
+        });
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+
+      function applyTheme(theme) {
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+        updateIcons(theme === 'dark');
+      }
+
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var current = document.documentElement.getAttribute('data-theme');
+          var next = current === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('theme', next);
+          applyTheme(next);
+        });
+      });
+
+      var stored = localStorage.getItem('theme');
+      if (stored) {
+        applyTheme(stored);
+      } else {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        updateIcons(prefersDark);
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+<nav aria-label="Primary navigation">
+  
+  <a href="/" class="nav-logo" aria-label="AgriConnect KE home">
+    <img src="/favicon/favicon.png" alt="" class="nav-logo-favicon" aria-hidden="true">
+    <span class="nav-logo-mark"><i data-lucide="leaf" aria-hidden="true"></i></span>
+    <span class="nav-logo-text">Agri<em>Connect</em> KE</span>
+  </a>
+  <div class="nav-center">
+    <a href="/marketplace" class="">Marketplace</a>
+    <a href="/services" class="">Services</a>
+    <a href="/market-prices" class="">Market prices</a>
+    <a href="/why-us" class="">How it works</a>
+  </div>
+  <div class="nav-right">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
+      <svg class="theme-icon-sun" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="theme-icon-moon" style="width:18px;height:18px; display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navDrawer" aria-label="Open menu">
+      <svg class="nav-toggle-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="nav-toggle-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    
+      <a href="/dashboard" class="nav-user-chip" aria-label="Open your dashboard">
+        <span class="nav-user-avatar">A</span>
+        <span class="nav-user-name">Audit</span>
+      </a>
+      <form action="/api/auth/logout" method="POST" style="display:inline;">
+        <input type="hidden" name="_csrf" value="726c506a42f9fd32d693b1834ef9d435e734b5879aebf4d3.271f2cc435e8432cf5646fae5a6efee333e88d4a5b0ef45bfb15cbf1dc003348">
+        <button class="btn btn-outline" type="submit">Sign out</button>
+      </form>
+    
+  </div>
+
+  <!-- Mobile navigation drawer (hidden on desktop) -->
+  <div class="nav-drawer" id="navDrawer">
+    <a href="/marketplace" class="">Marketplace</a>
+    <a href="/services" class="">Services</a>
+    <a href="/market-prices" class="">Market prices</a>
+    <a href="/why-us" class="">How it works</a>
+  </div>
+</nav>
+<script>
+  (function () {
+    var toggle = document.getElementById('navToggle');
+    var drawer = document.getElementById('navDrawer');
+    if (!toggle || !drawer) return;
+
+    function isOpen() { return drawer.classList.contains('open'); }
+    var lastFocused = null;
+    function getFocusable() {
+      return Array.prototype.slice.call(
+        drawer.querySelectorAll('a[href], button:not([disabled])')
+      );
+    }
+    function open() {
+      drawer.classList.add('open');
+      toggle.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close menu');
+      lastFocused = document.activeElement;
+      var first = getFocusable()[0];
+      if (first) first.focus();
+    }
+    function close(refocus) {
+      if (!isOpen()) return;
+      drawer.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
+      if (refocus && lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    toggle.addEventListener('click', function () {
+      if (isOpen()) { close(true); } else { open(); }
+    });
+    document.addEventListener('click', function (e) {
+      if (!drawer.contains(e.target) && !toggle.contains(e.target)) close(false);
+    });
+    // Escape closes and restores focus; Tab is trapped inside the open drawer
+    document.addEventListener('keydown', function (e) {
+      if (!isOpen()) return;
+      if (e.key === 'Escape') { close(true); return; }
+      if (e.key !== 'Tab') return;
+      var focusable = getFocusable();
+      if (!focusable.length) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+    drawer.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { close(false); });
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 860) close(false);
+    });
+  })();
+</script>
+
+
+<main id="main" class="dash-main">
+  <!-- ══════════════════════════════════════════════════════════════
+     APP SIDEBAR (the rail) — v3
+     --------------------------------------------------------------
+     • Hard-bounded dark-slate rail, explicit width, one scroll owner
+     • Clean vertical boxes: brand → identity card → nav → footer
+       (theme + sign-out pinned to the absolute bottom) → collapse
+     • aria-current navigation, icon tooltips when collapsed
+     All behaviour lives in ONE closed <script> block at the end.
+     ══════════════════════════════════════════════════════════════ -->
+
+
+<!-- Mobile drawer toggle + scrim (hidden on desktop) -->
+<button class="sidebar-toggle" id="sidebarToggle" type="button"
+        aria-label="Open navigation menu" aria-expanded="false" aria-controls="dashSidebar">
+  <span class="sidebar-toggle-open"><i data-lucide="menu" aria-hidden="true"></i></span>
+  <span class="sidebar-toggle-close"><i data-lucide="x" aria-hidden="true"></i></span>
+</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="dash-sidebar" id="dashSidebar" aria-label="Application">
+
+  <!-- ── Brand ─────────────────────────────────────────────────── -->
+  <div class="sidebar-brand">
+    <a href="/dashboard" class="sidebar-brand-logo" aria-label="AgriConnect KE — go to dashboard">
+      <span class="sidebar-brand-mark"><i data-lucide="leaf" aria-hidden="true"></i></span>
+      <span class="sidebar-brand-text">Agri<em>Connect</em></span>
+    </a>
+  </div>
+
+  <!-- ── Identity card (its own vertical box, never overlaps) ──── -->
+  <div class="rail-identity">
+    <div class="rail-identity-row">
+      <span class="rail-avatar" aria-hidden="true">A</span>
+      <div class="rail-identity-text">
+        <span class="rail-profile-name" title="Audit Tester">Audit Tester</span>
+        <span class="rail-role">Farmer</span>
+      </div>
+    </div>
+    
+      <span class="rail-county-badge">
+        <i data-lucide="map-pin" aria-hidden="true"></i>Kiambu
+      </span>
+    
+  </div>
+
+  <!-- ── Navigation ────────────────────────────────────────────── -->
+    <nav class="sidebar-nav" aria-label="Primary navigation">
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-core">Core</p>
+      <a href="/dashboard" data-tooltip="Dashboard" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="layout-dashboard" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Dashboard</span>
+      </a>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-market">Marketplace</p>
+      <a href="/marketplace" data-tooltip="Marketplace" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="store" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Marketplace</span>
+      </a>
+      <a href="/services" data-tooltip="Services" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="tractor" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Services</span>
+      </a>
+      <a href="/market-prices" data-tooltip="Market Prices" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="line-chart" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Market Prices</span>
+      </a>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-ops">Orders & Listings</p>
+      <a href="/orders" data-tooltip="Orders" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="shopping-bag" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Orders</span>
+      </a>
+      
+      <a href="/listings" data-tooltip="My Listings" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="package" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">My Listings</span>
+      </a>
+      
+      
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-comm">Communication</p>
+      <a href="/messages" data-tooltip="Messages" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="message-square" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Messages</span>
+      </a>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-account">Account</p>
+      <a href="/profile" data-tooltip="Profile" class="sidebar-link active" aria-current="page">
+        <span class="sidebar-link-icon"><i data-lucide="user" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Profile</span>
+      </a>
+      <a href="/settings" data-tooltip="Settings" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="settings" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Settings</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Footer: theme toggle + sign out, pinned to absolute bottom -->
+  <div class="sidebar-footer">
+    <button type="button"
+            class="sidebar-link sidebar-link--footer sidebar-link--theme"
+            id="railTheme" data-tooltip="Toggle Theme"
+            aria-label="Toggle Theme" aria-pressed="false">
+      <span class="sidebar-link-icon"><i data-lucide="moon" aria-hidden="true"></i></span>
+      <span class="sidebar-link-text">Theme</span>
+    </button>
+    <button type="button"
+            class="sidebar-link sidebar-link--footer sidebar-link--signout"
+            id="railSignOut" data-tooltip="Sign Out"
+            aria-label="Sign Out">
+      <span class="sidebar-link-icon"><i data-lucide="log-out" aria-hidden="true"></i></span>
+      <span class="sidebar-link-text">Sign Out</span>
+    </button>
+    <button type="button"
+            class="sidebar-link sidebar-link--footer sidebar-link--theme"
+            id="railTheme" data-tooltip="Toggle Theme"
+            aria-label="Toggle Theme" aria-pressed="false">
+      <span class="sidebar-link-icon"><i data-lucide="moon" aria-hidden="true"></i></span>
+      <span class="sidebar-link-text">Theme</span>
+    </button>
+    </div>
+</aside>
+
+<!-- Behaviour: ONE self-contained, properly-closed script block (no orphan code after this) -->
+<script>
+  (function(){
+    'use strict';
+    var root = document.documentElement;
+    var sidebar = document.getElementById('dashSidebar');
+    var toggleBtn = document.getElementById('sidebarToggle');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar || !toggleBtn) return;
+
+    var isCollapsed = function(){ return root.classList.contains('sidebar-collapsed'); };
+    var save = function(v){ try{ localStorage.setItem('agri.sidebarCollapsed', String(v)); }catch(e){} };
+    var apply = function(collapsed, skipStorage){
+      if (collapsed){ root.classList.add('sidebar-collapsed');  toggleBtn.setAttribute('aria-expanded','false'); toggleBtn.setAttribute('aria-label','Open navigation menu'); }
+      else { root.classList.remove('sidebar-collapsed'); toggleBtn.setAttribute('aria-expanded','true');  toggleBtn.setAttribute('aria-label','Collapse navigation'); }
+      if (!skipStorage) save(collapsed);
+    };
+
+    /* collapse: default expanded on desktop, collapsed on mobile */
+    var initCollapse = function(){
+      var stored, collapsed;
+      try{ stored = localStorage.getItem('agri.sidebarCollapsed'); }catch(e){}
+      collapsed = (stored === 'true') ? true : (root.innerWidth <= 900);
+      apply(collapsed, true);
+    };
+    initCollapse();
+
+    /* drawer (mobile) */
+    var openDrawer  = function(){ root.classList.add('rail-drawer-open');  toggleBtn.setAttribute('aria-expanded','true');  if(overlay) overlay.style.display='block'; document.body.style.overflow='hidden'; };
+    var closeDrawer = function(){ root.classList.remove('rail-drawer-open'); toggleBtn.setAttribute('aria-expanded','false'); if(overlay) overlay.style.display='none'; document.body.style.overflow=''; };
+
+    /* theme toggle */
+    var cycleTheme = function(){
+      var cur = root.getAttribute('data-theme') || 'light';
+      var next = (cur === 'light') ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      root.classList.toggle('dark', next === 'dark');
+      var btn = document.getElementById('railTheme');
+      var icon = btn && btn.querySelector('[data-lucide]');
+      if (icon){ icon.setAttribute('data-lucide', (next === 'dark') ? 'sun' : 'moon'); }
+      root.dispatchEvent(new CustomEvent('agri:themechange', { detail:{ theme: next } }));
+    };
+
+    /* sign-out (sandboxed — no silent failures) */
+    var signOut = function(e){
+      e.preventDefault();
+      var btn = document.getElementById('railSignOut');
+      if (btn) btn.disabled = true;
+      var form = document.createElement('form');
+      form.method = 'POST'; form.action = '/api/auth/logout';
+      document.body.appendChild(form);
+      form.submit();
+    };
+
+    /* events */
+    toggleBtn.addEventListener('click', function(){
+      if (isCollapsed()){ apply(false); return; }
+      if (root.innerWidth <= 900){ openDrawer(); return; }
+      apply(!isCollapsed());
+    });
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+    window.addEventListener('resize', function(){
+      if (root.innerWidth <= 900){
+        root.classList.remove('sidebar-collapsed','rail-drawer-open');
+        if(overlay) overlay.style.display='none';
+        document.body.style.overflow='';
+        toggleBtn.setAttribute('aria-expanded','false');
+      } else {
+        root.classList.remove('rail-drawer-open');
+        if(overlay) overlay.style.display='none';
+        document.body.style.overflow='';
+      }
+    });
+    root.addEventListener('keydown', function(e){
+      if (e.key === 'Escape'){
+        if (root.classList.contains('rail-drawer-open')) closeDrawer();
+        else if (isCollapsed()) apply(false);
+      }
+    });
+
+    var themeBtn = document.getElementById('railTheme');
+    var signOutBtn = document.getElementById('railSignOut');
+    if (themeBtn) themeBtn.addEventListener('click', cycleTheme);
+    if (signOutBtn) signOutBtn.addEventListener('click', signOut);
+
+    /* re-render icons after DOM ready */
+    var renderIcons = function(){ try{ if(window.lucide){ lucide.createIcons(); } }catch(_){} };
+    if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', renderIcons); } else { renderIcons(); }
+  })();
+})();
+</script>
+
+
+  <div class="dash-content">
+    <div class="dash-topbar">
+      <div>
+        <h1 class="dash-greeting">My Profile</h1>
+        <p class="dash-sub">Manage your personal information and account settings.</p>
+      </div>
+    </div>
+
+    
+    
+    
+
+    <div class="profile-section">
+      <h2 class="profile-section-title">Personal Information</h2>
+      <form action="/profile/update" method="POST" class="settings-form">
+        <input type="hidden" name="_csrf" value="726c506a42f9fd32d693b1834ef9d435e734b5879aebf4d3.271f2cc435e8432cf5646fae5a6efee333e88d4a5b0ef45bfb15cbf1dc003348">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullName" class="form-label">Full Name</label>
+            <input type="text" id="fullName" name="fullName" class="form-input" value="Audit Tester" required>
+          </div>
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" id="email" name="email" class="form-input" value="audit.tester@example.com" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phoneNumber" class="form-label">Phone Number</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" class="form-input" value="0700000001" required>
+          </div>
+          <div class="form-group">
+            <label for="county" class="form-label">County</label>
+            <select id="county" name="county" class="form-input" required>
+              
+              
+                <option value="Uasin Gishu" >Uasin Gishu</option>
+              
+                <option value="Nakuru" >Nakuru</option>
+              
+                <option value="Trans Nzoia" >Trans Nzoia</option>
+              
+                <option value="Meru" >Meru</option>
+              
+                <option value="Kiambu" selected>Kiambu</option>
+              
+                <option value="Kajiado" >Kajiado</option>
+              
+                <option value="Nairobi" >Nairobi</option>
+              
+                <option value="Mombasa" >Mombasa</option>
+              
+                <option value="Kisumu" >Kisumu</option>
+              
+                <option value="Eldoret" >Eldoret</option>
+              
+                <option value="Embu" >Embu</option>
+              
+                <option value="Naivasha" >Naivasha</option>
+              
+                <option value="Kakamega" >Kakamega</option>
+              
+                <option value="Kericho" >Kericho</option>
+              
+                <option value="Murang&#39;a" >Murang&#39;a</option>
+              
+                <option value="Other" >Other</option>
+              
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bio" class="form-label">Bio / About You</label>
+          <textarea id="bio" name="bio" class="form-input" rows="3" maxlength="500" placeholder="e.g. Maize and avocado farmer in Uasin Gishu — 120 acres, selling to local buyers…"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <a href="/dashboard" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-amber">Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="profile-section">
+      <h2 class="profile-section-title">Change Password</h2>
+      <form action="/profile/password" method="POST" class="settings-form">
+        <input type="hidden" name="_csrf" value="726c506a42f9fd32d693b1834ef9d435e734b5879aebf4d3.271f2cc435e8432cf5646fae5a6efee333e88d4a5b0ef45bfb15cbf1dc003348">
+        <div class="form-group">
+          <label for="currentPassword" class="form-label">Current Password</label>
+          <input type="password" id="currentPassword" name="currentPassword" class="form-input" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="newPassword" class="form-label">New Password</label>
+            <input type="password" id="newPassword" name="newPassword" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required>
+          </div>
+        </div>
+        <div class="form-actions">
+          <a href="/dashboard" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-outline">Update Password</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="profile-section">
+      <h2 class="profile-section-title">Profile Photo</h2>
+      <div class="profile-photo-row">
+        <div class="profile-avatar profile-avatar-lg">
+          
+            A
+          
+        </div>
+        <div class="profile-photo-info">
+          <p>Upload a new photo to update your profile picture across the platform.</p>
+          <form action="/profile/image" method="POST" enctype="multipart/form-data" class="profile-upload-form" id="profileUploadForm">
+            <input type="hidden" name="_csrf" value="726c506a42f9fd32d693b1834ef9d435e734b5879aebf4d3.271f2cc435e8432cf5646fae5a6efee333e88d4a5b0ef45bfb15cbf1dc003348">
+            <div class="profile-upload-zone" id="uploadZone">
+              <label class="btn btn-outline" style="cursor:pointer;" for="avatarInput">
+                <i data-lucide="camera"></i> Choose Photo
+              </label>
+              <input type="file" name="image" id="avatarInput" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" style="display:none;">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm" id="avatarSubmitBtn" style="display:none;">
+              <i data-lucide="upload"></i> Save Photo
+            </button>
+            <div id="avatarPreview" class="avatar-preview" style="display:none;"></div>
+          </form>
+          <p class="profile-photo-hint">JPG, PNG, WebP, GIF — max 5 MB.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+
+  // --- Profile image upload with preview ---
+  (function() {
+    var input = document.getElementById('avatarInput');
+    var submitBtn = document.getElementById('avatarSubmitBtn');
+    var preview = document.getElementById('avatarPreview');
+
+    if (!input) return;
+
+    input.addEventListener('change', function(e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      var allowed = /jpeg|jpg|png|webp|gif/;
+      var okType = allowed.test(file.type);
+      var okSize = file.size <= 5 * 1024 * 1024;
+      if (!okType || !okSize) {
+        input.value = '';
+        alert(okType ? 'File too large (max 5 MB).' : 'Please select a JPG, PNG, WebP, or GIF image.');
+        return;
+      }
+
+      var url = URL.createObjectURL(file);
+      preview.innerHTML = '<img src="' + url + '" alt="Preview" style="width:80px;height:80px;border-radius:8px;object-fit:cover;margin-top:8px;">';
+      preview.style.display = 'block';
+      submitBtn.style.display = 'inline-flex';
+    });
+
+    var form = document.getElementById('profileUploadForm');
+    if (form && submitBtn) {
+      form.addEventListener('submit', function() {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i data-lucide="loader-2"></i> Uploading...';
+        lucide.createIcons();
+      });
+    }
+
+    if (new URLSearchParams(window.location.search).has('image')) {
+      setTimeout(function() {
+        alert('Profile photo updated.');
+        window.location.search = '';
+      }, 100);
+    }
+  })();
+
+  // --- Password mismatch guard ---
+  document.querySelector('form[action="/profile/password"]').addEventListener('submit', function(e) {
+    const p1 = document.getElementById('newPassword').value;
+    const p2 = document.getElementById('confirmPassword').value;
+    if (p1 !== p2) {
+      e.preventDefault();
+      alert('New passwords do not match.');
+    }
+  });
+</script>

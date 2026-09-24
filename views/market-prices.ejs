@@ -1,26 +1,106 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
 
-<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+<style>
+  .market-prices-container {
+    padding-top: 100px;
+    padding-bottom: 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  .filter-panel {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    background: #1e293b;
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 50;
+  }
+  .filter-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: #0f172a;
+    color: #f8fafc;
+    font-size: 0.9rem;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 50;
+  }
+  .filter-select:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+  }
+  .filter-select option {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 0.5rem;
+  }
+  .price-table-card {
+    background: #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+  .price-table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+    color: #f8fafc;
+  }
+  .price-table th {
+    padding: 1rem 1.25rem;
+    background: #0f172a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .price-table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.9rem;
+  }
+  .price-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+</style>
+
+<main class="market-prices-container">
   <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
     <div>
-      <h1 style="color:var(--ink); font-size:2rem; margin-bottom:0.5rem;">Market Prices</h1>
-      <p style="color:var(--ink-soft); font-size:1rem; max-width:600px;">Live commodity prices sourced from Kenya Agricultural Market Information System (KAMIS).</p>
+      <h1 style="color:#f8fafc; font-size:2rem; font-weight:800; margin-bottom:0.5rem;">Market Prices</h1>
+      <p style="color:#94a3b8; font-size:1rem; max-width:600px;">Real-time Kenya Agricultural Market Information System (KAMIS) commodity benchmarks.</p>
     </div>
-    <div style="display:flex; gap:0.5rem; align-items:center;">
-      <span style="font-size:0.8rem; color:var(--ink-soft);">Cache: </span>
-      <span class="badge badge-emerald" style="font-size:0.75rem;">
+    <div style="display:flex; gap:0.75rem; align-items:center;">
+      <span style="font-size:0.8rem; color:#94a3b8;">Cache Status: </span>
+      <span class="badge badge-emerald" style="font-size:0.75rem; background:rgba(5, 150, 105, 0.2); color:#34d399; border:1px solid rgba(52, 211, 153, 0.3); padding:0.3rem 0.6rem; border-radius:6px;">
         <%= cacheStats?.hits || 0 %> hits / <%= cacheStats?.misses || 0 %> misses
       </span>
       <button type="button" onclick="fetch('/market-prices/cache/clear', {method:'POST'}).then(()=>location.reload())" 
-              class="btn btn-outline" style="font-size:0.8rem; padding:0.4rem 0.8rem;">Clear Cache</button>
+              class="btn btn-outline" style="font-size:0.8rem; padding:0.4rem 0.8rem; border-color:rgba(255,255,255,0.2); color:#cbd5e1;">Clear Cache</button>
     </div>
   </div>
 
-  <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:2rem; background:var(--white); padding:1.5rem; border-radius:12px; border:1px solid var(--stone); box-shadow:var(--shadow-sm);">
-    <form action="/market-prices" method="GET" style="display:flex; gap:1rem; flex:1; flex-wrap:wrap;">
-      <div style="flex:1; min-width:150px;">
-        <select name="category" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+  <div class="filter-panel">
+    <form action="/market-prices" method="GET" style="display:flex; gap:1rem; flex:1; flex-wrap:wrap; align-items:center;">
+      <div style="flex:1; min-width:180px;">
+        <select name="category" class="filter-select">
           <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
           <option value="Cereals" <%= category === 'Cereals' ? 'selected' : '' %>>Cereals</option>
           <option value="Vegetables" <%= category === 'Vegetables' ? 'selected' : '' %>>Vegetables</option>
@@ -29,8 +109,8 @@
           <option value="Legumes" <%= category === 'Legumes' ? 'selected' : '' %>>Legumes</option>
         </select>
       </div>
-      <div style="flex:1; min-width:150px;">
-        <select name="county" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:white;">
+      <div style="flex:1; min-width:180px;">
+        <select name="county" class="filter-select">
           <option value="All" <%= county === 'All' ? 'selected' : '' %>>All Counties</option>
           <option value="Nairobi" <%= county === 'Nairobi' ? 'selected' : '' %>>Nairobi</option>
           <option value="Mombasa" <%= county === 'Mombasa' ? 'selected' : '' %>>Mombasa</option>
@@ -42,40 +122,40 @@
           <option value="Kakamega" <%= county === 'Kakamega' ? 'selected' : '' %>>Kakamega</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-emerald">Filter</button>
+      <button type="submit" class="btn btn-emerald" style="background:#059669; color:#fff; font-weight:600; padding:0.75rem 1.5rem; border-radius:8px; border:none; cursor:pointer;">Filter Results</button>
     </form>
   </div>
 
-  <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); overflow:hidden;">
+  <div class="price-table-card">
     <% if (prices && prices.length > 0) { %>
-      <div class="table-responsive">
-        <table class="data-table" style="width:100%; text-align:left; border-collapse:collapse;">
+      <div style="overflow-x:auto;">
+        <table class="price-table">
           <thead>
-            <tr style="background:var(--cream); border-bottom:1px solid var(--stone);">
-              <th style="padding:1rem;">Produce</th>
-              <th style="padding:1rem;">Market</th>
-              <th style="padding:1rem;">Unit</th>
-              <th style="padding:1rem;">Wholesale (KES)</th>
-              <th style="padding:1rem;">Retail (KES)</th>
-              <th style="padding:1rem;">Date</th>
-              <th style="padding:1rem;">Source</th>
+            <tr>
+              <th>Commodity Produce</th>
+              <th>Market Centre</th>
+              <th>Trading Unit</th>
+              <th>Wholesale (KES)</th>
+              <th>Retail (KES)</th>
+              <th>Last Updated</th>
+              <th>Source</th>
             </tr>
           </thead>
           <tbody>
             <% prices.forEach(p => { %>
-              <tr style="border-bottom:1px solid var(--stone);">
-                <td style="padding:1rem; font-weight:500;">
+              <tr>
+                <td style="font-weight:600; color:#f8fafc;">
                   <%= p.produceName %>
                 </td>
-                <td style="padding:1rem;"><%= p.marketName %></td>
-                <td style="padding:1rem;"><%= p.unit %></td>
-                <td style="padding:1rem; font-weight:600;">KES <%= Number(p.wholesalePrice || p.price || 0).toLocaleString() %></td>
-                <td style="padding:1rem; font-weight:600;">KES <%= Number(p.retailPrice || p.price || 0).toLocaleString() %></td>
-                <td style="padding:1rem; color:var(--ink-soft); font-size:0.9rem;">
-                  <%= p.recordedAt ? new Date(p.recordedAt).toLocaleDateString() : '—' %>
+                <td style="color:#cbd5e1;"><%= p.marketName %></td>
+                <td style="color:#cbd5e1;"><%= p.unit %></td>
+                <td style="font-weight:700; color:#34d399;">KES <%= Number(p.wholesalePrice || p.price || 0).toLocaleString() %></td>
+                <td style="font-weight:700; color:#fbbf24;">KES <%= Number(p.retailPrice || p.price || 0).toLocaleString() %></td>
+                <td style="color:#94a3b8; font-size:0.85rem;">
+                  <%= p.recordedAt ? new Date(p.recordedAt).toLocaleDateString('en-KE', { month: 'short', day: 'numeric', year: 'numeric' }) : '—' %>
                 </td>
-                <td style="padding:1rem;">
-                  <span class="badge badge-emerald" style="font-size:0.7rem;"><%= p.source || 'KAMIS' %></span>
+                <td>
+                  <span class="badge" style="font-size:0.7rem; background:rgba(59, 130, 246, 0.2); color:#60a5fa; border:1px solid rgba(96, 165, 250, 0.3); padding:0.2rem 0.5rem; border-radius:4px;"><%= p.source || 'KAMIS' %></span>
                 </td>
               </tr>
             <% }) %>
@@ -83,17 +163,19 @@
         </table>
       </div>
     <% } else { %>
-      <div class="empty-state" style="padding:4rem 2rem; text-align:center;">
-        <i data-lucide="trending-up" style="width:64px; height:64px; color:var(--ink-soft); opacity:0.5; margin-bottom:1rem;"></i>
-        <h3 style="margin-bottom:0.5rem;">No price data available.</h3>
-        <p style="color:var(--ink-soft);">Try adjusting your filters or check back later.</p>
+      <div style="padding:4rem 2rem; text-align:center; color:#94a3b8;">
+        <i data-lucide="trending-up" style="width:64px; height:64px; opacity:0.4; margin-bottom:1rem; color:#34d399;"></i>
+        <h3 style="margin-bottom:0.5rem; color:#f8fafc;">No market prices found</h3>
+        <p>Try adjusting your category or county filter selections.</p>
       </div>
     <% } %>
   </div>
 </main>
 
 <script>
-  lucide.createIcons();
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
 </script>
 
 <%- include('partials/footer') %>

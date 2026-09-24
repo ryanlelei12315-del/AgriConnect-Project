@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="ca410cebe99f76c7308ccabfa4586dd39da7ff713dfb4467.d912b721a227bc11a30801233a51a0d9f1ceb04bc66fc4eeeb849865af6b7e56">
+  <link rel="icon" href="/favicon/favicon.png" type="image/png">
+  <title>AgriConnect KE — Farm Direct. No Brokers.</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/foundation.css">
+  <script>
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = stored || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    })();
+  </script>
+  <script>
+    // Global CSRF wiring: expose the token and auto-inject it into every
+    // state-changing fetch (login/register, messages, order/listings APIs,
+    // logout). Server-rendered POST forms carry a hidden `_csrf` field instead.
+    (function () {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      var token = meta ? meta.content : '';
+      window.agriCsrfToken = token;
+
+      // Self-heal helper: fetch a fresh, matching token(+cookie) from the server.
+      // Called when a POST was rejected with 403 because the page's token went
+      // stale (e.g. the 1-hour _csrf cookie expired while a tab stayed open).
+      window.agriRefreshCsrfToken = function () {
+        return fetch('/api/auth/csrf', { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (d && d.csrfToken) {
+              window.agriCsrfToken = d.csrfToken;
+              return d.csrfToken;
+            }
+            return null;
+          })
+          .catch(function () { return null; });
+      };
+
+      if (token) {
+        var orig = window.fetch;
+        window.fetch = function (input, init) {
+          init = init || {};
+          var method = (init.method || 'GET').toUpperCase();
+          if (['POST', 'PUT', 'PATCH', 'DELETE'].indexOf(method) !== -1) {
+            init.headers = Object.assign({}, init.headers || {}, { 'X-CSRF-Token': token });
+            init.credentials = init.credentials || 'same-origin';
+          }
+          return orig(input, init);
+        };
+      }
+    })();
+  </script>
+  <script>
+    (function () {
+      // Bind every theme toggle (navbar, topbar, sidebar) to the same behavior.
+      var btns = document.querySelectorAll('[data-theme-toggle]');
+      if (!btns.length) return;
+
+      function updateIcons(isDark) {
+        btns.forEach(function (btn) {
+          var sun = btn.querySelector('.theme-icon-sun');
+          var moon = btn.querySelector('.theme-icon-moon');
+          if (sun && moon) {
+            sun.style.display = isDark ? 'none' : 'inline';
+            moon.style.display = isDark ? 'inline' : 'none';
+          }
+        });
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+
+      function applyTheme(theme) {
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+        updateIcons(theme === 'dark');
+      }
+
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var current = document.documentElement.getAttribute('data-theme');
+          var next = current === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('theme', next);
+          applyTheme(next);
+        });
+      });
+
+      var stored = localStorage.getItem('theme');
+      if (stored) {
+        applyTheme(stored);
+      } else {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        updateIcons(prefersDark);
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+<nav aria-label="Primary navigation">
+  
+  <a href="/" class="nav-logo" aria-label="AgriConnect KE home">
+    <img src="/favicon/favicon.png" alt="" class="nav-logo-favicon" aria-hidden="true">
+    <span class="nav-logo-mark"><i data-lucide="leaf" aria-hidden="true"></i></span>
+    <span class="nav-logo-text">Agri<em>Connect</em> KE</span>
+  </a>
+  <div class="nav-center">
+    <a href="/marketplace" class="">Marketplace</a>
+    <a href="/services" class="">Services</a>
+    <a href="/market-prices" class="active" aria-current=&#34;page&#34;>Market prices</a>
+    <a href="/why-us" class="">How it works</a>
+  </div>
+  <div class="nav-right">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
+      <svg class="theme-icon-sun" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="theme-icon-moon" style="width:18px;height:18px; display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navDrawer" aria-label="Open menu">
+      <svg class="nav-toggle-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="nav-toggle-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    
+      <a href="/login" class="btn btn-outline">Sign in</a>
+      <a href="/register" class="btn btn-amber">Join free</a>
+    
+  </div>
+
+  <!-- Mobile navigation drawer (hidden on desktop) -->
+  <div class="nav-drawer" id="navDrawer">
+    <a href="/marketplace" class="">Marketplace</a>
+    <a href="/services" class="">Services</a>
+    <a href="/market-prices" class="active" aria-current=&#34;page&#34;>Market prices</a>
+    <a href="/why-us" class="">How it works</a>
+  </div>
+</nav>
+<script>
+  (function () {
+    var toggle = document.getElementById('navToggle');
+    var drawer = document.getElementById('navDrawer');
+    if (!toggle || !drawer) return;
+
+    function isOpen() { return drawer.classList.contains('open'); }
+    var lastFocused = null;
+    function getFocusable() {
+      return Array.prototype.slice.call(
+        drawer.querySelectorAll('a[href], button:not([disabled])')
+      );
+    }
+    function open() {
+      drawer.classList.add('open');
+      toggle.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close menu');
+      lastFocused = document.activeElement;
+      var first = getFocusable()[0];
+      if (first) first.focus();
+    }
+    function close(refocus) {
+      if (!isOpen()) return;
+      drawer.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
+      if (refocus && lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    toggle.addEventListener('click', function () {
+      if (isOpen()) { close(true); } else { open(); }
+    });
+    document.addEventListener('click', function (e) {
+      if (!drawer.contains(e.target) && !toggle.contains(e.target)) close(false);
+    });
+    // Escape closes and restores focus; Tab is trapped inside the open drawer
+    document.addEventListener('keydown', function (e) {
+      if (!isOpen()) return;
+      if (e.key === 'Escape') { close(true); return; }
+      if (e.key !== 'Tab') return;
+      var focusable = getFocusable();
+      if (!focusable.length) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+    drawer.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { close(false); });
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 860) close(false);
+    });
+  })();
+</script>
+
+
+<main id="main" class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+  <div style="text-align:center; margin-bottom:2rem;">
+    <h1 style="color:var(--ink); font-size:2rem; margin-bottom:0.5rem;">Market Prices</h1>
+    <p style="color:var(--ink-soft); font-size:1rem; max-width:600px; margin:0 auto;">Track the latest agricultural commodity prices across major markets in Kenya.</p>
+  </div>
+ 
+  <div class="data-status data-status--reference" role="note">
+    <span class="data-badge data-badge--reference">Reference data</span>
+    <span>Live feed temporarily unavailable — showing stored reference prices from the AgriConnect database. These are <strong>not live market intelligence</strong>; verify before making trading decisions.</span>
+  </div>
+
+  <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:2rem; background:var(--white); padding:1.5rem; border-radius:12px; border:1px solid var(--stone); box-shadow:var(--shadow-sm);">
+  <form action="/market-prices" method="GET" class="mp-filter" role="search">
+    <div class="mp-field">
+      <label class="mp-label" for="mpCategory">Category</label>
+      <select id="mpCategory" name="category" class="mp-select">
+          <option value="All" selected>All Categories</option>
+          <option value="Cereals" >Cereals</option>
+          <option value="Vegetables" >Vegetables</option>
+          <option value="Fruits" >Fruits</option>
+          <option value="Root Crops" >Root Crops</option>
+          <option value="Legumes" >Legumes</option>
+        </select>
+    </div>
+    <div class="mp-field">
+      <label class="mp-label" for="mpCounty">County</label>
+      <select id="mpCounty" name="county" class="mp-select">
+          <option value="All" selected>All Counties</option>
+          <option value="Uasin Gishu" >Uasin Gishu</option>
+          <option value="Nakuru" >Nakuru</option>
+          <option value="Nairobi" >Nairobi</option>
+          <option value="Mombasa" >Mombasa</option>
+          <option value="Murang'a" >Murang'a</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-emerald mp-submit">Filter Prices</button>
+  </form>
+</div>
+
+  <div class="mp-table-card">
+    
+      <table class="data-table mp-table">
+        <thead>
+          <tr class="mp-table-head">
+            <th style="padding:1rem;">Produce</th>
+            <th style="padding:1rem;">Market</th>
+            <th style="padding:1rem;">County</th>
+            <th style="padding:1rem;">Price (KES)</th>
+            <th style="padding:1rem;">Trend</th>
+            <th style="padding:1rem;">Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr style="border-bottom:1px solid var(--stone);">
+              <td style="padding:1rem; font-weight:500;">
+                Dry Maize
+                <div style="font-size:0.8rem; color:var(--ink-soft);">Cereals</div>
+              </td>
+              <td style="padding:1rem;">Eldoret Main Market</td>
+              <td style="padding:1rem;">Uasin Gishu</td>
+              <td style="padding:1rem; font-weight:600;">65 / kg</td>
+              <td style="padding:1rem;">
+                
+                  <span style="color:#d9534f; font-weight:500;">↑ 4.2%</span>
+                
+              </td>
+              <td style="padding:1rem; color:var(--ink-soft); font-size:0.9rem;">
+                8/24/2026
+                <div style="font-size:0.75rem;">Source: AgriConnect Data</div>
+              </td>
+            </tr>
+          
+            <tr style="border-bottom:1px solid var(--stone);">
+              <td style="padding:1rem; font-weight:500;">
+                Hass Avocados
+                <div style="font-size:0.8rem; color:var(--ink-soft);">Fruits</div>
+              </td>
+              <td style="padding:1rem;">Muranga Market</td>
+              <td style="padding:1rem;">Murang&#39;a</td>
+              <td style="padding:1rem; font-weight:600;">15 / piece</td>
+              <td style="padding:1rem;">
+                
+                  <span style="color:var(--ink-soft);">-</span>
+                
+              </td>
+              <td style="padding:1rem; color:var(--ink-soft); font-size:0.9rem;">
+                8/24/2026
+                <div style="font-size:0.75rem;">Source: AgriConnect Data</div>
+              </td>
+            </tr>
+          
+            <tr style="border-bottom:1px solid var(--stone);">
+              <td style="padding:1rem; font-weight:500;">
+                Red Onions
+                <div style="font-size:0.8rem; color:var(--ink-soft);">Vegetables</div>
+              </td>
+              <td style="padding:1rem;">Marikiti</td>
+              <td style="padding:1rem;">Nairobi</td>
+              <td style="padding:1rem; font-weight:600;">110 / kg</td>
+              <td style="padding:1rem;">
+                
+                  <span style="color:#5cb85c; font-weight:500;">↓ 0.5%</span>
+                
+              </td>
+              <td style="padding:1rem; color:var(--ink-soft); font-size:0.9rem;">
+                8/24/2026
+                <div style="font-size:0.75rem;">Source: AgriConnect Data</div>
+              </td>
+            </tr>
+          
+            <tr style="border-bottom:1px solid var(--stone);">
+              <td style="padding:1rem; font-weight:500;">
+                Roma Tomatoes
+                <div style="font-size:0.8rem; color:var(--ink-soft);">Vegetables</div>
+              </td>
+              <td style="padding:1rem;">Kongowea</td>
+              <td style="padding:1rem;">Mombasa</td>
+              <td style="padding:1rem; font-weight:600;">85 / kg</td>
+              <td style="padding:1rem;">
+                
+                  <span style="color:#d9534f; font-weight:500;">↑ 0.5%</span>
+                
+              </td>
+              <td style="padding:1rem; color:var(--ink-soft); font-size:0.9rem;">
+                8/24/2026
+                <div style="font-size:0.75rem;">Source: AgriConnect Data</div>
+              </td>
+            </tr>
+          
+            <tr style="border-bottom:1px solid var(--stone);">
+              <td style="padding:1rem; font-weight:500;">
+                Shangi Potatoes
+                <div style="font-size:0.8rem; color:var(--ink-soft);">Root Crops</div>
+              </td>
+              <td style="padding:1rem;">Nakuru Wakulima</td>
+              <td style="padding:1rem;">Nakuru</td>
+              <td style="padding:1rem; font-weight:600;">52 / kg</td>
+              <td style="padding:1rem;">
+                
+                  <span style="color:#d9534f; font-weight:500;">↑ 2.1%</span>
+                
+              </td>
+              <td style="padding:1rem; color:var(--ink-soft); font-size:0.9rem;">
+                8/24/2026
+                <div style="font-size:0.75rem;">Source: AgriConnect Data</div>
+              </td>
+            </tr>
+          
+            <tr style="border-bottom:1px solid var(--stone);">
+              <td style="padding:1rem; font-weight:500;">
+                Yellow Beans
+                <div style="font-size:0.8rem; color:var(--ink-soft);">Legumes</div>
+              </td>
+              <td style="padding:1rem;">Eldoret Main Market</td>
+              <td style="padding:1rem;">Uasin Gishu</td>
+              <td style="padding:1rem; font-weight:600;">135 / kg</td>
+              <td style="padding:1rem;">
+                
+                  <span style="color:#5cb85c; font-weight:500;">↓ 1.8%</span>
+                
+              </td>
+              <td style="padding:1rem; color:var(--ink-soft); font-size:0.9rem;">
+                8/24/2026
+                <div style="font-size:0.75rem;">Source: AgriConnect Data</div>
+              </td>
+            </tr>
+          
+        </tbody>
+      </table>
+    
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+</script>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div>
+    <div class="footer-logo-text">Agri<em>Connect</em> KE</div>
+    <div class="footer-tagline">Connecting Kenyan farmers to buyers and farm services.</div>
+  </div>
+  <p>© All rights reserved. AgriConnect KE - 2026</p>
+</footer>
+
+<!-- ══ TOASTS ══ -->
+<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+<script>
+  (function () {
+    window.showToast = function (message, type) {
+      type = type || 'info';
+      var container = document.getElementById('toastContainer');
+      if (!container) return;
+      var icons = { success: 'check-circle', error: 'alert-circle', info: 'info' };
+      var toast = document.createElement('div');
+      toast.className = 'toast toast-' + type;
+      toast.setAttribute('role', 'status');
+      toast.innerHTML =
+        '<i data-lucide="' + (icons[type] || 'info') + '" class="toast-icon"></i>' +
+        '<span class="toast-msg"></span>' +
+        '<button type="button" class="toast-close" aria-label="Dismiss">&times;</button>';
+      toast.querySelector('.toast-msg').textContent = message;
+      var close = function () {
+        toast.style.opacity = '0';
+        setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 200);
+      };
+      toast.querySelector('.toast-close').addEventListener('click', close);
+      container.appendChild(toast);
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      setTimeout(close, 4000);
+    };
+  })();
+</script>
+
+

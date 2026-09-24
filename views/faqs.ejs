@@ -1,0 +1,196 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<style>
+  .faqs-container {
+    padding-top: 100px;
+    padding-bottom: 4rem;
+    max-width: 900px;
+    margin: 0 auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  .faqs-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .faqs-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin-bottom: 0.75rem;
+  }
+  .faqs-sub {
+    font-size: 1.05rem;
+    color: #94a3b8;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .faq-category {
+    margin-bottom: 2.5rem;
+  }
+  .faq-category-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #34d399;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0.5rem;
+  }
+  .faq-item {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .faq-item:hover {
+    border-color: rgba(5, 150, 105, 0.4);
+  }
+  .faq-question {
+    padding: 1.1rem 1.25rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #f8fafc;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .faq-icon {
+    width: 20px;
+    height: 20px;
+    color: #34d399;
+    transition: transform 0.25s ease;
+  }
+  .faq-item.active .faq-icon {
+    transform: rotate(180deg);
+  }
+  .faq-answer {
+    display: none;
+    padding: 0 1.25rem 1.25rem 1.25rem;
+    color: #cbd5e1;
+    font-size: 0.925rem;
+    line-height: 1.6;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  .faq-item.active .faq-answer {
+    display: block;
+  }
+</style>
+
+<main class="faqs-container">
+  <div class="faqs-header">
+    <h1 class="faqs-title">Frequently Asked Questions</h1>
+    <p class="faqs-sub">Everything you need to know about AgriConnect KE subscription tiers, PayHero M-Pesa payments, and marketplace policies.</p>
+  </div>
+
+  <!-- Category 1: Subscription Tiers -->
+  <div class="faq-category">
+    <div class="faq-category-title">
+      <i data-lucide="crown"></i>
+      <span>Subscription Plans & Pricing</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What subscription plans are available on AgriConnect KE?</span>
+        <i data-lucide="chevron-down" class="faq-icon"></i>
+      </div>
+      <div class="faq-answer">
+        We offer three tailored tiers:
+        <ul style="margin-top:0.5rem; padding-left:1.25rem;">
+          <li><strong>Starter (Free):</strong> Up to 3 active produce listings, 5 images per listing, and basic marketplace search placement.</li>
+          <li><strong>Pro (KES 500/month):</strong> Up to 20 active produce listings, 10 images per listing, priority search ranking, verified badge, and 2 featured listing slots.</li>
+          <li><strong>Business (KES 1,500/month):</strong> Up to 100 active listings, 20 images per listing, top search priority, verified business profile, WhatsApp contact integration, and 5 featured listing slots.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How do listing boosts and promotions work?</span>
+        <i data-lucide="chevron-down" class="faq-icon"></i>
+      </div>
+      <div class="faq-answer">
+        Listing boosts elevate your produce or service to the top of search results and landing page showcases. You can purchase a 7-day Boost (KES 100) or a 14-day Featured placement (KES 250) directly from your seller dashboard.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 2: PayHero M-Pesa Integration -->
+  <div class="faq-category">
+    <div class="faq-category-title">
+      <i data-lucide="credit-card"></i>
+      <span>Payments & PayHero M-Pesa</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How do I pay for subscriptions or listing boosts via M-Pesa?</span>
+        <i data-lucide="chevron-down" class="faq-icon"></i>
+      </div>
+      <div class="faq-answer">
+        AgriConnect KE uses automated PayHero Kenya checkout. When upgrading your plan or boosting a listing, select M-Pesa STK Push, enter your Safaricom phone number, and a PIN prompt will pop up automatically on your handset.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Can I pay manually using PayBill or Till numbers?</span>
+        <i data-lucide="chevron-down" class="faq-icon"></i>
+      </div>
+      <div class="faq-answer">
+        Yes! If STK Push is unavailable or your network drops, you can send payment directly to our official PayBill or Till number listed on the checkout screen. Once sent, enter the M-Pesa transaction code into the manual verification box on your payments page for immediate administrator confirmation.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 3: Safety & Anti-Abuse Policies -->
+  <div class="faq-category">
+    <div class="faq-category-title">
+      <i data-lucide="shield-check"></i>
+      <span>Listing Guidelines & Anti-Abuse Policies</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Why was my listing removed or hidden?</span>
+        <i data-lucide="chevron-down" class="faq-icon"></i>
+      </div>
+      <div class="faq-answer">
+        To protect buyers and ensure a professional marketplace, AgriConnect KE automatically filters out listings that lack genuine produce photos, have zero stock/price metrics, or contain dummy placeholder text (such as "test" or invalid contact details). Always upload high quality farm photos and clear pricing to keep your listings active.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How do I report suspicious sellers or spam?</span>
+        <i data-lucide="chevron-down" class="faq-icon"></i>
+      </div>
+      <div class="faq-answer">
+        You can report any suspicious listing or spam message directly using the flag button on produce pages or chat headers. Our administrator auditing team reviews reports continuously to maintain platform safety.
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  (function(){
+    document.querySelectorAll('.faq-question').forEach(item => {
+      item.addEventListener('click', function() {
+        const parent = this.parentElement;
+        parent.classList.toggle('active');
+      });
+    });
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  })();
+</script>
+
+<%- include('partials/footer') %>
+

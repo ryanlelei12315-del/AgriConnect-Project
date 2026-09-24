@@ -51,11 +51,42 @@
   </div>
 
   <div class="hero-right">
-    <div class="hero-bg-image">
-      <img src="/images/designarena_image_v6hkp90k.jpg" alt="hero-img" />
+    <style>
+      .hero-bg-carousel {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-height: 420px;
+        overflow: hidden;
+        border-radius: 16px;
+      }
+      .hero-bg-slide {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        z-index: 1;
+      }
+      .hero-bg-slide.active {
+        opacity: 1;
+      }
+      .hero-bg-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.85) 100%);
+        z-index: 2;
+      }
+    </style>
+    <div class="hero-bg-carousel" id="heroCarousel">
+      <div class="hero-bg-slide active" style="background-image: url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80');"></div>
+      <div class="hero-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1592417817098-8f3d6ef23a28?auto=format&fit=crop&w=1200&q=80');"></div>
+      <div class="hero-bg-slide" style="background-image: url('https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=1200&q=80');"></div>
+      <div class="hero-bg-overlay"></div>
     </div>
-    <div class="hero-cards-label">Fresh from the marketplace</div>
-    <div class="live-cards">
+    <div class="hero-cards-label" style="position:relative; z-index:5;">Fresh from the marketplace</div>
+    <div class="live-cards" style="position:relative; z-index:5;">
       <% if (lp.length === 0 && ls.length === 0) { %>
         <div class="lc">
           <div class="lc-icon"><i data-lucide="leaf"></i></div>
@@ -396,6 +427,19 @@
       </div>
     </section>
 
+    <script>
+      (function() {
+        const slides = document.querySelectorAll('#heroCarousel .hero-bg-slide');
+        if (slides.length > 1) {
+          let current = 0;
+          setInterval(function() {
+            slides[current].classList.remove('active');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('active');
+          }, 5000);
+        }
+      })();
+    </script>
     <%- include('partials/footer') %>
     <%- include('partials/scripts') %>
   </div>

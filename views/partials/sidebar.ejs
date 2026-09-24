@@ -1,258 +1,248 @@
-<!-- ══ SIDEBAR ══ -->
-<% const navId = (typeof activeNav !== 'undefined' && activeNav) ? activeNav : (typeof currentPage === 'string' ? currentPage : ''); %>
-<!-- Mobile hamburger toggle -->
-<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="dashSidebar">
-  <i data-lucide="menu"></i>
+<!-- ══════════════════════════════════════════════════════════════
+     APP SIDEBAR (AgriConnect KE Rail)
+     --------------------------------------------------------------
+     • Solid structural width (260px / w-64), deep charcoal/slate panel
+     • Vertical layout: Brand → Profile Card → Navigation Groups → Footer
+     • Accessible contrast text: Off-white/slate identity text
+     • Handles mobile drawer state and desktop collapse persistence cleanly
+     ══════════════════════════════════════════════════════════════ -->
+<%
+  const navId = (typeof activeNav !== 'undefined' && activeNav)
+    ? activeNav
+    : (typeof currentPage === 'string' ? currentPage : '');
+
+  const isAuthed = typeof user !== 'undefined' && user;
+  const role = isAuthed ? String(user.role || '') : '';
+  const displayName = isAuthed ? (user.fullName || user.full_name || 'User') : '';
+  const initial = displayName ? displayName.charAt(0).toUpperCase() : '?';
+  const roleLabel = role === 'farmer' ? 'Farmer'
+    : role === 'buyer' ? 'Buyer'
+    : role === 'provider' ? 'Service Provider'
+    : role === 'admin' ? 'Administrator'
+    : role || 'Guest';
+
+  const userCounty = (isAuthed && user.county) ? user.county : 'Kiambu';
+
+  /* Helper to render navigation items */
+  const link = (key, href, tooltip) =>
+    `href="${href}" data-tooltip="${tooltip}" class="sidebar-link${navId === key ? ' active' : ''}"` +
+    (navId === key ? ' aria-current="page"' : '');
+%>
+
+<!-- Mobile drawer toggle + backdrop scrim -->
+<button class="sidebar-toggle" id="sidebarToggle" type="button"
+        aria-label="Open navigation menu" aria-expanded="false" aria-controls="dashSidebar">
+  <span class="sidebar-toggle-open"><i data-lucide="menu" aria-hidden="true"></i></span>
+  <span class="sidebar-toggle-close"><i data-lucide="x" aria-hidden="true"></i></span>
 </button>
-<!-- Overlay for mobile -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<aside class="dash-sidebar" id="dashSidebar">
+<aside class="dash-sidebar" id="dashSidebar" aria-label="Application">
 
   <!-- ── Brand ─────────────────────────────────────────────────── -->
   <div class="sidebar-brand">
-    <a href="/dashboard" class="sidebar-brand-logo">
-      <i data-lucide="leaf" style="width:22px;height:22px;"></i>
-      Agri<em>Connect</em>
+    <a href="/dashboard" class="sidebar-brand-logo" aria-label="AgriConnect KE — go to dashboard">
+      <span class="sidebar-brand-mark"><i data-lucide="leaf" aria-hidden="true"></i></span>
+      <span class="sidebar-brand-text">Agri<em>Connect</em></span>
     </a>
   </div>
 
-  <!-- ── Navigation (grouped) ──────────────────────────────────── -->
-  <nav class="sidebar-nav" aria-label="Application Navigation">
+  <!-- ── Identity card ───────────────────────────────────────── -->
+  <div class="rail-identity" style="padding: 1rem; margin: 0.5rem 0.75rem; border-radius: 0.75rem; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);">
+    <div class="rail-identity-row" style="display: flex; align-items: center; gap: 0.75rem;">
+      <span class="rail-avatar" style="width: 38px; height: 38px; border-radius: 50%; background: #059669; color: #ffffff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1rem; shrink: 0;"><%= initial %></span>
+      <div class="rail-identity-text" style="display: flex; flex-direction: column; overflow: hidden;">
+        <span class="rail-profile-name" style="font-weight: 600; color: #f8fafc; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="<%= displayName %>"><%= displayName %></span>
+        <span class="rail-role" style="font-size: 0.75rem; color: #cbd5e1; font-weight: 500;"><%= roleLabel %></span>
+      </div>
+    </div>
+    <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 0.2rem 0.5rem; border-radius: 0.375rem; width: fit-content;">
+      <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i>
+      <span><%= userCounty %></span>
+    </div>
+  </div>
 
-    <div class="nav-group">
-      <div class="nav-group-label">Core</div>
-      <a href="/dashboard" class="sidebar-link <%= navId === 'dashboard' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="layout-dashboard"></i></span>
+  <!-- ── Navigation ────────────────────────────────────────────── -->
+  <nav class="sidebar-nav" aria-label="Primary navigation">
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-core">Core</p>
+      <a <%- link('dashboard', '/dashboard', 'Dashboard') %>>
+        <span class="sidebar-link-icon"><i data-lucide="layout-dashboard" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Dashboard</span>
       </a>
     </div>
 
-    <div class="nav-group">
-      <div class="nav-group-label">Operations</div>
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-market">Marketplace</p>
+      <a <%- link('marketplace', '/marketplace', 'Marketplace') %>>
+        <span class="sidebar-link-icon"><i data-lucide="store" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Marketplace</span>
+      </a>
+      <a <%- link('services', '/services', 'Services') %>>
+        <span class="sidebar-link-icon"><i data-lucide="tractor" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Services</span>
+      </a>
+      <a <%- link('market-prices', '/market-prices', 'Market Prices') %>>
+        <span class="sidebar-link-icon"><i data-lucide="bar-chart-2" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Market Prices</span>
+      </a>
+    </div>
 
-      <% if (typeof user !== 'undefined' && user && user.role === 'farmer') { %>
-      <a href="/produce" class="sidebar-link <%= navId === 'produce' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="box"></i></span>
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-ops">Operations</p>
+      <a <%- link('orders', '/orders', 'Orders') %>>
+        <span class="sidebar-link-icon"><i data-lucide="shopping-bag" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Orders</span>
+      </a>
+      <% if (role === 'farmer') { %>
+      <a <%- link('produce', '/produce', 'My Produce') %>>
+        <span class="sidebar-link-icon"><i data-lucide="box" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">My Produce</span>
       </a>
       <% } %>
-
-      <a href="/orders" class="sidebar-link <%= navId === 'orders' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="shopping-bag"></i></span>
-        <span class="sidebar-link-text">Orders</span>
-        <% if (typeof pendingOrdersCount !== 'undefined' && pendingOrdersCount > 0) { %>
-          <span class="sidebar-badge sidebar-badge-amber"><%= pendingOrdersCount %></span>
-        <% } %>
-      </a>
-
-      <% if (typeof user !== 'undefined' && user && user.role !== 'farmer') { %>
-      <a href="/services/requests/mine" class="sidebar-link <%= navId === 'requests' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="clipboard-list"></i></span>
+      <% if (role === 'provider') { %>
+      <a <%- link('requests', '/services/requests/mine', 'Service Requests') %>>
+        <span class="sidebar-link-icon"><i data-lucide="clipboard-list" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Service Requests</span>
       </a>
       <% } %>
     </div>
 
-    <div class="nav-group">
-      <div class="nav-group-label">Marketplace</div>
-      <a href="/marketplace" class="sidebar-link <%= navId === 'marketplace' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="store"></i></span>
-        <span class="sidebar-link-text">Marketplace</span>
-      </a>
-      <a href="/services" class="sidebar-link <%= navId === 'services' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="tractor"></i></span>
-        <span class="sidebar-link-text">Services</span>
-      </a>
-      <a href="/market-prices" class="sidebar-link <%= navId === 'market-prices' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span>
-        <span class="sidebar-link-text">Market Prices</span>
-      </a>
-    </div>
-
-    <div class="nav-group">
-      <div class="nav-group-label">Communication</div>
-      <a href="/messages" class="sidebar-link <%= navId === 'messages' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="message-square"></i></span>
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-comm">Communication</p>
+      <a <%- link('messages', '/messages', 'Messages') %>>
+        <span class="sidebar-link-icon"><i data-lucide="message-square" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Messages</span>
-        <% if (typeof unreadMessagesCount !== 'undefined' && unreadMessagesCount > 0) { %>
-          <span class="sidebar-badge sidebar-badge-green"><%= unreadMessagesCount %></span>
-        <% } %>
-      </a>
-      <a href="/notifications" class="sidebar-link <%= navId === 'notifications' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="bell"></i></span>
-        <span class="sidebar-link-text">Notifications</span>
-        <% if (typeof unreadNotificationsCount !== 'undefined' && unreadNotificationsCount > 0) { %>
-          <span class="sidebar-badge sidebar-badge-red"><%= unreadNotificationsCount %></span>
-        <% } %>
       </a>
     </div>
 
-    <div class="nav-group">
-      <div class="nav-group-label">Account</div>
-      <a href="/profile" class="sidebar-link <%= navId === 'profile' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="user"></i></span>
-        <span class="sidebar-link-text">Profile</span>
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-account">Account</p>
+      <a <%- link('profile', '/profile', 'Profile & Settings') %>>
+        <span class="sidebar-link-icon"><i data-lucide="user" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Profile & Settings</span>
       </a>
-      <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
-      <a href="/admin" class="sidebar-link <%= navId === 'admin' ? 'active' : '' %>">
-        <span class="sidebar-link-icon"><i data-lucide="shield"></i></span>
+      <% if (role === 'admin') { %>
+      <a <%- link('admin', '/admin', 'Admin Panel') %>>
+        <span class="sidebar-link-icon"><i data-lucide="shield" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Admin Panel</span>
       </a>
       <% } %>
     </div>
-
   </nav>
 
-  <!-- ── User area (bottom) ───────────────────────────────────── -->
-  <div class="sidebar-userarea" id="sidebarUserArea">
-    <% if (typeof user !== 'undefined' && user) { %>
-      <button type="button" class="sidebar-user-btn" id="sidebarUserBtn" aria-haspopup="true" aria-expanded="false">
-        <span class="sidebar-avatar"><%= (user.fullName || user.full_name || '?').charAt(0).toUpperCase() %></span>
-        <span>
-          <span class="sua-name"><%= user.fullName || user.full_name || 'User' %></span>
-          <span class="sua-role"><%= user.role === 'farmer' ? 'Farmer' : user.role === 'buyer' ? 'Buyer' : user.role === 'provider' ? 'Service Provider' : user.role === 'admin' ? 'Administrator' : user.role %></span>
-        </span>
-        <i data-lucide="chevron-up" class="sua-chevron"></i>
-      </button>
-      <div class="sidebar-user-menu" role="menu">
-        <a href="/profile" role="menuitem"><i data-lucide="user"></i> Profile</a>
-        <button type="button" id="sidebarThemeToggle" role="menuitem"><i data-lucide="moon"></i> Toggle theme</button>
-        <div class="menu-sep"></div>
-        <button type="button" id="sidebarSignoutBtn" class="menu-danger" role="menuitem"><i data-lucide="log-out"></i> Sign out</button>
-      </div>
-    <% } else { %>
-      <div class="sidebar-guest-links">
-        <a href="/login" class="btn btn-secondary btn-sm">Sign in</a>
-        <a href="/register" class="btn btn-primary btn-sm">Join</a>
-      </div>
-    <% } %>
+  <!-- Footer: theme toggle + sign out + collapse -->
+  <div class="sidebar-footer">
+    <button type="button"
+            class="sidebar-link sidebar-link--theme"
+            id="railTheme" data-tooltip="Toggle Theme"
+            aria-label="Toggle Theme">
+      <span class="sidebar-link-icon"><i data-lucide="moon" aria-hidden="true"></i></span>
+      <span class="sidebar-link-text">Theme</span>
+    </button>
+    <button type="button"
+            class="sidebar-link sidebar-link--signout"
+            id="railSignOut" data-tooltip="Sign Out"
+            aria-label="Sign Out">
+      <span class="sidebar-link-icon"><i data-lucide="log-out" aria-hidden="true"></i></span>
+      <span class="sidebar-link-text">Sign Out</span>
+    </button>
+
+    <button type="button"
+            class="sidebar-collapse-toggle"
+            id="railCollapse"
+            aria-label="Collapse sidebar"
+            aria-controls="dashSidebar"
+            aria-expanded="true">
+      <span class="rail-collapse-icon rail-collapse-icon--close"><i data-lucide="panel-left-close" aria-hidden="true"></i></span>
+      <span class="rail-collapse-icon rail-collapse-icon--open"><i data-lucide="panel-left-open" aria-hidden="true"></i></span>
+      <span class="rail-collapse-label">Collapse</span>
+    </button>
   </div>
-
-  <!-- ── Collapse Toggle (desktop) ──────────────────────────────── -->
-  <button class="sidebar-collapse-toggle" id="sidebarCollapseToggle" aria-label="Toggle sidebar">
-    <i data-lucide="panel-left-close"></i>
-    <span>Collapse</span>
-  </button>
-
 </aside>
 
+<!-- Behavior Script Block -->
 <script>
-  (function () {
-    const toggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('dashSidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    const COLLAPSE_KEY = 'agriSidebarCollapsed';
+  (function(){
+    'use strict';
+    var root = document.documentElement;
+    var sidebar = document.getElementById('dashSidebar');
+    var toggleBtn = document.getElementById('sidebarToggle');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar) return;
 
-    function isMobileOpen() { return sidebar.classList.contains('open'); }
-    var lastFocused = null;
-    function getFocusable() {
-      return Array.prototype.slice.call(
-        sidebar.querySelectorAll('a[href], button:not([disabled])')
-      );
-    }
+    var isCollapsed = function(){ return root.classList.contains('sidebar-collapsed'); };
+    var save = function(v){ try{ localStorage.setItem('agri.sidebarCollapsed', String(v)); }catch(e){} };
+    var apply = function(collapsed, skipStorage){
+      if (collapsed){ root.classList.add('sidebar-collapsed'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','false'); }
+      else { root.classList.remove('sidebar-collapsed'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','true'); }
+      if (!skipStorage) save(collapsed);
+      root.dispatchEvent(new CustomEvent('agri:sidebar:collapsed', { detail: { collapsed: collapsed } }));
+    };
 
-    function openSidebar() {
-      sidebar.classList.add('open');
-      overlay.classList.add('open');
-      toggle.setAttribute('aria-expanded', 'true');
-      lastFocused = document.activeElement;
-      const first = getFocusable()[0];
-      if (first) first.focus();
-    }
-    function closeSidebar(refocus) {
-      if (!isMobileOpen()) return;
-      sidebar.classList.remove('open');
-      overlay.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-      if (refocus && lastFocused && lastFocused.focus) lastFocused.focus();
-    }
+    var initCollapse = function(){
+      var stored, collapsed;
+      try{ stored = localStorage.getItem('agri.sidebarCollapsed'); }catch(e){}
+      collapsed = (stored === 'true') ? true : (window.innerWidth <= 900);
+      apply(collapsed, true);
+    };
+    initCollapse();
 
-    if (toggle) toggle.addEventListener('click', openSidebar);
-    if (overlay) overlay.addEventListener('click', function () { closeSidebar(true); });
-    window.addEventListener('resize', function () { if (window.innerWidth > 900) closeSidebar(false); });
+    /* Drawer handlers */
+    var openDrawer  = function(){ sidebar.classList.add('open'); if (overlay) overlay.classList.add('open'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; };
+    var closeDrawer = function(){ sidebar.classList.remove('open'); if (overlay) overlay.classList.remove('open'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','false'); document.body.style.overflow=''; };
 
-    // Desktop collapse (persisted across pages)
-    const collapseToggle = document.getElementById('sidebarCollapseToggle');
-    function applyCollapsed(collapsed) {
-      document.body.classList.toggle('sidebar-collapsed', collapsed);
-      sidebar.classList.toggle('collapsed', collapsed);
-      const icon = collapseToggle.querySelector('i');
-      if (icon) icon.setAttribute('data-lucide', collapsed ? 'panel-left-open' : 'panel-left-close');
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
-    if (collapseToggle) {
-      if (localStorage.getItem(COLLAPSE_KEY) === '1') applyCollapsed(true);
-      collapseToggle.addEventListener('click', function () {
-        const next = !document.body.classList.contains('sidebar-collapsed');
-        applyCollapsed(next);
-        localStorage.setItem(COLLAPSE_KEY, next ? '1' : '0');
-      });
-    }
-
-    // User menu
-    const userArea = document.getElementById('sidebarUserArea');
-    const userBtn = document.getElementById('sidebarUserBtn');
-    function closeUserMenu() {
-      userArea.classList.remove('open');
-      userBtn.setAttribute('aria-expanded', 'false');
-    }
-    if (userBtn && userArea) {
-      userBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        const open = userArea.classList.toggle('open');
-        userBtn.setAttribute('aria-expanded', String(open));
-      });
-      document.addEventListener('click', function (e) {
-        if (!userArea.contains(e.target)) closeUserMenu();
-      });
-    }
-
-    // Escape closes the user menu first, then the mobile drawer (focus restored).
-    // Tab is trapped inside the open mobile drawer so focus cannot reach the
-    // page behind the overlay.
-    document.addEventListener('keydown', function (e) {
-      if (userArea && userArea.classList.contains('open')) {
-        if (e.key === 'Escape') {
-          closeUserMenu();
-          userBtn.focus();
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function(){
+        if (window.innerWidth <= 900) {
+          if (sidebar.classList.contains('open')) { closeDrawer(); } else { openDrawer(); }
+        } else {
+          apply(!isCollapsed());
         }
-        return;
-      }
-      if (!isMobileOpen()) return;
-      if (e.key === 'Escape') { closeSidebar(true); return; }
-      if (e.key !== 'Tab') return;
-      const focusable = getFocusable();
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey && (document.activeElement === first || !sidebar.contains(document.activeElement))) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && (document.activeElement === last || !sidebar.contains(document.activeElement))) {
-        e.preventDefault();
-        first.focus();
+      });
+    }
+
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+
+    window.addEventListener('resize', function(){
+      if (window.innerWidth > 900) {
+        sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('open');
+        document.body.style.overflow = '';
       }
     });
 
-    // Sign out (the global fetch patch injects the CSRF header)
-    const signoutBtn = document.getElementById('sidebarSignoutBtn');
-    if (signoutBtn) {
-      signoutBtn.addEventListener('click', async function () {
-        try {
-          await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
-        } catch (e) { /* ignore */ }
-        window.location.href = '/';
+    var signOut = function(e){
+      e.preventDefault();
+      var btn = document.getElementById('railSignOut');
+      if (btn) btn.disabled = true;
+      var form = document.createElement('form');
+      form.method = 'POST'; form.action = '/api/auth/logout';
+      document.body.appendChild(form);
+      form.submit();
+    };
+
+    var themeBtn = document.getElementById('railTheme');
+    var signOutBtn = document.getElementById('railSignOut');
+    var collapseBtn = document.getElementById('railCollapse');
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function(){
+        var cur = root.getAttribute('data-theme') || 'dark';
+        var next = (cur === 'dark') ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        root.classList.toggle('dark', next === 'dark');
+      });
+    }
+    if (signOutBtn) signOutBtn.addEventListener('click', signOut);
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', function () {
+        apply(!isCollapsed());
       });
     }
 
-    // Theme toggle (delegates to the shared data-theme-toggle logic in header.ejs)
-    const themeBtn = document.getElementById('sidebarThemeToggle');
-    if (themeBtn) {
-      themeBtn.addEventListener('click', function () {
-        const anyThemeBtn = document.querySelector('[data-theme-toggle]');
-        if (anyThemeBtn) anyThemeBtn.click();
-      });
-    }
+    var renderIcons = function(){ try{ if(window.lucide){ lucide.createIcons(); } }catch(_){} };
+    if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', renderIcons); } else { renderIcons(); }
   })();
 </script>
