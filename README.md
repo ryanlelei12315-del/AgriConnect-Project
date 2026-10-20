@@ -12,6 +12,7 @@ AgriConnect KE is a full-stack web platform connecting **Kenyan farmers** direct
 
 - 🧑‍🌾 **Role-based accounts** — Farmer, Buyer, Service Provider (and Admin).
 - 🥬 **Marketplace** — search, county filters, category filters, and paginated produce listings.
+- 📣 **Buyer demand board** — buyers publish crop, quantity, county, optional budget, delivery date and quality requirements; farmers filter open demand and contact buyers directly.
 - 📦 **Produce management** — farmers create, edit, deactivate and delete their listings with image uploads.
 - 🛒 **Orders** — place orders on listings, view order history, update order status.
 - 💬 **Messaging** — one-to-one conversations between users with unread badges.
@@ -52,6 +53,7 @@ AgriConnect KE is a full-stack web platform connecting **Kenyan farmers** direct
 │   └── associations.js        # Registers all model associations (loaded at boot)
 ├── controllers/               # Route handlers (auth, dashboard, orders, messages, ...)
 ├── routes/                    # Route definitions
+├── database/009_buyer_demand_board.sql # Buyer demand board schema
 ├── middlewares/               # auth, pageAuth, csrf, errorHandler, upload, ...
 ├── services/                  # External integrations (e.g. Shamba Records)
 ├── utils/                     # Shared helpers (ApiError, ...)
@@ -219,6 +221,7 @@ Optional integrations (currently placeholders in `.env.example`): **M-Pesa Daraj
 ## 🗃️ Database & Migrations Notes
 
 - The base schema lives in **`database.sql`** (creates `users`, orders, produce listings, services, etc.).
+- Migration `009_buyer_demand_board.sql` adds buyer demand posts; apply it with `node scripts/migrate.js` after confirming the database migration baseline is recorded.
 - Iterative **SQL migrations** live in **`database/`** (`002_marketplace_engine` … `008_add_user_active`).
 - `scripts/migrate.js` is a tracked runner that records applied migrations in a `schema_migrations` table. The `npm run db:migrate` script applies migrations 002–005 via the MySQL CLI.
 - **Known gotcha:** a database imported from `database.sql` may be missing `users.is_active` (required by `models/User.js`), which makes `POST /api/auth/register` fail with **500**. Run `node scripts/apply_008.js` to add it safely (idempotent).

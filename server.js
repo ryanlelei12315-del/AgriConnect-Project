@@ -80,6 +80,7 @@ app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
 app.use('/api/listings', mutatingLimiter, require('./routes/listingRoutes'));
 app.use('/services', mutatingLimiter, require('./routes/serviceRoutes'));
 app.use('/orders', mutatingLimiter, require('./routes/orderRoutes'));
+app.use('/demand-board', mutatingLimiter, require('./routes/buyerDemandRoutes'));
 app.use('/api/messages', mutatingLimiter, require('./routes/messageRoutes'));
 
 // Messages page (server-side guarded)
