@@ -8,6 +8,7 @@
   <div class="nav-center">
     <a href="/marketplace" class="<%= navId === 'marketplace' ? 'active' : '' %>"<%= navId === 'marketplace' ? ' aria-current="page"' : '' %>>Marketplace</a>
     <a href="/services" class="<%= navId === 'services' ? 'active' : '' %>"<%= navId === 'services' ? ' aria-current="page"' : '' %>>Services</a>
+    <% if (typeof user !== 'undefined' && user) { %><a href="/demand-board" class="<%= navId === 'demand-board' ? 'active' : '' %>"<%= navId === 'demand-board' ? ' aria-current="page"' : '' %>>Buyer demand</a><% } %>
     <a href="/market-prices" class="<%= navId === 'market-prices' ? 'active' : '' %>"<%= navId === 'market-prices' ? ' aria-current="page"' : '' %>>Market prices</a>
     <a href="/why-us" class="<%= navId === 'why-us' ? 'active' : '' %>"<%= navId === 'why-us' ? ' aria-current="page"' : '' %>>How it works</a>
   </div>
@@ -39,6 +40,7 @@
   <div class="nav-drawer" id="navDrawer">
     <a href="/marketplace" class="<%= navId === 'marketplace' ? 'active' : '' %>"<%= navId === 'marketplace' ? ' aria-current="page"' : '' %>>Marketplace</a>
     <a href="/services" class="<%= navId === 'services' ? 'active' : '' %>"<%= navId === 'services' ? ' aria-current="page"' : '' %>>Services</a>
+    <% if (typeof user !== 'undefined' && user) { %><a href="/demand-board" class="<%= navId === 'demand-board' ? 'active' : '' %>"<%= navId === 'demand-board' ? ' aria-current="page"' : '' %>>Buyer demand</a><% } %>
     <a href="/market-prices" class="<%= navId === 'market-prices' ? 'active' : '' %>"<%= navId === 'market-prices' ? ' aria-current="page"' : '' %>>Market prices</a>
     <a href="/why-us" class="<%= navId === 'why-us' ? 'active' : '' %>"<%= navId === 'why-us' ? ' aria-current="page"' : '' %>>How it works</a>
   </div>
