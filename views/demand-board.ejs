@@ -73,7 +73,7 @@
           <% if (isBuyer && Number(d.buyerId) === Number(user.id)) { %>
             <form action="/demand-board/<%= d.id %>/status" method="POST" style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <% if (d.status !== 'OPEN') { %><button class="btn btn-outline" name="status" value="OPEN">Reopen</button><% } %>
+              <% if (d.status === 'CLOSED') { %><button class="btn btn-outline" name="status" value="OPEN">Reopen</button><% } %>
               <% if (d.status === 'OPEN') { %><button class="btn btn-outline" name="status" value="CLOSED">Close requirement</button><button class="btn btn-emerald" name="status" value="FULFILLED">Mark fulfilled</button><% } %>
             </form>
           <% } else if (!isBuyer && d.status === 'OPEN') { %>
