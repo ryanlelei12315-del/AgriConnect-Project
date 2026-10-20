@@ -81,7 +81,10 @@ module.exports = {
       if (!demand) return res.status(404).send('Demand post not found.');
       if (Number(demand.buyerId) !== Number(req.user.id)) return res.status(403).send('You can only update your own demand posts.');
       const status = String(req.body.status || '');
-      if (!['OPEN', 'CLOSED', 'FULFILLED'].includes(status)) return res.status(400).send('Invalid demand status.');
+      const allowedTransitions = { OPEN: ['CLOSED', 'FULFILLED'], CLOSED: ['OPEN'], FULFILLED: [] };
+      if (!allowedTransitions[demand.status] || !allowedTransitions[demand.status].includes(status)) {
+        return res.status(400).send('That demand status transition is not allowed.');
+      }
       demand.status = status;
       await demand.save();
       return res.redirect('/demand-board');
