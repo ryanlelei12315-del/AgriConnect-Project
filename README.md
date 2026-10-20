@@ -15,6 +15,7 @@ ors** and **farm service providers**. Farmers list produce and set their own pri
 ### 🧑‍🌾 Core Marketplace
 - **Role-based accounts** — Farmer, Buyer, Service Provider (and Admin)
 - **Live Marketplace** — search, county filters, category filters, paginated produce listings
+- 📣 **Buyer demand board** — buyers publish crop, quantity, county, optional budget, delivery date and quality requirements; farmers filter open demand and contact buyers directly
 - **Produce Management** — farmers create, edit, deactivate, delete listings with image uploads
 - **Orders** — place orders on listings, view order history, update order status
 - **Messaging** — one-to-one WhatsApp-style conversations with unread badges and notifications
@@ -169,6 +170,7 @@ Browser → NGINX → Express.js → CSRF Middleware → Auth Middleware → Rou
 │   ├── 007_add_indexes.sql
 │   ├── 008_add_user_active.sql
 │   ├── 009_add_profile_customization.sql
+│   ├── 009_buyer_demand_board.sql  # Buyer demand board schema
 │   ├── 010_add_unit_to_listings.sql
 │   ├── 011_core_monetization_subsystem.sql
 │   └── 012_add_message_attachments.sql
@@ -411,6 +413,7 @@ Helmet → CORS → express.json → express.urlencoded → cookieParser → ini
 
 - **Base schema** lives in `database.sql`
 - **Incremental SQL migrations** live in `database/` (`002` through `012`)
+- Migration `009_buyer_demand_board.sql` adds the buyer demand board schema (demand posts with crop, quantity, county, budget, delivery date, quality); apply it with `node scripts/migrate.js`
 - `scripts/run_migration.js` is a tracked runner that records applied migrations in the `schema_migrations` table
 - **Known gotcha:** databases imported from `database.sql` may be missing `users.is_active` (required by `models/User.js`). Run `node scripts/apply_008.js` to add it safely (idempotent)
 - Migration `012` (`012_add_message_attachments.sql`) adds the `attachments` JSON column to the `messages` table for the messaging system
