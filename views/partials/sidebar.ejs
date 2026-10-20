@@ -1,4 +1,4 @@
-<!-- ══════════════════════════════════════════════════════════════
+-<!-- ══════════════════════════════════════════════════════════════
      APP SIDEBAR (AgriConnect KE Rail)
      --------------------------------------------------------------
      • Solid structural width (260px / w-64), deep charcoal/slate panel
@@ -62,7 +62,11 @@
     </div>
   </div>
 
-  <!-- ── Navigation ────────────────────────────────────────────── -->
+            <!-- ── Navigation ────────────────────────────────────────────── -->
+  <% const unreadMsg = (Object.keys(locals).includes("unreadMessagesCount") && locals.unreadMessagesCount) ? locals.unreadMessagesCount : 0; %>
+  <% const unreadNotif = (Object.keys(locals).includes("unreadNotificationsCount") && locals.unreadNotificationsCount) ? locals.unreadNotificationsCount : 0; %>
+  <% const pendingOrders = (Object.keys(locals).includes("pendingOrdersCount") && locals.pendingOrdersCount) ? locals.pendingOrdersCount : 0; %>
+
   <nav class="sidebar-nav" aria-label="Primary navigation">
 
     <div class="rail-group">
@@ -70,6 +74,11 @@
       <a <%- link('dashboard', '/dashboard', 'Dashboard') %>>
         <span class="sidebar-link-icon"><i data-lucide="layout-dashboard" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Dashboard</span>
+      </a>
+            <a <%- link('advisory', '/advisory/ask', 'AI Assistant') %>>
+        <span class="sidebar-link-icon"><i data-lucide="bot" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">AI Assistant</span>
+        <span class="sidebar-badge sidebar-badge-amber">NEW</span>
       </a>
     </div>
 
@@ -93,7 +102,12 @@
       <p class="rail-group-label" id="grp-ops">Operations</p>
       <a <%- link('orders', '/orders', 'Orders') %>>
         <span class="sidebar-link-icon"><i data-lucide="shopping-bag" aria-hidden="true"></i></span>
-        <span class="sidebar-link-text">Orders</span>
+                <span class="sidebar-link-text">Orders</span>
+        <span class="sidebar-badge sidebar-badge-green" style="<%= pendingOrders > 0 ? '' : 'display:none;' %>"><%= pendingOrders %></span>
+      </a>
+      <a <%- link('business', '/business/dashboard', 'Business Pipeline') %>>
+        <span class="sidebar-link-icon"><i data-lucide="trending-up" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Business Pipeline</span>
       </a>
       <% if (role === 'farmer') { %>
       <a <%- link('produce', '/produce', 'My Produce') %>>
@@ -113,15 +127,34 @@
       <p class="rail-group-label" id="grp-comm">Communication</p>
       <a <%- link('messages', '/messages', 'Messages') %>>
         <span class="sidebar-link-icon"><i data-lucide="message-square" aria-hidden="true"></i></span>
-        <span class="sidebar-link-text">Messages</span>
+                <span class="sidebar-link-text">Messages</span>
+        <span class="sidebar-badge sidebar-badge-green" style="<%= unreadMsg > 0 ? '' : 'display:none;' %>"><%= unreadMsg %></span>
+      </a>
+      <a <%- link('notifications', '/notifications', 'Notifications') %>>
+        <span class="sidebar-link-icon"><i data-lucide="bell" aria-hidden="true"></i></span>
+                <span class="sidebar-link-text">Notifications</span>
+        <span class="sidebar-badge sidebar-badge-red" style="<%= unreadNotif > 0 ? '' : 'display:none;' %>"><%= unreadNotif %></span>
       </a>
     </div>
 
     <div class="rail-group">
-      <p class="rail-group-label" id="grp-account">Account</p>
+      <p class="rail-group-label" id="grp-account">Account & Resources</p>
       <a <%- link('profile', '/profile', 'Profile & Settings') %>>
         <span class="sidebar-link-icon"><i data-lucide="user" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Profile & Settings</span>
+      </a>
+      <a <%- link('pricing', '/pricing', 'Subscription Plans') %>>
+        <span class="sidebar-link-icon"><i data-lucide="credit-card" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Subscription Plans</span>
+        <span class="sidebar-badge sidebar-badge-amber" style="font-size: .6rem; padding: 1px 5px; line-height: 1.4;">PayHero</span>
+      </a>
+      <a <%- link('docs', '/docs', 'Documentation') %>>
+        <span class="sidebar-link-icon"><i data-lucide="file-text" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Documentation</span>
+      </a>
+      <a <%- link('privacy', '/privacy', 'Privacy Policy') %>>
+        <span class="sidebar-link-icon"><i data-lucide="shield-check" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Privacy Policy</span>
       </a>
       <% if (role === 'admin') { %>
       <a <%- link('admin', '/admin', 'Admin Panel') %>>

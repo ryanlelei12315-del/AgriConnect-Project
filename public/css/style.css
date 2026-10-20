@@ -4913,3 +4913,16 @@ a.chat-wa-btn:hover {
 @media (max-width: 1024px) {
   .how-grid { grid-template-columns: 1fr; }
 }
+
+/* PRICING PAGE STYLES */
+.page-wrapper { min-height: 100vh; background: var(--linen); padding-top: 72px; }
+.pricing-hero .page-eyebrow { color: var(--emerald); font-weight: 600; }
+.pricing-hero .page-title { font-family: 'Playfair Display', serif; color: var(--ink); }
+.pricing-hero .page-subtitle { color: var(--ink-soft); }
+.trust-item { display: inline-flex; align-items: center; gap: 0.5rem; }
+.pricing-card { position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; padding-top: 2.5rem; }
+.pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.sidebar-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 0.5rem; line-height: 1.6; min-width: 18px; text-align: center; }
+[data-theme="dark"] .pricing-hero .page-title { color: var(--white); }
+[data-theme="dark"] .pricing-hero .page-subtitle { color: var(--ink-soft); }
+[data-theme="dark"] .page-wrapper { background: var(--ink); }
