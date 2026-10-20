@@ -1,0 +1,90 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+<main class="page-container" style="padding-top:110px;max-width:1180px;">
+  <div class="page-header">
+    <div class="page-header-text">
+      <span class="page-eyebrow">Supply meets demand</span>
+      <h1 class="page-title">Buyer demand board</h1>
+      <p class="page-subtitle">See what buyers need, where they need it, and the quantities they want. Agree on final terms directly before delivery.</p>
+    </div>
+  </div>
+
+  <% if (user.role === 'buyer') { %>
+    <section class="panel" style="padding:24px;margin:20px 0 28px;border:1px solid var(--color-border);border-radius:16px;background:var(--color-surface);">
+      <h2 style="font-size:1.3rem;margin-bottom:6px;">Post a crop requirement</h2>
+      <p style="color:var(--color-text-secondary);margin-bottom:18px;">Publish what you need so farmers can contact you. A maximum price is optional; all prices remain subject to agreement.</p>
+      <form action="/demand-board" method="POST" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label>Crop or produce name
+          <input name="crop_name" maxlength="100" required placeholder="e.g. dry white maize" style="display:block;width:100%;margin-top:6px;">
+        </label>
+        <label>Category
+          <select name="category" required style="display:block;width:100%;margin-top:6px;">
+            <% ['Cereals','Vegetables','Fruits','Root Crops','Legumes','Dairy','Poultry','Other'].forEach(c => { %><option value="<%= c %>"><%= c %></option><% }) %>
+          </select>
+        </label>
+        <label>Quantity needed (kg)
+          <input name="quantity_kg" type="number" min="0.01" max="100000000" step="0.01" required placeholder="e.g. 500" style="display:block;width:100%;margin-top:6px;">
+        </label>
+        <label>Maximum price (KES/kg, optional)
+          <input name="max_price_per_kg_kes" type="number" min="0.01" max="100000000" step="0.01" placeholder="Leave blank if flexible" style="display:block;width:100%;margin-top:6px;">
+        </label>
+        <label>Delivery county
+          <select name="county" required style="display:block;width:100%;margin-top:6px;"><option value="">Choose county</option><% counties.forEach(c => { %><option value="<%= c %>"><%= c %></option><% }) %></select>
+        </label>
+        <label>Needed by (optional)
+          <input name="required_by" type="date" style="display:block;width:100%;margin-top:6px;">
+        </label>
+        <label style="grid-column:1/-1;">Quality, variety or delivery notes
+          <textarea name="quality_notes" maxlength="1000" rows="3" placeholder="e.g. dry, sorted, suitable for milling" style="display:block;width:100%;margin-top:6px;"></textarea>
+        </label>
+        <div style="grid-column:1/-1;"><button type="submit" class="btn btn-emerald">Publish requirement</button></div>
+      </form>
+    </section>
+  <% } else { %>
+    <div style="padding:16px 20px;margin:20px 0 24px;background:var(--color-surface-muted);border-radius:12px;">
+      <strong>Have produce to sell?</strong> Browse buyer requirements below, then <a href="/messages">message the buyer</a> to discuss quality, price, and delivery.
+    </div>
+  <% } %>
+
+  <form method="GET" action="/demand-board" class="filter-bar">
+    <input type="search" name="search" placeholder="Search crop requirements..." value="<%= search %>" aria-label="Search crop requirements">
+    <select name="county" aria-label="Filter by county"><option value="All">All counties</option><% counties.forEach(c => { %><option value="<%= c %>" <%= selectedCounty === c ? 'selected' : '' %>><%= c %></option><% }) %></select>
+    <button class="btn btn-emerald" type="submit">Filter demand</button>
+  </form>
+
+  <% if (demands.length) { %>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;margin:20px 0 40px;">
+      <% demands.forEach(d => { %>
+        <article style="padding:22px;border:1px solid var(--color-border);border-radius:16px;background:var(--color-surface);">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;">
+            <span class="page-eyebrow"><%= d.category %></span>
+            <span style="font-size:.78rem;padding:5px 9px;border-radius:999px;background:<%= d.status === 'OPEN' ? 'var(--color-success-bg)' : 'var(--color-neutral-bg)' %>;"><%= d.status %></span>
+          </div>
+          <h2 style="font-size:1.35rem;margin:8px 0;"><%= d.cropName %></h2>
+          <p style="color:var(--color-text-secondary);"><i data-lucide="map-pin" style="width:15px;height:15px;vertical-align:middle;"></i> <%= d.county %> · Buyer: <%= d.buyer ? d.buyer.fullName : 'Buyer' %></p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;">
+            <div><small style="color:var(--color-text-muted);">Quantity needed</small><div style="font-weight:600;"><%= Number(d.quantityKg).toLocaleString() %> kg</div></div>
+            <div><small style="color:var(--color-text-muted);">Maximum budget</small><div style="font-weight:600;"><%= d.maxPricePerKgKes ? 'KES ' + Number(d.maxPricePerKgKes).toLocaleString() + '/kg' : 'Open to offers' %></div></div>
+          </div>
+          <% if (d.requiredBy) { %><p><small style="color:var(--color-text-muted);">Needed by</small> <strong><%= d.requiredBy %></strong></p><% } %>
+          <% if (d.qualityNotes) { %><p style="margin-top:12px;overflow-wrap:anywhere;"><%= d.qualityNotes %></p><% } %>
+          <p style="font-size:.8rem;color:var(--color-text-muted);margin-top:14px;">Posted <%= new Date(d.createdAt).toLocaleDateString() %></p>
+          <% if (isBuyer && Number(d.buyerId) === Number(user.id)) { %>
+            <form action="/demand-board/<%= d.id %>/status" method="POST" style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <% if (d.status !== 'OPEN') { %><button class="btn btn-outline" name="status" value="OPEN">Reopen</button><% } %>
+              <% if (d.status === 'OPEN') { %><button class="btn btn-outline" name="status" value="CLOSED">Close requirement</button><button class="btn btn-emerald" name="status" value="FULFILLED">Mark fulfilled</button><% } %>
+            </form>
+          <% } else if (!isBuyer && d.status === 'OPEN') { %>
+            <a href="/messages/<%= d.buyerId %>" class="btn btn-emerald" style="display:inline-flex;margin-top:16px;">Contact buyer</a>
+          <% } %>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-state" style="margin:24px 0 48px;"><i data-lucide="search-x"></i><h3>No buyer requirements found</h3><p><%= isBuyer ? 'Publish a requirement above to let farmers know what you need.' : 'Try a different county or crop search. New buyer requirements will appear here.' %></p></div>
+  <% } %>
+</main>
+<script>if (window.lucide) lucide.createIcons();</script>
+<%- include('partials/footer') %>
