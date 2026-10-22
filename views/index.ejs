@@ -119,18 +119,18 @@
     </div>
 
     <div class="hero-roles">
-      <div class="role-chip" onclick="location.href = '/register'">
+      <a class="role-chip" href="/register">
         <div class="ri"><i data-lucide="user"></i></div>
         <div class="rl">Farmer</div>
-      </div>
-      <div class="role-chip" onclick="location.href = '/register'">
+      </a>
+      <a class="role-chip" href="/register">
         <div class="ri"><i data-lucide="shopping-cart"></i></div>
         <div class="rl">Buyer</div>
-      </div>
-      <div class="role-chip" onclick="location.href = '/register'">
+      </a>
+      <a class="role-chip" href="/register">
         <div class="ri"><i data-lucide="wrench"></i></div>
         <div class="rl">Provider</div>
-      </div>
+      </a>
     </div>
   </div>
 </section>
@@ -436,7 +436,7 @@
             slides[current].classList.remove('active');
             current = (current + 1) % slides.length;
             slides[current].classList.add('active');
-          }, 5000);
+          }, 3000);
         }
       })();
     </script>

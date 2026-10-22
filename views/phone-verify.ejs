@@ -1,0 +1,216 @@
+<%- include('partials/header') %> <%- include('partials/navbar') %>
+
+<div class="auth-wrapper">
+  <div class="auth-container">
+    <div class="auth-card">
+    <div class="auth-head">
+      <h1 class="auth-title">Phone Verification</h1>
+      <p class="auth-sub">We'll send a 6-digit code to your phone via WhatsApp.</p>
+    </div>
+
+    <!-- Error / success banner -->
+    <div id="auth-banner" class="auth-banner" style="display: none"></div>
+
+    <!-- Step 1: Enter phone number -->
+    <form id="step-phone" method="POST">
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input
+          id="phone_number"
+          type="tel"
+          class="form-input"
+          placeholder="07XX XXX XXX"
+          required
+        />
+      </div>
+      <button type="submit" id="send-btn" class="btn btn-fill btn-full">Send Code</button>
+    </form>
+
+    <!-- Step 2: Enter OTP (hidden until code is sent) -->
+    <form id="step-otp" method="POST" style="display: none">
+      <div class="form-group">
+        <label class="form-label">Verification Code</label>
+        <input
+          id="otp_code"
+          type="text"
+          class="form-input"
+          inputmode="numeric"
+          maxlength="6"
+          placeholder="Enter 6-digit code"
+          required
+        />
+        <p class="form-hint" style="margin-top: 8px">
+          <span id="countdown" style="color: var(--ink-soft)">Resend in <span id="timer">30</span>s</span>
+          <button type="button" id="resend-btn" class="btn btn-text btn-sm" style="display: none; padding: 0; font-size: 0.85rem">Resend code</button>
+        </p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 1.5rem">
+        <span class="form-hint" style="font-size: 0.85rem; color: var(--ink-soft)">Didn't receive the code?</span>
+        <a href="https://wa.me/<%= businessPhone ? businessPhone.replace(/\+/g, '') : '254700000000' %>" target="_blank" rel="noopener" style="font-size: 0.85rem; color: var(--emerald)">
+          Open WhatsApp
+        </a>
+      </div>
+      <button type="submit" id="verify-btn" class="btn btn-fill btn-full">Verify Code</button>
+    </form>
+
+    <!-- Footer -->
+    <div class="auth-footer">
+      <a href="/login" style="display: inline-block; margin-bottom: 8px">← Back to Sign In</a>
+      <div><a href="/register" style="color: var(--emerald); font-weight: 500">Don't have an account yet? Register →</a></div>
+    </div>
+  </div>
+
+    <div class="auth-visual" aria-hidden="true">
+      <div class="auth-visual-inner">
+        <img src="/images/harvest-produce.png" alt="Fresh Harvest Organic Produce" class="auth-visual-img" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/chatbot') %>
+<%- include('partials/scripts') %>
+
+<script>
+  // ── Configuration ─────────────────────────────────────────────
+  const mode = window.location.search.includes('mode=login') ? 'login' : 'register';
+
+  // ── CSRF helper (mirrors pattern in login.ejs / register.ejs) ─
+  async function csrfFetch(url, opts) {
+    const token = window.agriCsrfToken || '';
+    const headers = Object.assign({ 'Content-Type': 'application/json', 'X-CSRF-Token': token }, opts.headers || {});
+    let res = await fetch(url, Object.assign({}, opts, { headers }));
+    if (res.status === 403 && typeof window.agriRefreshCsrfToken === 'function') {
+      const fresh = await window.agriRefreshCsrfToken();
+      if (fresh) {
+        res = await fetch(url, Object.assign({}, opts, { headers: Object.assign(headers, { 'X-CSRF-Token': fresh }) }));
+      }
+    }
+    return res;
+  }
+
+  const stepPhone = document.getElementById('step-phone');
+  const stepOtp = document.getElementById('step-otp');
+  const phoneInput = document.getElementById('phone_number');
+  const otpInput = document.getElementById('otp_code');
+  const sendBtn = document.getElementById('send-btn');
+  const verifyBtn = document.getElementById('verify-btn');
+  const resendBtn = document.getElementById('resend-btn');
+  const countdownSpan = document.getElementById('countdown');
+  const timerSpan = document.getElementById('timer');
+  const banner = document.getElementById('auth-banner');
+
+  let countdownInterval = null;
+  let secondsLeft = 0;
+
+  function showBanner(type, message) {
+    banner.className = 'auth-banner ' + type;
+    banner.innerHTML = message;
+    banner.style.display = 'block';
+  }
+  function hideBanner() { banner.style.display = 'none'; }
+
+  // ── Step 1: Send code ─────────────────────────────────────────
+  stepPhone.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const phone = phoneInput.value.trim();
+    if (!phone) return showBanner('error', 'Please enter your phone number.');
+
+    hideBanner();
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending…';
+
+    try {
+      const res = await csrfFetch('/api/auth/phone/send', {
+        method: 'POST',
+        body: JSON.stringify({ phone_number: phone, purpose: mode }),
+      });
+      const data = await res.json();
+      if (!res.ok) return showBanner('error', data.message || 'Failed to send code.');
+
+      if (data.code) {
+        showBanner('success', 'DEV MODE: Your code is <strong>' + data.code + '</strong>');
+      } else {
+        showBanner('success', data.message);
+      }
+
+      stepPhone.style.display = 'none';
+      stepOtp.style.display = 'block';
+      otpInput.focus();
+      startCountdown(30);
+    } catch (err) {
+      showBanner('error', 'Network error. Please try again.');
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send Code';
+    }
+  });
+
+  // ── Step 2: Verify code ───────────────────────────────────────
+  stepOtp.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const otp = otpInput.value.trim();
+    const phone = phoneInput.value.trim();
+    if (!otp || otp.length !== 6) return showBanner('error', 'Please enter the 6-digit code.');
+
+    hideBanner();
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'Verifying…';
+
+    try {
+      if (mode === 'login') {
+        const res = await csrfFetch('/api/auth/phone/login', {
+          method: 'POST',
+          body: JSON.stringify({ phone_number: phone, code: otp }),
+        });
+        const data = await res.json();
+        if (!res.ok) return showBanner('error', data.message || 'Verification failed.');
+        window.location.href = '/dashboard';
+      } else {
+        const res = await csrfFetch('/api/auth/phone/verify', {
+          method: 'POST',
+          body: JSON.stringify({ phone_number: phone, purpose: 'register', code: otp }),
+        });
+        const data = await res.json();
+        if (!res.ok) return showBanner('error', data.message || 'Verification failed.');
+        // Mark phone as verified in sessionStorage so the register form knows
+        sessionStorage.setItem('phone_verified', phone);
+        // Redirect to register page (or a custom return URL)
+        const params = new URLSearchParams(window.location.search);
+        const ret = params.get('return');
+        if (ret) {
+          window.location.href = ret;
+        } else {
+          window.location.href = '/register?phone=' + encodeURIComponent(phone);
+        }
+      }
+    } catch (err) {
+      showBanner('error', 'Network error. Please try again.');
+    } finally {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Verify Code';
+    }
+  });
+
+  resendBtn.addEventListener('click', () => {
+    resendBtn.style.display = 'none';
+    stepPhone.dispatchEvent(new Event('submit'));
+  });
+
+  function startCountdown(seconds) {
+    secondsLeft = seconds;
+    timerSpan.textContent = String(secondsLeft);
+    countdownSpan.style.display = 'inline';
+    resendBtn.style.display = 'none';
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+      secondsLeft--;
+      timerSpan.textContent = String(secondsLeft);
+      if (secondsLeft <= 0) {
+        clearInterval(countdownInterval);
+        countdownSpan.style.display = 'none';
+        resendBtn.style.display = 'inline-block';
+      }
+    }, 1000);
+  }
+</script>

@@ -151,6 +151,11 @@ app.get('/login', redirectIfAuthed, (req, res) => res.render('login'));
 
 app.get('/register', redirectIfAuthed, (req, res) => res.render('register'));
 
+// Phone verification page (used for pre-registration or passwordless login)
+app.get('/phone-verify', redirectIfAuthed, (req, res) => res.render('phone-verify', {
+  businessPhone: process.env.WHATSAPP_BUSINESS_PHONE || null,
+}));
+
 app.get('/faqs', (req, res) => res.render('faqs', { user: req.user || null }));
 
 // ── 404 + centralized error handler ────────────────────────────────────────

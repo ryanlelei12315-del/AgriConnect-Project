@@ -11,6 +11,40 @@ const { VALID_CATEGORIES } = require('../utils/validation');
 
 const PAGE_SIZE = 12;
 
+/**
+ * Safe sort allowlist — only these columns may be used in ORDER BY.
+ * Values map to Sequelize attribute names (snake_case is handled by underscored: true).
+ */
+const SORT_FIELDS = {
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  pricePerKgKes: 'pricePerKgKes',
+  quantityKg: 'quantityKg',
+  name: 'name',
+};
+
+const VALID_SORT_DIRECTIONS = ['ASC', 'DESC'];
+
+/**
+ * Parse a raw sort query param into a Sequelize-safe ORDER array.
+ * Accepts formats: "field:direction" or "field" (defaults to DESC).
+ * Only allowlisted fields and directions are honored; everything else
+ * falls back to the default sort.
+ *
+ * @param {string} raw - e.g. "pricePerKgKes:desc"
+ * @returns {Array<[string, string]>} - Sequelize order clause
+ */
+function parseSort(raw) {
+  if (!raw || typeof raw !== 'string') {
+    return [['createdAt', 'DESC']];
+  }
+  const [field, dir] = raw.split(':');
+  const col = SORT_FIELDS[field];
+  if (!col) return [['createdAt', 'DESC']];
+  const direction = dir && VALID_SORT_DIRECTIONS.includes(dir.toUpperCase()) ? dir.toUpperCase() : 'DESC';
+  return [[col, direction]];
+}
+
 /** Sanitize + normalize an integer page number. */
 function normalizePage(raw) {
   const n = parseInt(raw, 10);
@@ -73,4 +107,4 @@ function parseFilters(query) {
   };
 }
 
-module.exports = { buildWhere, parseFilters, normalizePage, PAGE_SIZE };
+module.exports = { buildWhere, parseFilters, parseSort, normalizePage, SORT_FIELDS, PAGE_SIZE };

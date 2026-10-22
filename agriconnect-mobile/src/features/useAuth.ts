@@ -6,6 +6,7 @@ export function useAuth() {
     user: s.user,
     login: s.login,
     register: s.register,
+    whatsappLogin: s.whatsappLogin,
     logout: s.logout,
     refreshUser: s.refreshUser,
   }));

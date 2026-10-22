@@ -31,17 +31,25 @@ ors** and **farm service providers**. Farmers list produce and set their own pri
 - **Rate-limited** auth endpoints · **Helmet** + **CORS** hardening
 - **SQL injection** protection via Sequelize ORM parameterized queries
 
-### 💰 Monetization & Payments (PayHero Integration)
-- **Subscription Tiers** — Starter (Free), Pro (KES 500/mo), Business (KES 1,500/mo)
-- **PayHero Automated Payments** — STK Push, Lipwa QR, Buy Goods Till, Send Money, Pochi La Biashara, Bank Transfer
-- **Listing Boosts** — Featured (KES 500/7 days), Top of Category (KES 350/7 days), Urgent Clearance (KES 200/7 days)
-- **Manual Payment Verification** — admin-controlled transaction code verification pipeline
-- **Full Entitlement System** — feature gating per tier with automated activation
+### 💰 Monetization & Payments — *Planned (not yet implemented)*
+> The database schema (migration `011_monetization_system.sql`) defines subscription
+> plans, features, payments, and listing promotions. However, **no payment controllers,
+> services, routes, or provider integrations exist in the root codebase yet**. Payment
+> gateway integration (including PayHero STK Push, Lipwa QR, Buy Goods Till, etc.)
+> is gated behind a security audit per the implementation plan and will not be claimed
+> as available until it passes review.
+- **Subscription Tiers** — Starter (Free), Pro (KES 500/mo), Business (KES 1,500/mo) — *schema defined, UI/flows planned*
+- **PayHero Automated Payments** — STK Push, Lipwa QR, Buy Goods Till — *not yet implemented*
+- **Listing Boosts** — Featured, Top of Category, Urgent Clearance — *schema defined, flows planned*
+- **Manual Payment Verification** — admin-controlled transaction code pipeline — *not yet implemented*
+- **Entitlement System** — active-listing limit (10 for free tier) is enforced transactionaly; tier-based feature gating is planned
 
-### 🤖 AI & Communication
-- **AI Assistant** — in-page chatbot co-pilot for quick help and advisory
-- **WhatsApp-style Messaging** — real-time conversations with attachment support
-- **Notifications Bell** — unread badge counter with mark-all-as-read support
+### 🤖 AI & Communication — *Planned (not yet implemented)*
+> No AI assistant, chatbot, or RAG adapter exists in the codebase. These features are
+> listed as future enhancements only after provider selection and security review.
+- **AI Assistant** — in-page chatbot co-pilot — *not yet implemented*
+- **Messaging** — one-to-one conversations with unread badges (no attachment support yet)
+- **Notifications Bell** — unread badge counter with mark-all-as-read support — *partially implemented*
 
 ---
 
@@ -57,7 +65,7 @@ ors** and **farm service providers**. Farmers list produce and set their own pri
 | Security    | helmet · signed double-submit CSRF · express-rate-limit |
 | Charts      | Chart.js (CDN)                                          |
 | Icons       | Lucide (CDN)                                            |
-| Payments    | PayHero API v2 (STK, QR, Till, Bank)                    |
+| Payments    | Planned — schema in mig 011, no payment controllers/routes |
 | Config      | dotenv                                                  |
 
 ---
@@ -87,7 +95,6 @@ ors** and **farm service providers**. Farmers list produce and set their own pri
      │  │Assets   │   │        │  │(Cache) ││     │  │Assets   │ │
      │  └─────────┘   │        │  └────────┘│     │  └─────────┘ │
      │                │        └────────────┘     │              │
-     │  PayHero API ◀─┼──────────────────────────▶│  PayHero API │
      └────────────────┘                           └──────────────┘
 ```
 
@@ -95,15 +102,14 @@ ors** and **farm service providers**. Farmers list produce and set their own pri
 
 1. **Presentation Layer** — EJS templates rendered server-side, served via Express static middleware for CSS/Images, Lucide icons + Chart.js via CDN for zero-config client interactivity
 2. **Application Layer** — Express.js routing, middleware pipeline (Helmet → CORS → Cookie Parser → CSRF → Rate Limiting → Auth), EJS view engine with partials system
-3. **Business Logic Layer** — Controllers orchestrate models + services; Services handle external API integrations (PayHero, Shamba Records)
+3. **Business Logic Layer** — Controllers orchestrate models + services; Services handle external API integrations (Shamba Records, KAMIS price feed)
 4. **Data Access Layer** — Sequelize ORM with MySQL 8, model associations registered at boot, SQL migrations tracked in `schema_migrations` table
-5. **Payment Gateway Layer** — Pluggable provider architecture (`PaymentGatewayInterface` → `PayHeroProvider` / `ManualMpesaProvider`), managed via `PaymentGatewayManager`
+5. **Payment Gateway Layer** — *Planned*: pluggable provider architecture (PayHero API v2) will be added after security audit
 
 ### Request Flow
 ```
 Browser → NGINX → Express.js → CSRF Middleware → Auth Middleware → Router
-                → Controller → Model (Sequelize) → MySQL
-                → Service (PayHero API) → Payment Record
+                → Controller → Model (Sequelize) → MySQL (transactional)
                 → EJS Render → HTTP Response → Browser
 ```
 
@@ -120,48 +126,81 @@ Browser → NGINX → Express.js → CSRF Middleware → Auth Middleware → Rou
 │   ├── *.js                         # Sequelize models (User, ProduceListing, Order, ...)
 │   └── associations.js            # Registers all model associations (loaded at boot)
 ├── controllers/
-│   ├── monetizationController.js    # Pricing, checkout, payment code submission
-│   ├── messageController.js         # Messaging with attachments (graceful fallback)
-│   └── [auth, dashboard, orders, ...]
+│   ├── authController.js            # bcrypt + JWT login/register/logout
+│   ├── dashboardController.js       # Role-aware KPI + Chart.js analytics
+│   ├── listingController.js         # API listings (paginated, sort allowlist)
+│   ├── marketplaceController.js     # Server-rendered marketplace browse
+│   ├── produceController.js         # Farmer produce CRUD + entitlement checks
+│   ├── buyerDemandController.js     # Buyer demand board (create/filter/status)
+│   ├── orderController.js           # Orders CRUD + order-item joins
+│   ├── messageController.js         # One-to-one messaging
+│   ├── marketPriceController.js     # Market price API (Shamba Records + local)
+│   ├── serviceController.js         # Provider service listings + requests
+│   ├── reviewController.js          # Reviews / ratings
+│   ├── profileController.js         # Profile + password management
+│   ├── notificationController.js    # In-app notification CRUD
+│   ├── adminController.js           # Admin panel data
+│   └── advisoryController.js        # Crop advisory stubs
 ├── routes/
-│   ├── monetizationRoutes.js        # /pricing, /monetization/checkout, /monetization/promotions
-│   └── [auth, dashboard, business, marketplace, ...]
+│   ├── authRoutes.js                # /api/auth/register, /login, /logout, /me, /csrf
+│   ├── listingRoutes.js             # /api/listings (GET list w/ pagination)
+│   ├── marketplace.js               # GET /marketplace (server-rendered browse)
+│   ├── produceRoutes.js             # /produce (farmer produce management)
+│   ├── buyerDemandRoutes.js         # /demand-board (buyer demand board)
+│   ├── orderRoutes.js               # /orders
+│   ├── messageRoutes.js             # /api/messages
+│   ├── marketPriceRoutes.js         # /market-prices
+│   ├── serviceRoutes.js             # /services
+│   ├── reviewRoutes.js              # /reviews
+│   ├── farmerRoutes.js              # /farmers (public profiles)
+│   ├── profileRoutes.js             # /profile
+│   ├── notificationRoutes.js        # /notifications
+│   ├── dashboardRoutes.js           # /dashboard
+│   ├── adminRoutes.js               # /admin (admin only)
+│   └── mobileRoutes.js              # /api/m/* (mobile JSON API)
 ├── middlewares/
+│   ├── authMiddleware.js            # JWT auth for API routes
 │   ├── pageAuth.js                  # requireAuthPage, redirectIfAuthed
 │   ├── csrf.js                      # Signed double-submit CSRF
-│   ├── authMiddleware.js            # JWT auth for API routes
-│   └── [auth, errorHandler, upload, ...]
+│   ├── errorHandler.js              # Centralized error handler
+│   ├── upload.js                    # Multer image upload
+│   ├── requireAdmin.js              # Admin role guard
+│   └── sidebarData.js               # Sidebar context injector
 ├── services/
-│   ├── payment/
-│   │   ├── PaymentGatewayInterface.js   # Abstract interface
-│   │   ├── PayHeroProvider.js           # PayHero API v2 integration
-│   │   ├── ManualMpesaProvider.js       # Manual M-Pesa verification
-│   │   └── PaymentGatewayManager.js     # Provider registry + orchestration
-│   ├── entitlementService.js        # Subscription activation + feature gating
-│   └── [expiryCronService, ...]
+│   ├── entitlementService.js        # Active-listing limit (free tier = 10)
+│   ├── marketplaceService.js        # WHERE builder, pagination, sort allowlist
+│   ├── orderService.js              # Order creation + inventory
+│   ├── kamisService.js              # KAMIS price feed adapter
+│   └── shabaRecordsService.js       # Shamba Records API adapter
 ├── utils/
-│   ├── ApiError.js                  # Centralized error class
-│   └── [listingQuality, ...]
+│   ├── validation.js                # Server-side validators (ok/err pattern)
+│   ├── sanitize.js                  # HTML sanitizer (sanitize-html)
+│   └── ApiError.js                  # Centralized error class
 ├── views/
-│   ├── index.ejs                    # Landing page with hero carousel
+│   ├── index.ejs                    # Landing page
 │   ├── login.ejs, register.ejs
-│   ├── dashboard.ejs                # Role-aware dashboard + sidebar
-│   ├── faqs.ejs                     # Dark-themed accordion FAQs
-│   ├── monetization/
-│   │   ├── plans.ejs                # Pricing page with PayHero integration
-│   │   ├── checkout.ejs             # Multi-channel payment selector
-│   │   └── promotions.ejs           # Listing boost packages
+│   ├── dashboard.ejs                # Role-aware dashboard + Chart.js
+│   ├── marketplace.ejs              # Marketplace browse (paginated)
+│   ├── demand-board.ejs             # Buyer demand board
+│   ├── messages.ejs                 # Messaging page
+│   ├── market-prices.ejs            # Market prices
+│   ├── profile.ejs                  # User profile
+│   ├── produce.ejs                  # Farmer produce management
+│   ├── services.ejs                 # Service provider listings
+│   ├── orders.ejs                   # Order history
+│   ├── notifications.ejs            # Notification center
+│   ├── faqs.ejs                     # FAQ page
+│   ├── why-us.ejs                   # How it works
 │   └── partials/
 │       ├── header.ejs, navbar.ejs, footer.ejs
-│       ├── sidebar.ejs              # Collapsible sidebar with unread badges
-│       ├── chatbot.ejs              # AI Assistant widget
-│       └── [alert, csrf, toast, ...]
+│       ├── sidebar.ejs              # Collapsible sidebar
+│       └── [alert, csrf, toast, topbar, scripts, state]
 ├── public/
 │   ├── css/
 │   │   ├── style.css                # Project CSS variables + components
 │   │   └── foundation.css           # Shared UI foundation
 │   └── images/                      # Local images for hero, marketplace
-├── database/
+├── database/                        # SQL migrations (002 through 012)
 │   ├── 002_marketplace_engine.sql
 │   ├── 003_user_county.sql
 │   ├── 004_messages_snake_case.sql
@@ -172,14 +211,14 @@ Browser → NGINX → Express.js → CSRF Middleware → Auth Middleware → Rou
 │   ├── 009_add_profile_customization.sql
 │   ├── 009_buyer_demand_board.sql  # Buyer demand board schema
 │   ├── 010_add_unit_to_listings.sql
-│   ├── 011_core_monetization_subsystem.sql
-│   └── 012_add_message_attachments.sql
+│   ├── 011_monetization_system.sql # Plans/subscriptions/payments schema (not yet wired)
+│   └── 012_set_free_listing_limit.sql
 ├── scripts/
-│   ├── migrate.js                   # SQL migration runner
+│   ├── migrate.js                   # SQL migration runner (tracked, idempotent)
 │   ├── seed.js                      # Demo data seeder (idempotent)
-│   ├── run_migration.js             # Tracked migration with version tracking
+│   ├── run_migration.js             # Legacy: only runs mig 006 — avoid for new installs
 │   ├── apply_008.js                 # One-off: adds is_active column
-│   └── purge_test_listings.js
+│   └── apply_009.js, apply_010.js   # One-off migration helpers
 ├── docker-compose.yml               # Production deployment
 ├── .env.example                     # Environment variable template
 └── README.md
@@ -224,8 +263,8 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 # Create database (one-time)
 mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS Smart_Kilimo;"
 
-# Apply all tracked migrations (002 through 012)
-node scripts/run_migration.js
+# Apply all tracked migrations (002 through 012) — safe to re-run
+npm run db:migrate
 ```
 
 ### 4. Seed Demo Data (Optional but Recommended)
@@ -266,15 +305,10 @@ Open [http://localhost:3000](http://localhost:3000) 🎉
 | `DB_NAME`           | No       | `Smart_Kilimo`      | MySQL database name                                      |
 | `DB_DIALECT`        | No       | `mysql`             | Sequelize dialect                                        |
 
-### PayHero Payment Gateway
+### PayHero Payment Gateway — *Planned (not yet implemented)*
 
-| Variable                   | Required | Default | Description                                              |
-|----------------------------|----------|---------|----------------------------------------------------------|
-| `PAYHERO_API_USERNAME`     | **Yes**  | —       | PayHero API username (KYC-approved business account)    |
-| `PAYHERO_API_PASSWORD`     | **Yes**  | —       | PayHero API password                                     |
-| `PAYHERO_ACCOUNT_ID`       | **Yes**  | —       | PayHero merchant account ID (numeric)                     |
-| `PAYHERO_BASIC_AUTH_TOKEN` | **Yes**  | —       | PayHero Basic Auth token (base64 encoded credentials)    |
-| `PAYHERO_API_URL`          | No       | `https://backend.payhero.co.ke/api/v2/payments` | PayHero API v2 base URL |
+> No payment provider integration exists in the codebase. These variables will be
+> required once the payment connector is implemented after security review.
 
 ### Shamba Records Market Prices (Optional)
 
@@ -296,11 +330,15 @@ Open [http://localhost:3000](http://localhost:3000) 🎉
 
 ## 💰 Monetization & Entitlement Matrix
 
-### Subscription Tiers
+### Subscription Tiers — *Schema defined, UI/flows planned*
+
+> The monetization schema (`011_monetization_system.sql`) and limit alignment
+> (`012_set_free_listing_limit.sql`) define the tiers below. **No subscription
+> UI, checkout flow, or payment processing is implemented yet.**
 
 | Tier     | Price         | Listings | Images/Listing | Search Ranking | Verified Badge | Featured Slots | Lead Mgmt |
 |----------|---------------|----------|----------------|----------------|----------------|----------------|-----------|
-| Starter  | **Free**      | 3        | 5              | Basic          | ❌             | 0              | ❌        |
+| Starter  | **Free**      | 10       | 5              | Basic          | —             | 0              | —        |
 | Pro      | KES 500/mo    | 20       | 10             | Priority       | ✅             | 2              | ✅        |
 | Business | KES 1,500/mo  | 100      | 20             | Top Priority   | ✅ (Business)  | 5              | ✅ + API  |
 
@@ -312,24 +350,25 @@ Open [http://localhost:3000](http://localhost:3000) 🎉
 | Top of Category     | KES 350  | 7 days   | Pins to top of category results |
 | Urgent Clearance    | KES 200  | 7 days   | Red "Urgent" tag for liquidation|
 
-### Payment Channels
+### Payment Channels — *Planned*
+
+> No payment processing is implemented. Only manual M-Pesa verification is planned as a fallback.
 
 | Channel               | Automated | Manual Verification |
 |-----------------------|-----------|---------------------|
-| PayHero STK Push / QR | ✅        | —                   |
-| PayHero Buy Goods Till| ✅        | —                   |
-| PayHero Send Money    | ✅        | —                   |
-| PayHero Pochi La Biashara | ✅    | —                   |
-| PayHero Bank Transfer | ✅        | —                   |
-| Manual M-Pesa         | ❌        | ✅ Admin verifies    |
+| PayHero STK Push / QR | *Planned* | —                   |
+| PayHero Buy Goods Till| *Planned* | —                   |
+| PayHero Send Money    | *Planned* | —                   |
+| PayHero Pochi La Biashara | *Planned* | —                  |
+| PayHero Bank Transfer | *Planned* | —                   |
+| Manual M-Pesa         | —         | *Planned: admin verifies*  |
 
 ### Entitlement Enforcement
 
-- **Plan limits** are enforced at the model layer via `EntitlementService`
-- **Listing creation/edit** checks `userPlan.plan.maxListings` before allowing writes
-- **Image count** is validated against `plan.maxImagesPerListing`
-- **Featured slots** are allocated per-plan and expire automatically via `ExpiryCronService` (runs every 15 minutes)
-- **Payment verification** flows through `PaymentGatewayManager.adminVerifyPayment()` → `EntitlementService.activateSubscriptionOrPromotion()`
+- **Active listing limit** is enforced transactionally in `services/entitlementService.js` — free tier allows 10 active `LISTED` produce listings; paid plans (if subscribed) get their plan's `max_listings`; falls back to 10 if subscription tables are missing (graceful degradation)
+- **Listing creation** calls `createPublishedListing()` which uses a row-level lock (`LOCK.UPDATE`) + count check within a single Sequelize transaction to prevent concurrent bypass
+- **Status transitions** validate ownership (`listing.farmerId !== req.user.id`) before any mutation
+- **Image uploads** are validated for file type and ownership (owner-only) — plan-based image count limits are *planned*
 
 ---
 
@@ -339,8 +378,8 @@ Open [http://localhost:3000](http://localhost:3000) 🎉
 |----------------|-----------------------------------------------|------------------------------------------------|
 | `npm start`    | `node -r dotenv/config server.js`             | Start the server (production)                  |
 | `npm run dev`  | `node -r dotenv/config --watch server.js`     | Start with auto-reload on file changes         |
-| `npm test`     | _(if configured)_                             | Run test suite                                 |
-| `npm run db:migrate` | `node scripts/run_migration.js`            | Run all SQL migrations 002–012                |
+| `npm test`     | `node --test test/**/*.test.js`              | Run test suite                                 |
+| `npm run db:migrate` | `node scripts/migrate.js`                    | Run all SQL migrations 002–012                |
 | `npm run db:seed` | `node scripts/seed.js`                     | Seed demo users, listings, services            |
 
 ---
@@ -350,8 +389,8 @@ Open [http://localhost:3000](http://localhost:3000) 🎉
 1. **`POST /api/auth/register`** — validates input, rejects duplicates, hashes password with bcrypt, creates user, signs JWT, sets `agri_token` httpOnly cookie
 2. **`POST /api/auth/login`** — finds user by email or phone, verifies password, sets JWT cookie
 3. **`POST /api/auth/logout`** — clears the cookie
-4. **`GET /api/auth/me`** — (auth required) returns current user + active subscription/plan
-5. **`GET /api/auth/csrf`** — (auth required) issues a fresh CSRF token for self-healing forms
+4. **`GET /api/auth/me`** — (auth required) returns current user details (no password hash)
+5. **`GET /api/auth/csrf`** — (public) issues a fresh CSRF token for self-healing forms
 
 ### Security Pipeline (Server Startup)
 ```
@@ -373,14 +412,13 @@ Helmet → CORS → express.json → express.urlencoded → cookieParser → ini
 |------------------------|----------------------------------|
 | `/`                    | Landing page (hero carousel)     |
 | `/login`, `/register`  | Auth pages                       |
-| `/faqs`                | Dark-themed FAQ accordion        |
-| `/pricing`             | Public pricing with PayHero UI   |
+| `/faqs`                | FAQ page                         |
 | `/marketplace`         | Browse produce listings          |
 | `/services`            | Browse service providers         |
 | `/market-prices`       | Farm-gate price data             |
 | `/why-us`              | Platform value proposition       |
-| `/privacy`             | Privacy policy                   |
-| `/docs`                | Developer/user documentation     |
+
+> Note: `/pricing`, `/privacy`, and `/docs` pages are planned but not yet implemented.
 
 ### Authenticated
 | Path                               | Purpose                              |
@@ -392,8 +430,6 @@ Helmet → CORS → express.json → express.urlencoded → cookieParser → ini
 | `/messages/:userId`                | Specific conversation thread          |
 | `/notifications`                   | User notifications                    |
 | `/profile`                         | Profile + password management         |
-| `/monetization/checkout?planId=`   | Plan subscription checkout            |
-| `/monetization/promotions`         | Listing boost selection               |
 
 ### API Endpoints
 | Path                              | Method | Purpose                          |
@@ -403,7 +439,7 @@ Helmet → CORS → express.json → express.urlencoded → cookieParser → ini
 | `/api/auth/logout`                | POST   | Clear session                    |
 | `/api/auth/me`                    | GET    | Get current user                 |
 | `/api/auth/csrf`                  | GET    | Fresh CSRF token (self-heal)     |
-| `/api/listings`                   | GET/POST | Listings CRUD                   |
+| `/api/listings`                   | GET/POST | Listings with pagination, search, sort allowlist      |
 | `/api/messages`                   | POST   | Send message                     |
 | `/api/dashboard/stats`            | GET    | Dashboard KPIs                   |
 
@@ -414,9 +450,11 @@ Helmet → CORS → express.json → express.urlencoded → cookieParser → ini
 - **Base schema** lives in `database.sql`
 - **Incremental SQL migrations** live in `database/` (`002` through `012`)
 - Migration `009_buyer_demand_board.sql` adds the buyer demand board schema (demand posts with crop, quantity, county, budget, delivery date, quality); apply it with `node scripts/migrate.js`
-- `scripts/run_migration.js` is a tracked runner that records applied migrations in the `schema_migrations` table
+- `scripts/migrate.js` is the tracked runner that records applied migrations in the `schema_migrations` table (safe to re-run)
+- `scripts/run_migration.js` is a **legacy** runner that only applies migration 006 — avoid it for new installs
 - **Known gotcha:** databases imported from `database.sql` may be missing `users.is_active` (required by `models/User.js`). Run `node scripts/apply_008.js` to add it safely (idempotent)
-- Migration `012` (`012_add_message_attachments.sql`) adds the `attachments` JSON column to the `messages` table for the messaging system
+- Migration `011_monetization_system.sql` defines plans, subscriptions, payments, and listing promotion tables (DB schema only — no payment/subscription controllers or services are implemented yet)
+- Migration `012_set_free_listing_limit.sql` aligns the free-tier (Starter) plan's `max_listings` to 10, matching the enforced `FREE_ACTIVE_LISTING_LIMIT` in `services/entitlementService.js`
 - `scripts/seed.js` is idempotent and re-provisions bcrypt hashes for demo users
 
 ### Running Migrations
@@ -426,7 +464,7 @@ Helmet → CORS → express.json → express.urlencoded → cookieParser → ini
 mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS Smart_Kilimo;"
 
 # Apply all migrations
-node scripts/run_migration.js
+npm run db:migrate
 
 # Seed demo data
 npm run db:seed
@@ -500,13 +538,13 @@ networks:
 ```bash
 # 1. Ensure .env is configured with production values
 cp .env.example .env
-# Edit .env: set NODE_ENV=production, CORS_ORIGIN, PayPal/PayHero creds
+# Edit .env: set NODE_ENV=production, CORS_ORIGIN
 
 # 2. Build and deploy
 docker-compose up -d --build
 
 # 3. Run migrations inside the container
-docker-compose exec app node scripts/run_migration.js
+docker-compose exec app npm run db:migrate
 
 # 4. Seed data (optional)
 docker-compose exec app npm run db:seed
@@ -604,11 +642,11 @@ kubectl port-forward svc/agriconnect-service 3000:80 -n agriconnect-production
 # Run the full test suite
 npm test
 
-# Run specific test file
-npm test -- tests/unit/auth.test.js
+# Run a specific test file
+npm test -- test/entitlementService.test.js
 
-# Run integration tests
-npm run test:integration
+# Syntax-check a file or group of files
+npm run check
 ```
 
 ---
@@ -631,4 +669,4 @@ This project is licensed under the **MIT License** — see the [`LICENSE`](LICEN
 
 ## 💬 Support
 
-For PayHero integration issues, API key questions, or monetization workflow support, contact: **dev@agriconnect.co.ke**
+For platform support, security issues, or feature requests, contact: **dev@agriconnect.co.ke**

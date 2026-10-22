@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test test/**/*.test.js",
+    "check": "node --check server.js && node --check services/entitlementService.js && node --check services/marketplaceService.js && node --check services/whatsappService.js && node --check controllers/listingController.js && node --check controllers/buyerDemandController.js && node --check utils/transitions.js",
+    "db:migrate": "node scripts/migrate.js",
+    "db:seed": "node scripts/seed.js",
+    "start": "node -r dotenv/config server.js",
+    "dev": "node -r dotenv/config --watch server.js"
   },
   "keywords": [],
   "author": "",
@@ -12,10 +17,12 @@
   "type": "commonjs",
   "dependencies": {
     "axios": "^1.20.0",
+    "bcryptjs": "^3.0.3",
     "cheerio": "^1.2.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^18.0.1",
+    "ejs": "^7.0.2",
     "express": "^4.21.2",
     "express-rate-limit": "^8.7.0",
     "express-session": "^1.19.0",

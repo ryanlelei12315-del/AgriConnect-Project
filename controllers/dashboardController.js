@@ -9,6 +9,8 @@ const { ServiceRequest } = require('../models/ServiceRequest');
 const { User } = require('../models/User');
 const { Notification } = require('../models/Notification');
 const { Op, fn, col, literal } = require('sequelize');
+const { sequelize } = require('../config/database');
+const { resolveActiveListingLimit } = require('../services/entitlementService');
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -81,6 +83,9 @@ module.exports = {
           ? ProduceListing.count({ where: { status: 'LISTED' } })
           : Promise.resolve(0),
       ]);
+      const listingLimit = isFarmer
+        ? await resolveActiveListingLimit({ sequelize, userId })
+        : null;
 
       // Total Sales (sum of completed orders)
       let totalSales = 0;
@@ -264,6 +269,7 @@ module.exports = {
         period,
         stats: {
           activeListings: activeListingsCount,
+          listingLimit,
           pendingOrders: pendingOrdersCount,
           unreadMessages: unreadMessagesCount,
           totalSales,

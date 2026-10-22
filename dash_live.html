@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="94f8ee70028bd167d24e4b32e427f0e38be28938abf83fa9.730d56b518e70596dbabd7185a734577965d7b9b94af9f52a31bf16148d0d7f7">
+  <link rel="icon" href="/favicon/favicon.png" type="image/png">
+  link
+  <title>AgriConnect KE — Farm Direct. No Brokers.</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/foundation.css">
+  <script>
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = stored || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    })();
+  </script>
+  <script>
+    // Global CSRF wiring: expose the token and auto-inject it into every
+    // state-changing fetch (login/register, messages, order/listings APIs,
+    // logout). Server-rendered POST forms carry a hidden `_csrf` field instead.
+    (function () {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      var token = meta ? meta.content : '';
+      window.agriCsrfToken = token;
+
+      // Self-heal helper: fetch a fresh, matching token(+cookie) from the server.
+      // Called when a POST was rejected with 403 because the page's token went
+      // stale (e.g. the 1-hour _csrf cookie expired while a tab stayed open).
+      window.agriRefreshCsrfToken = function () {
+        return fetch('/api/auth/csrf', { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (d && d.csrfToken) {
+              window.agriCsrfToken = d.csrfToken;
+              return d.csrfToken;
+            }
+            return null;
+          })
+          .catch(function () { return null; });
+      };
+
+      if (token) {
+        var orig = window.fetch;
+        window.fetch = function (input, init) {
+          init = init || {};
+          var method = (init.method || 'GET').toUpperCase();
+          if (['POST', 'PUT', 'PATCH', 'DELETE'].indexOf(method) !== -1) {
+            init.headers = Object.assign({}, init.headers || {}, { 'X-CSRF-Token': token });
+            init.credentials = init.credentials || 'same-origin';
+          }
+          return orig(input, init);
+        };
+      }
+    })();
+  </script>
+  <script>
+    (function () {
+      // Bind every theme toggle (navbar, topbar, sidebar) to the same behavior.
+      var btns = document.querySelectorAll('[data-theme-toggle]');
+      if (!btns.length) return;
+
+      function updateIcons(isDark) {
+        btns.forEach(function (btn) {
+          var sun = btn.querySelector('.theme-icon-sun');
+          var moon = btn.querySelector('.theme-icon-moon');
+          if (sun && moon) {
+            sun.style.display = isDark ? 'none' : 'inline';
+            moon.style.display = isDark ? 'inline' : 'none';
+          }
+        });
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+
+      function applyTheme(theme) {
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+        updateIcons(theme === 'dark');
+      }
+
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var current = document.documentElement.getAttribute('data-theme');
+          var next = current === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('theme', next);
+          applyTheme(next);
+        });
+      });
+
+      var stored = localStorage.getItem('theme');
+      if (stored) {
+        applyTheme(stored);
+      } else {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        updateIcons(prefersDark);
+      }
+    })();
+  </script>
+</head>
+
+<body>
+
+<nav aria-label="Primary navigation">
+  
+  <a href="/" class="nav-logo" aria-label="AgriConnect KE home">
+    <img src="/favicon/favicon.png" alt="" class="nav-logo-favicon" aria-hidden="true">
+    <span class="nav-logo-mark"><i data-lucide="leaf" aria-hidden="true"></i></span>
+    <span class="nav-logo-text">Agri<em>Connect</em> KE</span>
+  </a>
+  <div class="nav-center">
+    <a href="/marketplace" class="">Marketplace</a>
+    <a href="/services" class="">Services</a>
+    <a href="/market-prices" class="">Market prices</a>
+    <a href="/pricing" class="">Pricing</a>
+    <a href="/why-us" class="">How it works</a>
+  </div>
+  <div class="nav-right">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
+      <svg class="theme-icon-sun" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="theme-icon-moon" style="width:18px;height:18px; display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navDrawer" aria-label="Open menu">
+      <svg class="nav-toggle-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <svg class="nav-toggle-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    
+      <a href="/dashboard" class="nav-user-chip" aria-label="Open your dashboard">
+        <span class="nav-user-avatar">A</span>
+        <span class="nav-user-name">Audit</span>
+      </a>
+      <form action="/api/auth/logout" method="POST" style="display:inline;">
+        <input type="hidden" name="_csrf" value="94f8ee70028bd167d24e4b32e427f0e38be28938abf83fa9.730d56b518e70596dbabd7185a734577965d7b9b94af9f52a31bf16148d0d7f7">
+        <button class="btn btn-outline" type="submit">Sign out</button>
+      </form>
+    
+  </div>
+
+  <!-- Mobile navigation drawer (hidden on desktop) -->
+  <div class="nav-drawer" id="navDrawer">
+    <a href="/marketplace" class="">Marketplace</a>
+    <a href="/services" class="">Services</a>
+    <a href="/market-prices" class="">Market prices</a>
+    <a href="/why-us" class="">How it works</a>
+  </div>
+</nav>
+<script>
+  (function () {
+    var toggle = document.getElementById('navToggle');
+    var drawer = document.getElementById('navDrawer');
+    if (!toggle || !drawer) return;
+
+    function isOpen() { return drawer.classList.contains('open'); }
+    var lastFocused = null;
+    function getFocusable() {
+      return Array.prototype.slice.call(
+        drawer.querySelectorAll('a[href], button:not([disabled])')
+      );
+    }
+    function open() {
+      drawer.classList.add('open');
+      toggle.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close menu');
+      lastFocused = document.activeElement;
+      var first = getFocusable()[0];
+      if (first) first.focus();
+    }
+    function close(refocus) {
+      if (!isOpen()) return;
+      drawer.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
+      if (refocus && lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    toggle.addEventListener('click', function () {
+      if (isOpen()) { close(true); } else { open(); }
+    });
+    document.addEventListener('click', function (e) {
+      if (!drawer.contains(e.target) && !toggle.contains(e.target)) close(false);
+    });
+    // Escape closes and restores focus; Tab is trapped inside the open drawer
+    document.addEventListener('keydown', function (e) {
+      if (!isOpen()) return;
+      if (e.key === 'Escape') { close(true); return; }
+      if (e.key !== 'Tab') return;
+      var focusable = getFocusable();
+      if (!focusable.length) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+    drawer.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { close(false); });
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 860) close(false);
+    });
+  })();
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<main id="main" class="dash-main">
+
+  <!-- ══════════════════════════════════════════════════════════════
+     APP SIDEBAR (AgriConnect KE Rail)
+     --------------------------------------------------------------
+     • Solid structural width (260px / w-64), deep charcoal/slate panel
+     • Vertical layout: Brand → Profile Card → Navigation Groups → Footer
+     • Accessible contrast text: Off-white/slate identity text
+     • Handles mobile drawer state and desktop collapse persistence cleanly
+     ══════════════════════════════════════════════════════════════ -->
+
+
+<!-- Mobile drawer toggle + backdrop scrim -->
+<button class="sidebar-toggle" id="sidebarToggle" type="button"
+        aria-label="Open navigation menu" aria-expanded="false" aria-controls="dashSidebar">
+  <span class="sidebar-toggle-open"><i data-lucide="menu" aria-hidden="true"></i></span>
+  <span class="sidebar-toggle-close"><i data-lucide="x" aria-hidden="true"></i></span>
+</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="dash-sidebar" id="dashSidebar" aria-label="Application">
+
+  <!-- ── Brand ─────────────────────────────────────────────────── -->
+  <div class="sidebar-brand">
+    <a href="/dashboard" class="sidebar-brand-logo" aria-label="AgriConnect KE — go to dashboard">
+      <span class="sidebar-brand-mark"><i data-lucide="leaf" aria-hidden="true"></i></span>
+      <span class="sidebar-brand-text">Agri<em>Connect</em></span>
+    </a>
+  </div>
+
+  <!-- ── Identity card ───────────────────────────────────────── -->
+  <div class="rail-identity" style="padding: 1rem; margin: 0.5rem 0.75rem; border-radius: 0.75rem; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);">
+    <div class="rail-identity-row" style="display: flex; align-items: center; gap: 0.75rem;">
+      <span class="rail-avatar" style="width: 38px; height: 38px; border-radius: 50%; background: #059669; color: #ffffff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1rem; shrink: 0;">A</span>
+      <div class="rail-identity-text" style="display: flex; flex-direction: column; overflow: hidden;">
+        <span class="rail-profile-name" style="font-weight: 600; color: #f8fafc; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Audit Tester">Audit Tester</span>
+        <span class="rail-role" style="font-size: 0.75rem; color: #cbd5e1; font-weight: 500;">Farmer</span>
+      </div>
+    </div>
+    <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 0.2rem 0.5rem; border-radius: 0.375rem; width: fit-content;">
+      <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i>
+      <span>Kiambu</span>
+    </div>
+  </div>
+
+            <!-- ── Navigation ────────────────────────────────────────────── -->
+  
+  
+  
+
+  <nav class="sidebar-nav" aria-label="Primary navigation">
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-core">Core</p>
+      <a href="/dashboard" data-tooltip="Dashboard" class="sidebar-link active" aria-current="page">
+        <span class="sidebar-link-icon"><i data-lucide="layout-dashboard" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Dashboard</span>
+      </a>
+      <a href="/advisory/ask" data-tooltip="AI Assistant" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="bot" aria-hidden="true"></i></span>
+                <span class="sidebar-link-text">AI Assistant</span>
+        <span class="sidebar-badge sidebar-badge-amber">NEW</span>
+      </a>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-market">Marketplace</p>
+      <a href="/marketplace" data-tooltip="Marketplace" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="store" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Marketplace</span>
+      </a>
+      <a href="/services" data-tooltip="Services" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="tractor" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Services</span>
+      </a>
+      <a href="/market-prices" data-tooltip="Market Prices" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="bar-chart-2" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Market Prices</span>
+      </a>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-ops">Operations</p>
+                        <a href="/orders" data-tooltip="Orders" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="shopping-bag" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Orders</span>
+        <span class="sidebar-badge sidebar-badge-green" style="display:none;">0</span>
+      </a>
+      <a href="/business/dashboard" data-tooltip="Business Pipeline" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="trending-up" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Business Pipeline</span>
+      </a>
+      
+      <a href="/produce" data-tooltip="My Produce" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="box" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">My Produce</span>
+      </a>
+      
+      
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-comm">Communication</p>
+                  <a href="/messages" data-tooltip="Messages" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="message-square" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Messages</span>
+        <span class="sidebar-badge sidebar-badge-green" style="display:none;">0</span>
+      </a>
+      <a href="/notifications" data-tooltip="Notifications" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="bell" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Notifications</span>
+        <span class="sidebar-badge sidebar-badge-red" style="display:none;">0</span>
+      </a>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-group-label" id="grp-account">Account & Resources</p>
+      <a href="/profile" data-tooltip="Profile & Settings" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="user" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Profile & Settings</span>
+      </a>
+                  <a href="/pricing" data-tooltip="Subscription Plans" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="credit-card" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Subscription Plans</span>
+        <span class="sidebar-badge sidebar-badge-amber" style="font-size: .6rem; padding: 1px 5px; line-height: 1.4;">PayHero</span>
+      </a>
+      <a href="/docs" data-tooltip="Documentation" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="file-text" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Documentation</span>
+      </a>
+      <a href="/privacy" data-tooltip="Privacy Policy" class="sidebar-link">
+        <span class="sidebar-link-icon"><i data-lucide="shield-check" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">Privacy Policy</span>
+      </a>
+      
+    </div>
+  </nav>
+
+  <!-- Footer: theme toggle + sign out + collapse -->
+  <div class="sidebar-footer">
+    <button type="button"
+            class="sidebar-link sidebar-link--theme"
+            id="railTheme" data-tooltip="Toggle Theme"
+            aria-label="Toggle Theme">
+      <span class="sidebar-link-icon"><i data-lucide="moon" aria-hidden="true"></i></span>
+      <span class="sidebar-link-text">Theme</span>
+    </button>
+    <button type="button"
+            class="sidebar-link sidebar-link--signout"
+            id="railSignOut" data-tooltip="Sign Out"
+            aria-label="Sign Out">
+      <span class="sidebar-link-icon"><i data-lucide="log-out" aria-hidden="true"></i></span>
+      <span class="sidebar-link-text">Sign Out</span>
+    </button>
+
+    <button type="button"
+            class="sidebar-collapse-toggle"
+            id="railCollapse"
+            aria-label="Collapse sidebar"
+            aria-controls="dashSidebar"
+            aria-expanded="true">
+      <span class="rail-collapse-icon rail-collapse-icon--close"><i data-lucide="panel-left-close" aria-hidden="true"></i></span>
+      <span class="rail-collapse-icon rail-collapse-icon--open"><i data-lucide="panel-left-open" aria-hidden="true"></i></span>
+      <span class="rail-collapse-label">Collapse</span>
+    </button>
+  </div>
+</aside>
+
+<!-- Behavior Script Block -->
+<script>
+  (function(){
+    'use strict';
+    var root = document.documentElement;
+    var sidebar = document.getElementById('dashSidebar');
+    var toggleBtn = document.getElementById('sidebarToggle');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar) return;
+
+    var isCollapsed = function(){ return root.classList.contains('sidebar-collapsed'); };
+    var save = function(v){ try{ localStorage.setItem('agri.sidebarCollapsed', String(v)); }catch(e){} };
+    var apply = function(collapsed, skipStorage){
+      if (collapsed){ root.classList.add('sidebar-collapsed'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','false'); }
+      else { root.classList.remove('sidebar-collapsed'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','true'); }
+      if (!skipStorage) save(collapsed);
+      root.dispatchEvent(new CustomEvent('agri:sidebar:collapsed', { detail: { collapsed: collapsed } }));
+    };
+
+    var initCollapse = function(){
+      var stored, collapsed;
+      try{ stored = localStorage.getItem('agri.sidebarCollapsed'); }catch(e){}
+      collapsed = (stored === 'true') ? true : (window.innerWidth <= 900);
+      apply(collapsed, true);
+    };
+    initCollapse();
+
+    /* Drawer handlers */
+    var openDrawer  = function(){ sidebar.classList.add('open'); if (overlay) overlay.classList.add('open'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; };
+    var closeDrawer = function(){ sidebar.classList.remove('open'); if (overlay) overlay.classList.remove('open'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','false'); document.body.style.overflow=''; };
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function(){
+        if (window.innerWidth <= 900) {
+          if (sidebar.classList.contains('open')) { closeDrawer(); } else { openDrawer(); }
+        } else {
+          apply(!isCollapsed());
+        }
+      });
+    }
+
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+
+    window.addEventListener('resize', function(){
+      if (window.innerWidth > 900) {
+        sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+
+    var signOut = function(e){
+      e.preventDefault();
+      var btn = document.getElementById('railSignOut');
+      if (btn) btn.disabled = true;
+      var form = document.createElement('form');
+      form.method = 'POST'; form.action = '/api/auth/logout';
+      document.body.appendChild(form);
+      form.submit();
+    };
+
+    var themeBtn = document.getElementById('railTheme');
+    var signOutBtn = document.getElementById('railSignOut');
+    var collapseBtn = document.getElementById('railCollapse');
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function(){
+        var cur = root.getAttribute('data-theme') || 'dark';
+        var next = (cur === 'dark') ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        root.classList.toggle('dark', next === 'dark');
+      });
+    }
+    if (signOutBtn) signOutBtn.addEventListener('click', signOut);
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', function () {
+        apply(!isCollapsed());
+      });
+    }
+
+    var renderIcons = function(){ try{ if(window.lucide){ lucide.createIcons(); } }catch(_){} };
+    if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', renderIcons); } else { renderIcons(); }
+  })();
+</script>
+
+
+  <!-- ══ Main Content ══ -->
+  <div class="dash-content">
+
+    <!-- ── Welcome Header ──────────────────────────────────────── -->
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-greeting">Welcome back, Audit!</h1>
+        <p class="dash-sub">Here&#39;s what&#39;s happening with your farm today.</p>
+      </div>
+      <div class="dash-header-actions">
+        
+          <a href="/produce/new" class="btn btn-amber"><i data-lucide="plus"></i> Post Produce</a>
+        
+      </div>
+    </div>
+
+    <!-- ── Commercial Plan & Entitlement Status Banner ──────────────────────────── -->
+    
+      <div class="mb-6 bg-gradient-to-r from-emerald-800 to-emerald-900 text-white rounded-2xl p-4 sm:p-6 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-emerald-700/80 rounded-full text-xs font-extrabold uppercase tracking-wider border border-emerald-500/30">
+              Starter / Free
+            </span>
+            
+          </div>
+          <p class="mt-2 text-sm text-emerald-100">
+            Listing Usage: <strong class="text-white">0</strong> / <strong class="text-white">3</strong> Active Listings
+          </p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="/monetization/promotions" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold text-xs rounded-xl transition shadow">
+            🚀 Boost Listings
+          </a>
+          <a href="/pricing" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl transition border border-white/20">
+            Upgrade Tier
+          </a>
+        </div>
+      </div>
+    
+
+    <!-- ── KPI Cards ─────────────────────────────────────────────── -->
+    <div class="dash-stats">
+      <a href="/produce" class="stat-card stat-card--primary">
+        <span class="stat-body">
+          <span class="stat-label">Active Listings</span>
+          <span class="stat-num is-primary">0</span>
+          <span class="stat-hint">listed on the marketplace</span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
+      </a>
+      <a href="/orders?status=pending" class="stat-card">
+        <span class="stat-body">
+          <span class="stat-label">Pending Orders</span>
+          <span class="stat-num">0</span>
+          <span class="stat-hint">awaiting completion</span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
+      </a>
+      <a href="/messages" class="stat-card">
+        <span class="stat-body">
+          <span class="stat-label">Unread Messages</span>
+          <span class="stat-num">0</span>
+          <span class="stat-hint">awaiting your reply</span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
+      </a>
+      
+      <a href="/orders?status=completed" class="stat-card">
+        <span class="stat-body">
+          <span class="stat-label">Total Sales</span>
+          <span class="stat-num is-financial">KES 0</span>
+          <span class="stat-hint">completed orders only</span>
+        </span>
+        <span class="stat-go" aria-hidden="true">→</span>
+      </a>
+      
+    </div>
+
+    <!-- ── Provider: Incoming Service Requests ────────────────── -->
+    
+
+    <!-- ── Farm Analytics ──────────────────────────────────────── -->
+    
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <div>
+          <h2 class="dash-section-title">Farm Analytics</h2>
+          <p class="dash-section-sub">Track your sales, orders and marketplace activity.</p>
+        </div>
+        <!-- Period Filter -->
+        <div class="analytics-period-filter">
+          <a href="/dashboard?period=30d" class="period-btn ">30 Days</a>
+          <a href="/dashboard?period=3m" class="period-btn ">3 Months</a>
+          <a href="/dashboard?period=6m" class="period-btn active">6 Months</a>
+          <a href="/dashboard?period=12m" class="period-btn ">12 Months</a>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <!-- Sales Overview Chart -->
+        <div class="analytics-card">
+          <div class="analytics-card-header">
+            <div>
+              <h3 class="analytics-card-title">Sales Overview</h3>
+              <p class="analytics-card-sub">Your completed sales over the selected period</p>
+            </div>
+          </div>
+          
+          
+            <div class="chart-empty-state">
+              <i data-lucide="bar-chart-2"></i>
+              <h4>No sales data yet</h4>
+              <p>Your sales analytics will appear here after your first completed order.</p>
+            </div>
+          
+        </div>
+
+        <!-- Order Status Doughnut -->
+        <div class="analytics-card">
+          <div class="analytics-card-header">
+            <div>
+              <h3 class="analytics-card-title">Order Status</h3>
+              <p class="analytics-card-sub">Distribution of all your orders</p>
+            </div>
+          </div>
+          
+            <div class="chart-empty-state">
+              <i data-lucide="pie-chart"></i>
+              <h4>No orders yet</h4>
+              <p>Once buyers order your produce, you'll see your order distribution here.</p>
+              <a href="/marketplace" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1rem;">Browse Marketplace</a>
+            </div>
+          
+        </div>
+      </div>
+
+      <!-- Produce Category Chart (smaller, optional) -->
+      
+    </div>
+    
+
+    <!-- ── Main Content Grid ─────────────────────────────────── -->
+    <div class="section-eyebrow">Recent Activity</div>
+    <div class="dash-content-grid">
+
+      <!-- ── My Produce ──────────────────────────── -->
+      
+      <div class="dash-section" style="grid-column: 1 / -1;">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">My Produce</h2>
+          <a href="/produce" class="dash-section-link">View All →</a>
+        </div>
+        
+          <div class="empty-state-card">
+            <i data-lucide="package-open"></i>
+            <h4>No produce listed yet</h4>
+            <p>Start selling to buyers across Kenya.</p>
+            <a href="/produce/new" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Post First Listing</a>
+          </div>
+        
+      </div>
+      
+
+      <!-- ── Fresh on the Marketplace (buyer) ───────── -->
+      
+
+      <!-- ── Recent Orders (farmer + buyer) ─────────── -->
+      
+      <div class="dash-section" style="grid-column: 1 / -1;">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Recent Orders</h2>
+          <a href="/orders" class="dash-section-link">View All →</a>
+        </div>
+        
+          <div class="empty-state-card">
+            <i data-lucide="shopping-bag"></i>
+            <h4>No orders yet</h4>
+            
+              <p>When buyers order your produce, it will show up here.</p>
+            
+          </div>
+        
+      </div>
+      
+
+    </div><!-- end .dash-content-grid -->
+
+    <!-- ── Market Info + Messages Row ─────────────────────── -->
+    <div class="section-eyebrow">Market Insights</div>
+    <div class="dash-bottom-grid">
+
+      <!-- Market Prices -->
+      
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <div>
+            <h2 class="dash-section-title">Market Prices</h2>
+            <p class="dash-section-sub">Stored reference prices — <a href="/market-prices">check live feed status</a></p>
+          </div>
+          <a href="/market-prices" class="dash-section-link">View All →</a>
+        </div>
+        <div class="market-price-list">
+          
+            
+              <div class="market-price-row">
+                <div>
+                  <div class="market-price-name">Dry Maize</div>
+                  <div class="market-price-market">Eldoret Main Market</div>
+                </div>
+                <div class="market-price-right">
+                  <div class="market-price-value">KES 65 / kg</div>
+                  
+                    <div class="market-price-change up">↑ 4.20%</div>
+                  
+                </div>
+              </div>
+            
+              <div class="market-price-row">
+                <div>
+                  <div class="market-price-name">Yellow Beans</div>
+                  <div class="market-price-market">Eldoret Main Market</div>
+                </div>
+                <div class="market-price-right">
+                  <div class="market-price-value">KES 135 / kg</div>
+                  
+                    <div class="market-price-change down">↓ 1.8%</div>
+                  
+                </div>
+              </div>
+            
+              <div class="market-price-row">
+                <div>
+                  <div class="market-price-name">Shangi Potatoes</div>
+                  <div class="market-price-market">Nakuru Wakulima</div>
+                </div>
+                <div class="market-price-right">
+                  <div class="market-price-value">KES 52 / kg</div>
+                  
+                    <div class="market-price-change up">↑ 2.10%</div>
+                  
+                </div>
+              </div>
+            
+              <div class="market-price-row">
+                <div>
+                  <div class="market-price-name">Roma Tomatoes</div>
+                  <div class="market-price-market">Kongowea</div>
+                </div>
+                <div class="market-price-right">
+                  <div class="market-price-value">KES 85 / kg</div>
+                  
+                    <div class="market-price-change up">↑ 0.50%</div>
+                  
+                </div>
+              </div>
+            
+          
+        </div>
+      </div>
+      
+
+      <!-- Recent Messages -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Recent Messages</h2>
+          <a href="/messages" class="dash-section-link">View All →</a>
+        </div>
+        
+          <div class="empty-state-card">
+            <i data-lucide="message-square"></i>
+            <h4>No messages yet</h4>
+            <p>Your recent conversations will appear here.</p>
+          </div>
+        
+      </div>
+
+      </div><!-- end .dash-bottom-grid -->
+
+    <!-- ── Service Requests + Recommendations (farmer/buyer) ─ -->
+    
+    <div class="dash-bottom-grid">
+
+      <!-- My Service Requests -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">My Service Requests</h2>
+          <a href="/services/requests/mine" class="dash-section-link">View All →</a>
+        </div>
+        
+          <div class="empty-state-card">
+            <i data-lucide="clipboard-list"></i>
+            <h4>No service requests yet</h4>
+            <p>Find trusted providers for irrigation, transport and more.</p>
+            <a href="/services" class="btn btn-outline" style="margin-top:1rem;font-size:0.85rem;padding:0.5rem 1.25rem;">Browse Services</a>
+          </div>
+        
+      </div>
+
+      <!-- Services You May Need -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Services You May Need</h2>
+          <a href="/services" class="dash-section-link">View All →</a>
+        </div>
+        
+          <div class="empty-state-card">
+            <i data-lucide="tractor"></i>
+            <h4>No services listed yet</h4>
+            <p>Provider listings will appear here as they join the platform.</p>
+          </div>
+        
+      </div>
+
+    </div>
+    
+
+  </div><!-- end .dash-content -->
+</main>
+
+<!-- ── Chart.js Initialization ───────────────────────────────── -->
+<script>
+  // Data injected safely from Express controller — no arbitrary user content
+  const salesLabels = ["Apr","May","Jun","Jul","Aug","Sep"];
+  const salesData   = [0,0,0,0,0,0];
+  const orderStatusLabels = [];
+  const orderStatusData   = [];
+  const produceCategoryLabels = [];
+  const produceCategoryData   = [];
+
+  // AgriConnect design tokens
+  const EMERALD      = '#1b4a2e';
+  const EMERALD_LIGHT = '#2c6e45';
+  const GOLD         = '#b38234';
+  const GOLD_LIGHT   = '#cfa153';
+  const STONE        = '#e8e4d9';
+  const INK_SOFT     = '#636b65';
+
+  const STATUS_COLORS = ['#2c6e45','#b38234','#cfa153','#1b4a2e','#e74c3c'];
+
+  // Currency formatter
+  function fmtKES(val) {
+    return 'KES ' + Number(val).toLocaleString('en-KE', { maximumFractionDigits: 0 });
+  }
+
+  // ── Sales Bar Chart ─────────────────────────────────────────
+  const salesCtx = document.getElementById('salesChart');
+  if (salesCtx && salesData.length > 0) {
+    new Chart(salesCtx, {
+      type: 'bar',
+      data: {
+        labels: salesLabels,
+        datasets: [{
+          label: 'Sales',
+          data: salesData,
+          backgroundColor: 'rgba(44, 110, 69, 0.75)',
+          borderColor: EMERALD,
+          borderWidth: 1.5,
+          borderRadius: 6,
+          borderSkipped: false,
+          categoryPercentage: 0.85,
+          barPercentage: 0.95,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => fmtKES(ctx.raw),
+            },
+            backgroundColor: EMERALD,
+            titleColor: '#fff',
+            bodyColor: '#cfa153',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: v => 'KES ' + v.toLocaleString(),
+              color: INK_SOFT,
+              font: { size: 11 },
+            },
+            grid: { color: 'rgba(232, 228, 217, 0.18)' },
+            border: { display: false },
+          },
+          x: {
+            ticks: { color: INK_SOFT, font: { size: 11 } },
+            grid: { display: false },
+            border: { display: false },
+          },
+        },
+      },
+    });
+  }
+
+  // ── Order Status Doughnut ───────────────────────────────────
+  const orderCtx = document.getElementById('orderChart');
+  if (orderCtx && orderStatusData.length > 0) {
+    const orderChart = new Chart(orderCtx, {
+      type: 'doughnut',
+      data: {
+        labels: orderStatusLabels,
+        datasets: [{
+          data: orderStatusData,
+          backgroundColor: STATUS_COLORS.slice(0, orderStatusLabels.length),
+          borderColor: '#fff',
+          borderWidth: 3,
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.raw}`,
+            },
+            backgroundColor: EMERALD,
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+      },
+    });
+
+    // Build custom legend
+    const legendEl = document.getElementById('orderChartLegend');
+    if (legendEl) {
+      orderStatusLabels.forEach((label, i) => {
+        const div = document.createElement('div');
+        div.className = 'legend-item';
+        div.innerHTML = `
+          <span class="legend-dot" style="background:${STATUS_COLORS[i] || '#ccc'}"></span>
+          <span class="legend-label">${label}</span>
+          <span class="legend-value">${orderStatusData[i]}</span>
+        `;
+        legendEl.appendChild(div);
+      });
+    }
+  }
+
+  // ── Produce Category Bar Chart ──────────────────────────────
+  const catCtx = document.getElementById('categoryChart');
+  if (catCtx && produceCategoryData.length > 0) {
+    new Chart(catCtx, {
+      type: 'bar',
+      data: {
+        labels: produceCategoryLabels,
+        datasets: [{
+          label: 'Listings',
+          data: produceCategoryData,
+          backgroundColor: [EMERALD_LIGHT, GOLD, '#5c8a6e', GOLD_LIGHT, '#3d7a58', '#a87028'],
+          borderRadius: 5,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => ` ${ctx.raw} listing${ctx.raw !== 1 ? 's' : ''}` },
+            backgroundColor: EMERALD,
+            titleColor: '#fff',
+            bodyColor: '#cfa153',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, color: INK_SOFT, font: { size: 11 } },
+            grid: { color: STONE },
+            border: { display: false },
+          },
+          y: {
+            ticks: { color: INK_SOFT, font: { size: 11 } },
+            grid: { display: false },
+            border: { display: false },
+          },
+        },
+      },
+    });
+  }
+
+  // Init Lucide icons
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+</script>
+
+<!-- ══ AI CHATBOT ══ -->
+<button class="ai-fab" onclick="toggleAI()" title="Farm AI Assistant">🤖</button>
+
+<div class="ai-panel" id="ai-panel">
+  <div class="ai-head">
+    <div>
+      <div class="ai-head-text">Farm Assistant</div>
+      <div class="ai-head-sub">AgriConnect AI · Ask me anything</div>
+    </div>
+    <div class="ai-online"></div>
+  </div>
+  <div class="ai-msgs" id="ai-msgs">
+    <div class="msg bot">
+      Habari! 👋 I'm your AgriConnect assistant. Ask about selling produce, buying, services, market prices,
+      messaging buyers on WhatsApp, or setting up your profile. Quick picks below:
+    </div>
+    <div class="ai-chips">
+      <button class="ai-chip" onclick="askAI('How do I sell my produce?')">Sell produce</button>
+      <button class="ai-chip" onclick="askAI('How do I message a buyer on WhatsApp?')">WhatsApp buyers</button>
+      <button class="ai-chip" onclick="askAI('What are the latest market prices?')">Market prices</button>
+      <button class="ai-chip" onclick="askAI('How do I upload a profile photo?')">Profile photo</button>
+    </div>
+  </div>
+  <div class="ai-footer">
+    <input
+      class="ai-input"
+      id="ai-input"
+      placeholder="e.g. I need irrigation help…"
+      onkeydown="if (event.key === 'Enter') sendAI();"
+    />
+    <button class="ai-send" onclick="sendAI()">→</button>
+  </div>
+</div>
+
+<script>
+  // AI
+  function toggleAI() {
+    document.getElementById('ai-panel').classList.toggle('open');
+  }
+  function askAI(text) {
+    addMsg(text, 'user');
+    setTimeout(function () { addMsg(reply(text), 'bot'); }, 420);
+  }
+  function sendAI() {
+    const inp = document.getElementById('ai-input');
+    const txt = inp.value.trim();
+    if (!txt) return;
+    addMsg(txt, 'user');
+    inp.value = '';
+    setTimeout(() => addMsg(reply(txt), 'bot'), 420);
+  }
+  function addMsg(text, type) {
+    const box = document.getElementById('ai-msgs');
+    const d = document.createElement('div');
+    d.className = 'msg ' + type;
+    d.textContent = text;
+    box.appendChild(d);
+    box.scrollTop = box.scrollHeight;
+  }
+  function reply(t) {
+    t = t.toLowerCase();
+    // WhatsApp / contact a buyer
+    if (t.includes('whatsapp') || t.includes('contact a buyer') || t.includes('message a buyer') || t.includes('message buyer') || t.includes('phone number') || (t.includes('message') && t.includes('number'))) {
+      return '💬 Open the Messages page and tap the pencil (✏️) icon. Search a buyer by their phone number or name, then either chat in-app or hit the WhatsApp button (wa.me) to message them directly on WhatsApp — it uses their real phone number.';
+    }
+    if (t.includes('irrigat') || t.includes('pump') || t.includes('water'))
+      return '💧 We have irrigation technicians in Meru and Embu available this week. Browse the Services page and filter by "Irrigation".';
+    if (t.includes('transport') || t.includes('deliver') || t.includes('truck') || t.includes('lorry'))
+      return '🚚 Farm transport providers are listed in Nakuru and Naivasha. Head to Services → Transport.';
+    if (t.includes('sell') || (t.includes('post') && t.includes('produce')) || (t.includes('list') && (t.includes('produce') || t.includes('crop'))))
+      return '📦 Register as a Farmer, go to your Dashboard, then click "Post Produce". Set your own price — no broker takes a cut!';
+    if (t.includes('tractor') || t.includes('repair') || t.includes('machine') || t.includes('broke'))
+      return '🚜 Tractor and equipment repair services are listed in Eldoret and Uasin Gishu. View Services for details and contacts.';
+    if (t.includes('buy') || t.includes('maize') || t.includes('tomato') || t.includes('potato') || t.includes('onion'))
+      return '🛒 Browse the Marketplace to find fresh produce from farmers across Kenya. Filter by county and crop type.';
+    if (t.includes('register') || t.includes('join') || t.includes('sign up') || t.includes('start') || t.includes('create account'))
+      return '✅ Click "Join Free" at the top right. Choose your role: Farmer, Buyer, or Service Provider. It\'s completely free!';
+    if (t.includes('market price') || t.includes('price trend') || t.includes('ksh') || t.includes('kes') || t.includes('cost') || t.includes('how much'))
+      return '📊 Open Market Prices on this page for farm-gate prices. On your dashboard, the sidebar shows a Market Price Trends bar chart too.';
+    if (t.includes('profile photo') || t.includes('profile picture') || t.includes('upload photo') || t.includes('upload image') || t.includes('avatar'))
+      return '🖼️ Go to Profile (from the sidebar), then click the “Upload Photo” button to choose an image. You can also add a short bio about you or your farm there.';
+    if (t.includes('admin') || t.includes('admin panel'))
+      return '🛡️ If your account has the Admin role, an “Admin Panel” link appears in your sidebar for platform overview and moderation.';
+    if (t.includes('notification'))
+      return '🔔 The bell icon in your sidebar shows unread notifications (orders, messages). Open Notifications to see them all; recent ones also appear in the dashboard sidebar.';
+    if (t.includes('sign out') || t.includes('logout') || t.includes('log out'))
+      return '🚪 Click “Sign Out” at the bottom of the sidebar — it will return you safely to the home page.';
+    if (t.includes('payment') || t.includes('mpesa') || t.includes('pay'))
+      return '💳 M-PESA payment integration is on our roadmap. For now, buyers and farmers connect directly and agree on payment.';
+    if (t.includes('hello') || t.includes('hi') || t.includes('habari') || t.includes('hey'))
+      return '👋 Hello! Ask me about selling produce, buying, services, market prices, WhatsApp messaging, or your profile. Or tap a quick pick above.';
+    return '🌾 I can help with produce listings, farm services, pricing, WhatsApp messaging, and getting started. What specifically do you need help with?';
+  }
+</script>
+

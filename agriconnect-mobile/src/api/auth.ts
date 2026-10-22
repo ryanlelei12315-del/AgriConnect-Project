@@ -55,3 +55,54 @@ export async function me(): Promise<AuthUser> {
   const body = await api.get<{ user: AuthUser }>('/api/auth/me');
   return body.user;
 }
+
+// ── WhatsApp phone verification ─────────────────────────────────────────
+
+export interface PhoneSendResponse {
+  success: boolean;
+  message?: string;
+  code?: string; // dev-only: OTP code echoed back for demo convenience
+}
+
+export interface PhoneVerifyResponse {
+  success: boolean;
+  message?: string;
+}
+
+/**
+ * Send a 6-digit OTP via WhatsApp.
+ * These endpoints are unauthenticated, so use withCsrf (same as register/login).
+ */
+export async function sendPhoneVerification(
+  phone_number: string,
+  purpose: 'register' | 'login' | 'verify',
+): Promise<PhoneSendResponse> {
+  return api.post<PhoneSendResponse>('/api/auth/phone/send', {
+    withCsrf: true,
+    json: { phone_number, purpose },
+  });
+}
+
+/**
+ * Verify a 6-digit OTP. Returns true/false, not an auth token.
+ */
+export async function verifyPhoneOTP(
+  phone_number: string,
+  purpose: 'register' | 'login' | 'verify',
+  code: string,
+): Promise<PhoneVerifyResponse> {
+  return api.post<PhoneVerifyResponse>('/api/auth/phone/verify', {
+    withCsrf: true,
+    json: { phone_number, purpose, code },
+  });
+}
+
+/**
+ * Passwordless login: validates an OTP (purpose: 'login') and returns a JWT + user.
+ */
+export async function whatsappLogin(phone_number: string, code: string): Promise<AuthResponse> {
+  return api.post<AuthResponse>('/api/auth/phone/login', {
+    withCsrf: true,
+    json: { phone_number, code },
+  });
+}

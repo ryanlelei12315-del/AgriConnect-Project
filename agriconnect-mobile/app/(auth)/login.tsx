@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { Link } from 'expo-router';
 import { useAuthStore } from '../../src/store/authStore';
-import { colors, spacing, typography } from '../../src/theme';
+import { colors, spacing, typography, radius } from '../../src/theme';
 import Screen from '../../src/components/Screen';
 import Input from '../../src/components/Input';
 import Button from '../../src/components/Button';
@@ -61,6 +61,17 @@ export default function LoginScreen() {
         />
         {serverError ? <Text style={styles.serverError}>{serverError}</Text> : null}
         <Button title="Sign In" onPress={onSubmit} loading={loading} />
+
+        <View style={styles.whatsappContainer}>
+          <View style={styles.divider} />
+          <Text style={styles.dividerText}>or</Text>
+          <View style={styles.divider} />
+        </View>
+
+        <Link href="/phone-verify?mode=login" style={styles.whatsappBtn}>
+          <Text style={styles.whatsappText}>Sign in with WhatsApp</Text>
+        </Link>
+
         <View style={styles.footer}>
           <Text style={typography.body}>New to AgriConnect? </Text>
           <Link href="/register" style={styles.link}>
@@ -82,4 +93,27 @@ const styles = StyleSheet.create({
   serverError: { color: colors.danger, marginBottom: spacing.md, textAlign: 'center' },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.lg },
   link: { color: colors.emerald, fontWeight: '700' },
+  whatsappContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: spacing.lg,
+    gap: 10,
+  },
+  divider: { flex: 1, height: 1, backgroundColor: colors.stone },
+  dividerText: { color: colors.inkSoft, fontSize: 13, paddingHorizontal: 4 },
+  whatsappBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderColor: '#22c55e',
+    backgroundColor: '#dcfce7',
+  },
+  whatsappText: {
+    color: '#16a34a',
+    fontWeight: '700',
+    fontSize: 16,
+  },
 });

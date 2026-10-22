@@ -23,6 +23,8 @@ export interface AuthUser {
   email: string | null;
   phone_number?: string | null;
   phoneNumber?: string | null;
+  is_phone_verified?: boolean;
+  isPhoneVerified?: boolean;
   county: string | null;
   role: Role | 'admin';
   bio?: string | null;

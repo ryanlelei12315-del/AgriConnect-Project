@@ -75,11 +75,6 @@
         <span class="sidebar-link-icon"><i data-lucide="layout-dashboard" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Dashboard</span>
       </a>
-            <a <%- link('advisory', '/advisory/ask', 'AI Assistant') %>>
-        <span class="sidebar-link-icon"><i data-lucide="bot" aria-hidden="true"></i></span>
-        <span class="sidebar-link-text">AI Assistant</span>
-        <span class="sidebar-badge sidebar-badge-amber">NEW</span>
-      </a>
     </div>
 
     <div class="rail-group">
@@ -105,10 +100,6 @@
                 <span class="sidebar-link-text">Orders</span>
         <span class="sidebar-badge sidebar-badge-green" style="<%= pendingOrders > 0 ? '' : 'display:none;' %>"><%= pendingOrders %></span>
       </a>
-      <a <%- link('business', '/business/dashboard', 'Business Pipeline') %>>
-        <span class="sidebar-link-icon"><i data-lucide="trending-up" aria-hidden="true"></i></span>
-        <span class="sidebar-link-text">Business Pipeline</span>
-      </a>
       <% if (role === 'farmer') { %>
       <a <%- link('produce', '/produce', 'My Produce') %>>
         <span class="sidebar-link-icon"><i data-lucide="box" aria-hidden="true"></i></span>
@@ -119,6 +110,12 @@
       <a <%- link('requests', '/services/requests/mine', 'Service Requests') %>>
         <span class="sidebar-link-icon"><i data-lucide="clipboard-list" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Service Requests</span>
+      </a>
+      <% } %>
+      <% if (role === 'buyer') { %>
+      <a <%- link('demand-board', '/demand-board', 'Buyer Demand') %>>
+        <span class="sidebar-link-icon"><i data-lucide="clipboard-list" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">My Demand Posts</span>
       </a>
       <% } %>
     </div>
@@ -143,18 +140,9 @@
         <span class="sidebar-link-icon"><i data-lucide="user" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Profile & Settings</span>
       </a>
-      <a <%- link('pricing', '/pricing', 'Subscription Plans') %>>
-        <span class="sidebar-link-icon"><i data-lucide="credit-card" aria-hidden="true"></i></span>
-        <span class="sidebar-link-text">Subscription Plans</span>
-        <span class="sidebar-badge sidebar-badge-amber" style="font-size: .6rem; padding: 1px 5px; line-height: 1.4;">PayHero</span>
-      </a>
-      <a <%- link('docs', '/docs', 'Documentation') %>>
-        <span class="sidebar-link-icon"><i data-lucide="file-text" aria-hidden="true"></i></span>
-        <span class="sidebar-link-text">Documentation</span>
-      </a>
-      <a <%- link('privacy', '/privacy', 'Privacy Policy') %>>
-        <span class="sidebar-link-icon"><i data-lucide="shield-check" aria-hidden="true"></i></span>
-        <span class="sidebar-link-text">Privacy Policy</span>
+      <a <%- link('why-us', '/why-us', 'How AgriConnect works') %>>
+        <span class="sidebar-link-icon"><i data-lucide="circle-help" aria-hidden="true"></i></span>
+        <span class="sidebar-link-text">How it Works</span>
       </a>
       <% if (role === 'admin') { %>
       <a <%- link('admin', '/admin', 'Admin Panel') %>>
@@ -261,12 +249,8 @@
     var collapseBtn = document.getElementById('railCollapse');
 
     if (themeBtn) {
-      themeBtn.addEventListener('click', function(){
-        var cur = root.getAttribute('data-theme') || 'dark';
-        var next = (cur === 'dark') ? 'light' : 'dark';
-        root.setAttribute('data-theme', next);
-        root.classList.toggle('dark', next === 'dark');
-      });
+      themeBtn.setAttribute('data-theme-toggle', '');
+      themeBtn.setAttribute('aria-pressed', root.getAttribute('data-theme') === 'dark' ? 'true' : 'false');
     }
     if (signOutBtn) signOutBtn.addEventListener('click', signOut);
     if (collapseBtn) {

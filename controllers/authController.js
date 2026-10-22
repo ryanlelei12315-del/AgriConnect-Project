@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/User');
 const { TOKEN_COOKIE } = require('../middlewares/pageAuth');
+const whatsappService = require('../services/whatsappService');
 require('dotenv').config();
 
 const SALT_ROUNDS = 10;
@@ -41,6 +42,7 @@ function publicUser(user) {
     full_name: user.fullName,
     email: user.email,
     phone_number: user.phoneNumber,
+    is_phone_verified: user.isPhoneVerified || false,
     county: user.county,
     role: user.role,
   };
@@ -184,5 +186,161 @@ exports.me = async (req, res) => {
   } catch (err) {
     console.error('Me error:', err.message);
     return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+};
+
+// ── WhatsApp: Send verification code ─────────────────────────────────────
+// Sends a 6-digit OTP via WhatsApp to the given phone number.
+// Body: { phone_number, purpose }  purpose ∈ { 'register', 'login', 'verify' }
+// No authentication required — used before registration/login.
+exports.sendPhoneVerification = async (req, res) => {
+  try {
+    const { phone_number, purpose } = req.body;
+
+    if (!phone_number || !purpose) {
+      return res.status(400).json({
+        success: false,
+        message: 'phone_number and purpose are required.',
+      });
+    }
+
+    const validPurposes = ['register', 'login', 'verify'];
+    if (!validPurposes.includes(purpose)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid purpose. Must be one of: ${validPurposes.join(', ')}`,
+      });
+    }
+
+    let normalizedPhone;
+    try {
+      normalizedPhone = whatsappService.normalizePhone(phone_number);
+    } catch (err) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+
+    const result = await whatsappService.sendVerificationCode(normalizedPhone, purpose);
+
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.message });
+    }
+
+    // In dev mode (no real WhatsApp credentials) the code is echoed back so
+    // the mobile/web client can auto-fill it for a smooth demo experience.
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      code: result.code,
+    });
+  } catch (err) {
+    console.error('sendPhoneVerification error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error sending verification code.' });
+  }
+};
+
+// ── WhatsApp: Verify code ────────────────────────────────────────────────
+// Validates a 6-digit OTP. If purpose === 'verify', the user (if found by
+// phone number) is marked as phone-verified in the database.
+// Body: { phone_number, purpose, code }
+exports.verifyPhoneOTP = async (req, res) => {
+  try {
+    const { phone_number, purpose, code } = req.body;
+
+    if (!phone_number || !purpose || !code) {
+      return res.status(400).json({
+        success: false,
+        message: 'phone_number, purpose, and code are required.',
+      });
+    }
+
+    let normalizedPhone;
+    try {
+      normalizedPhone = whatsappService.normalizePhone(phone_number);
+    } catch (err) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+
+    const result = whatsappService.validateCode(normalizedPhone, purpose, code);
+
+    if (!result.ok) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    // For the "verify" purpose, mark an existing user's phone as verified
+    if (purpose === 'verify') {
+      const user = await User.findOne({ where: { phone_number: normalizedPhone } });
+      if (user && !user.isPhoneVerified) {
+        user.isPhoneVerified = true;
+        user.phoneVerifiedAt = new Date();
+        await user.save();
+      }
+    }
+
+    return res.status(200).json({ success: true, message: 'Phone number verified.' });
+  } catch (err) {
+    console.error('verifyPhoneOTP error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error during verification.' });
+  }
+};
+
+// ── WhatsApp: Passwordless login ─────────────────────────────────────────
+// Validates an OTP (purpose: 'login') and, if the user exists, authenticates
+// them by issuing a JWT + httpOnly cookie.
+// Body: { phone_number, code }
+exports.whatsappLogin = async (req, res) => {
+  try {
+    const { phone_number, code } = req.body;
+
+    if (!phone_number || !code) {
+      return res.status(400).json({ success: false, message: 'phone_number and code are required.' });
+    }
+
+    let normalizedPhone;
+    try {
+      normalizedPhone = whatsappService.normalizePhone(phone_number);
+    } catch (err) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+
+    // Validate the OTP (purpose: login)
+    const result = whatsappService.validateCode(normalizedPhone, 'login', code);
+
+    if (!result.ok) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    // Find the user by phone number
+    const user = await User.findOne({ where: { phone_number: normalizedPhone } });
+
+    if (!user) {
+      // No account with this phone — client should redirect to registration.
+      return res.status(404).json({
+        success: false,
+        message: 'No account found for this phone number. Please register first.',
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been deactivated. Please contact support.',
+      });
+    }
+
+    // Clear the used OTP
+    whatsappService.clearCode(normalizedPhone, 'login');
+
+    const token = signToken(user);
+    setAuthCookie(res, token);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Login successful.',
+      token,
+      user: publicUser(user),
+    });
+  } catch (err) {
+    console.error('whatsappLogin error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error during login.' });
   }
 };

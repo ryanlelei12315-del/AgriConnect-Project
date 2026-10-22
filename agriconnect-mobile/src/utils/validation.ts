@@ -48,6 +48,23 @@ export function validateLogin(values: { identifier: string; password: string }):
   return errors;
 }
 
+/** Validate a phone number input (loose — server will normalise). */
+export function validatePhoneInput(v: string): string[] {
+  const digits = v.replace(/\s+/g, '');
+  if (!digits) return ['Phone number is required.'];
+  if (!/^[\d+]/.test(digits)) return ['Please enter a valid phone number.'];
+  if (digits.replace(/\D/g, '').length < 9) return ['Phone number is too short.'];
+  return [];
+}
+
+/** Validate a 6-digit OTP code. */
+export function validateOtp(v: string): string[] {
+  const trimmed = v.trim();
+  if (!trimmed) return ['Verification code is required.'];
+  if (!/^\d{6}$/.test(trimmed)) return ['Please enter a valid 6-digit code.'];
+  return [];
+}
+
 export function validateProduce(values: {
   name: string;
   category: string;

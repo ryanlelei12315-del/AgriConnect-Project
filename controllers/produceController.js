@@ -6,6 +6,7 @@ const { Order } = require('../models/Order');
 const { sequelize } = require('../config/database');
 const { getToken, verifyToken } = require('../middlewares/pageAuth');
 const { sanitize } = require('../utils/sanitize');
+const { createPublishedListing } = require('../services/entitlementService');
 const {
   positiveNumber,
   requiredString,
@@ -181,14 +182,23 @@ module.exports = {
         });
       }
 
-      const listing = await ProduceListing.create({
-        farmerId: req.user.id,
-        ...data,
-        status: 'LISTED',
+      const { listing } = await createPublishedListing({
+        sequelize,
+        User,
+        ProduceListing,
+        userId: req.user.id,
+        attributes: data,
       });
 
       res.redirect('/produce/' + listing.id + '?created=success');
     } catch (err) {
+      if (err.code === 'ACTIVE_LISTING_LIMIT_REACHED') {
+        return res.status(403).render('produce/new', {
+          user: req.user,
+          error: err.message,
+          listing: null,
+        });
+      }
       next(err);
     }
   },

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agriconnect-config
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  DB_HOST: "mysql.production.svc.cluster.local"
+  DB_NAME: "Smart_Kilimo"
+  DB_DIALECT: "mysql"
+  DB_USER: "agriconnect"
+  PAYHERO_API_URL: "https://backend.payhero.co.ke/api/v2/payments"
+  SHAMBA_API_BASE_URL: "https://api-data.shambarecords.com/api/v1"

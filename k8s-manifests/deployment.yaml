@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agriconnect-app
+  labels:
+    app: agriconnect
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agriconnect
+  template:
+    metadata:
+      labels:
+        app: agriconnect
+    spec:
+      containers:
+        - name: agriconnect
+          image: ghcr.io/agriconnect/agriconnect-ke:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: agriconnect-config
+            - secretRef:
+                name: agriconnect-secrets
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /marketplace
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agriconnect-service
+spec:
+  selector:
+    app: agriconnect
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

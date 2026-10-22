@@ -42,6 +42,17 @@ const User = sequelize.define(
       unique: true,
       field: 'phone_number',
     },
+    isPhoneVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: 'is_phone_verified',
+    },
+    phoneVerifiedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'phone_verified_at',
+    },
     county: {
       type: DataTypes.STRING(50),
       allowNull: true,

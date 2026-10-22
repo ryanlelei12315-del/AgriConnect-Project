@@ -68,7 +68,7 @@ export default function DashboardScreen() {
         <View style={styles.row}>
           <Avatar name={user?.full_name || user?.fullName || ''} size={56} />
           <View style={styles.nameCol}>
-            <Text style={typography.h2}>Good morning, {user?.full_name || user?.fullName || 'there'}!</Text>
+            <Text style={typography.h2} numberOfLines={1}>Good morning, {(user?.full_name || user?.fullName || 'there').split(' ')[0]}!</Text>
             <Text style={styles.role}>{ROLE_LABELS[role as keyof typeof ROLE_LABELS] || role}</Text>
           </View>
         </View>

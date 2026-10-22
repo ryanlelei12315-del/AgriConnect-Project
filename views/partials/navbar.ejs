@@ -11,10 +11,11 @@
     <a href="/services" class="<%= navId === 'services' ? 'active' : '' %>"<%= navId === 'services' ? ' aria-current="page"' : '' %>>Services</a>
     <% if (typeof user !== 'undefined' && user) { %><a href="/demand-board" class="<%= navId === 'demand-board' ? 'active' : '' %>"<%= navId === 'demand-board' ? ' aria-current="page"' : '' %>>Buyer demand</a><% } %>
     <a href="/market-prices" class="<%= navId === 'market-prices' ? 'active' : '' %>"<%= navId === 'market-prices' ? ' aria-current="page"' : '' %>>Market prices</a>
+    <a href="/faqs" class="<%= navId === 'faqs' ? 'active' : '' %>"<%= navId === 'faqs' ? ' aria-current="page"' : '' %>>FAQs</a>
     <a href="/why-us" class="<%= navId === 'why-us' ? 'active' : '' %>"<%= navId === 'why-us' ? ' aria-current="page"' : '' %>>How it works</a>
   </div>
   <div class="nav-right">
-    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to dark theme" aria-pressed="false" title="Switch to dark theme">
       <svg class="theme-icon-sun" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       <svg class="theme-icon-moon" style="width:18px;height:18px; display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
@@ -32,8 +33,8 @@
         <button class="btn btn-outline" type="submit">Sign out</button>
       </form>
     <% } else { %>
-      <a href="/login" class="btn btn-outline">Sign in</a>
-      <a href="/register" class="btn btn-amber">Join free</a>
+      <a href="/login" class="nav-btn-signin">Sign in</a>
+      <a href="/register" class="nav-btn-join">Join free</a>
     <% } %>
   </div>
 
@@ -43,6 +44,8 @@
     <a href="/services" class="<%= navId === 'services' ? 'active' : '' %>"<%= navId === 'services' ? ' aria-current="page"' : '' %>>Services</a>
     <% if (typeof user !== 'undefined' && user) { %><a href="/demand-board" class="<%= navId === 'demand-board' ? 'active' : '' %>"<%= navId === 'demand-board' ? ' aria-current="page"' : '' %>>Buyer demand</a><% } %>
     <a href="/market-prices" class="<%= navId === 'market-prices' ? 'active' : '' %>"<%= navId === 'market-prices' ? ' aria-current="page"' : '' %>>Market prices</a>
+    <a href="/messages" class="<%= navId === 'messages' ? 'active' : '' %>"<%= navId === 'messages' ? ' aria-current="page"' : '' %>>Messages</a>
+    <a href="/faqs" class="<%= navId === 'faqs' ? 'active' : '' %>"<%= navId === 'faqs' ? ' aria-current="page"' : '' %>>FAQs</a>
     <a href="/why-us" class="<%= navId === 'why-us' ? 'active' : '' %>"<%= navId === 'why-us' ? ' aria-current="page"' : '' %>>How it works</a>
   </div>
 </nav>

@@ -1,17 +1,17 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
 
-<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:800px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+<main class="page-container linked-page notifications-page">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
     <h1 style="color:var(--emerald); margin:0;">Notifications</h1>
     <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
   </div>
 
-  <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); overflow:hidden;">
+  <div class="linked-page__surface notifications-surface">
     <% if (notifications && notifications.length > 0) { %>
       <div style="display:flex; flex-direction:column;">
         <% notifications.forEach((n, idx) => { %>
-          <a href="<%= n.type === 'ORDER' ? '/orders/' + n.relatedId : n.type === 'MESSAGE' ? '/messages' : '#' %>" 
+          <a href="<%= n.type === 'ORDER' && n.relatedId ? '/orders/' + n.relatedId : n.type === 'MESSAGE' ? '/messages' : '/notifications' %>"
              style="display:flex; gap:1.5rem; padding:1.5rem; border-bottom:<%= idx === notifications.length - 1 ? 'none' : '1px solid var(--stone)' %>; text-decoration:none; color:inherit; background:<%= n.isRead ? 'var(--white)' : 'var(--cream)' %>; transition:var(--transition);">
             <div style="width:48px; height:48px; background:<%= n.type === 'ORDER' ? '#fff3cd' : n.type === 'SYSTEM' ? '#e2e3e5' : '#cce5ff' %>; color:<%= n.type === 'ORDER' ? '#856404' : n.type === 'SYSTEM' ? '#383d41' : '#004085' %>; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
               <i data-lucide="<%= n.type === 'ORDER' ? 'shopping-bag' : n.type === 'MESSAGE' ? 'message-circle' : 'bell' %>"></i>

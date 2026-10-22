@@ -68,19 +68,24 @@
   </script>
   <script>
     (function () {
-      // Bind every theme toggle (navbar, topbar, sidebar) to the same behavior.
-      var btns = document.querySelectorAll('[data-theme-toggle]');
-      if (!btns.length) return;
+      // This partial is loaded in the document head, before navigation markup.
+      // Bind after parsing so public and dashboard controls share one state.
+      function bindThemeControls() {
+        var btns = document.querySelectorAll('[data-theme-toggle]');
+        if (!btns.length) return;
 
-      function updateIcons(isDark) {
-        btns.forEach(function (btn) {
-          var sun = btn.querySelector('.theme-icon-sun');
-          var moon = btn.querySelector('.theme-icon-moon');
-          if (sun && moon) {
-            sun.style.display = isDark ? 'none' : 'inline';
-            moon.style.display = isDark ? 'inline' : 'none';
-          }
-        });
+        function updateIcons(isDark) {
+          btns.forEach(function (btn) {
+            var sun = btn.querySelector('.theme-icon-sun');
+            var moon = btn.querySelector('.theme-icon-moon');
+            if (sun && moon) {
+              sun.style.display = isDark ? 'none' : 'inline';
+              moon.style.display = isDark ? 'inline' : 'none';
+            }
+          btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+          btn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+          btn.setAttribute('title', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+          });
         if (typeof lucide !== 'undefined') {
           lucide.createIcons();
         }
@@ -93,6 +98,7 @@
           document.documentElement.removeAttribute('data-theme');
         }
         updateIcons(theme === 'dark');
+        document.dispatchEvent(new CustomEvent('agri:themechange', { detail: { theme: theme } }));
       }
 
       btns.forEach(function (btn) {
@@ -110,6 +116,12 @@
       } else {
         var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         updateIcons(prefersDark);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindThemeControls, { once: true });
+      } else {
+        bindThemeControls();
       }
     })();
   </script>

@@ -1,13 +1,13 @@
 <%- include('../partials/header') %>
 <%- include('../partials/navbar') %>
 
-<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
+<main class="page-container linked-page orders-page">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
     <h1 style="color:var(--emerald); margin:0;">My Orders</h1>
     <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
   </div>
 
-  <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); overflow:hidden;">
+  <div class="linked-page__surface table-responsive">
     <% if (orders && orders.length > 0) { %>
       <table class="data-table" style="width:100%; text-align:left; border-collapse:collapse;">
         <thead>

@@ -1,28 +1,28 @@
 /**
  * AgriConnect Mobile design system.
- * Matches the web brand palette (emerald + gold on cream) but sized for touch.
+ * Matches the web brand palette (rich forest green on calming sage) sized for touch.
  */
 export const colors = {
-  emeraldDark: '#0f3b21',
-  emerald: '#1b4a2e',
-  emeraldLight: '#2c6e45',
-  gold: '#b38234',
-  goldGlow: '#cfa153',
-  cream: '#fdfbf7',
-  linen: '#f5f2ea',
-  stone: '#e8e4d9',
-  ink: '#1a1f1b',
-  inkMid: '#38423a',
-  inkSoft: '#636b65',
+  emeraldDark: '#164226',
+  emerald: '#1e5631',
+  emeraldLight: '#2d7a46',
+  gold: '#2e7d47',
+  goldGlow: '#529d68',
+  cream: '#edf2eb',
+  linen: '#e4ebe3',
+  stone: '#dce5dd',
+  ink: '#19241b',
+  inkMid: '#38473b',
+  inkSoft: '#66786c',
   white: '#ffffff',
   danger: '#c0392b',
   dangerBg: '#fdecea',
-  success: '#2e7d32',
+  success: '#1e5631',
   successBg: '#e8f5e9',
-  warning: '#b38234',
+  warning: '#8a5b13',
   warningBg: '#fdf3e3',
   infoBg: '#e8f0fe',
-  overlay: 'rgba(15, 59, 33, 0.45)',
+  overlay: 'rgba(18, 38, 25, 0.45)',
 };
 
 export const spacing = {
@@ -38,6 +38,7 @@ export const radius = {
   sm: 8,
   md: 12,
   lg: 16,
+  xl: 24,
   pill: 999,
 };
 
@@ -53,13 +54,10 @@ export const typography = {
 
 export const shadows = {
   card: {
-    shadowColor: '#0f3b21',
+    shadowColor: '#102e1a',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 3,
   },
 };
-
-export const theme = { colors, spacing, radius, typography, shadows };
-export default theme;

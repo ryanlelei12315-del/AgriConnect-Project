@@ -1,7 +1,9 @@
 /* eslint-env node */
 const { Op } = require('sequelize');
+const { sequelize } = require('../config/database');
 const { BuyerDemand } = require('../models/BuyerDemand');
 const { User } = require('../models/User');
+const { DEMAND_TRANSITIONS, validateTransition } = require('../utils/transitions');
 
 const CATEGORIES = new Set(['Cereals', 'Vegetables', 'Fruits', 'Root Crops', 'Legumes', 'Dairy', 'Poultry', 'Other']);
 const COUNTIES = new Set([
@@ -77,17 +79,39 @@ module.exports = {
   updateStatus: async (req, res, next) => {
     try {
       if (req.user.role !== 'buyer') return res.status(403).send('Only buyers can manage demand posts.');
-      const demand = await BuyerDemand.findByPk(req.params.id);
-      if (!demand) return res.status(404).send('Demand post not found.');
-      if (Number(demand.buyerId) !== Number(req.user.id)) return res.status(403).send('You can only update your own demand posts.');
-      const status = String(req.body.status || '');
-      const allowedTransitions = { OPEN: ['CLOSED', 'FULFILLED'], CLOSED: ['OPEN'], FULFILLED: [] };
-      if (!allowedTransitions[demand.status] || !allowedTransitions[demand.status].includes(status)) {
-        return res.status(400).send('That demand status transition is not allowed.');
-      }
-      demand.status = status;
-      await demand.save();
+
+      const result = await sequelize.transaction(async (transaction) => {
+        const demand = await BuyerDemand.findByPk(req.params.id, {
+          transaction,
+          lock: transaction.LOCK.UPDATE,
+        });
+        if (!demand) {
+          const error = new Error('Demand post not found.');
+          error.status = 404;
+          throw error;
+        }
+        if (Number(demand.buyerId) !== Number(req.user.id)) {
+          const error = new Error('You can only update your own demand posts.');
+          error.status = 403;
+          throw error;
+        }
+
+        const status = String(req.body.status || '');
+        const transition = validateTransition(demand.status, status, DEMAND_TRANSITIONS);
+        if (!transition.ok) {
+          const error = new Error(transition.message);
+          error.status = 400;
+          throw error;
+        }
+
+        await demand.update({ status }, { transaction });
+        return demand;
+      });
+
       return res.redirect('/demand-board');
-    } catch (err) { next(err); }
+    } catch (err) {
+      if (err.status) return res.status(err.status).send(err.message);
+      next(err);
+    }
   },
 };

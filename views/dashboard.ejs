@@ -5,7 +5,7 @@
 
 <main class="dash-main">
 
-  <%- include('partials/sidebar', { currentPage: 'dashboard' }) %>
+  <%- include('partials/sidebar', { currentPage: 'dashboard', unreadMsg: stats.unreadMessages, unreadNotif: 0 }) %>
 
   <!-- ══ Main Content ══ -->
   <div class="dash-content">
@@ -37,7 +37,7 @@
         <span class="stat-body">
           <span class="stat-label"><%= user.role === 'farmer' ? 'Active Listings' : user.role === 'provider' ? 'Available Services' : 'Available Produce' %></span>
           <span class="stat-num is-primary"><%= user.role === 'farmer' ? stats.activeListings : user.role === 'provider' ? stats.activeServices : stats.availableProduce %></span>
-          <span class="stat-hint"><%= user.role === 'farmer' ? 'listed on the marketplace' : user.role === 'provider' ? 'marked as available' : 'live listings right now' %></span>
+          <span class="stat-hint"><%= user.role === 'farmer' ? stats.activeListings + ' of ' + stats.listingLimit + ' active listing slots used' : user.role === 'provider' ? 'marked as available' : 'live listings right now' %></span>
         </span>
         <span class="stat-go" aria-hidden="true">→</span>
       </a>
@@ -68,6 +68,17 @@
       </a>
       <% } %>
     </div>
+
+    <% if (user.role === 'farmer') { %>
+    <div class="listing-usage" role="status" aria-label="Active listing usage: <%= stats.activeListings %> of <%= stats.listingLimit %>">
+      <div class="listing-usage__copy">
+        <strong>Marketplace listing usage</strong>
+        <span><%= stats.activeListings %> of <%= stats.listingLimit %> active slots used. Sold, pending, and inactive listings do not count.</span>
+      </div>
+      <div class="listing-usage__meter" aria-hidden="true"><span style="width:<%= Math.min(100, (stats.activeListings / Math.max(stats.listingLimit, 1)) * 100) %>%"></span></div>
+      <a href="/produce" class="listing-usage__link">Manage listings</a>
+    </div>
+    <% } %>
 
     <!-- ── Provider: Incoming Service Requests ────────────────── -->
     <% if (user.role === 'provider') { %>
@@ -354,7 +365,7 @@
         <div class="dash-section-header">
           <div>
             <h2 class="dash-section-title">Market Prices</h2>
-            <p class="dash-section-sub">Stored reference prices — <a href="/market-prices">check live feed status</a></p>
+            <p class="dash-section-sub">Stored reference prices — <a href="/market-prices" class="btn btn-text btn-sm">check live feed status</a></p>
           </div>
           <a href="/market-prices" class="dash-section-link">View All →</a>
         </div>
@@ -498,14 +509,14 @@
   const produceCategoryData   = <%- JSON.stringify(produceCategoryData || []) %>;
 
   // AgriConnect design tokens
-  const EMERALD      = '#1b4a2e';
-  const EMERALD_LIGHT = '#2c6e45';
-  const GOLD         = '#b38234';
-  const GOLD_LIGHT   = '#cfa153';
-  const STONE        = '#e8e4d9';
-  const INK_SOFT     = '#636b65';
+  const EMERALD      = '#1e5631';
+  const EMERALD_LIGHT = '#2d7a46';
+  const GOLD         = '#2e7d47';
+  const GOLD_LIGHT   = '#529d68';
+  const STONE        = '#dce5dd';
+  const INK_SOFT     = '#66786c';
 
-  const STATUS_COLORS = ['#2c6e45','#b38234','#cfa153','#1b4a2e','#e74c3c'];
+  const STATUS_COLORS = ['#2d7a46', '#2e7d47', '#529d68', '#1e5631', '#d9534f'];
 
   // Currency formatter
   function fmtKES(val) {

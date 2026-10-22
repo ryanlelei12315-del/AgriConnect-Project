@@ -9,6 +9,8 @@ interface AuthState {
   user: AuthUser | null;
   login: (identifier: string, password: string) => Promise<void>;
   register: (payload: authApi.RegisterPayload) => Promise<void>;
+  /** Passwordless WhatsApp login: verifies OTP and returns JWT + user. */
+  whatsappLogin: (phone_number: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   restoreSession: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -30,6 +32,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   register: async (payload) => {
     const res = await authApi.register(payload);
+    await storage.setToken(res.token);
+    set({ status: 'authenticated', user: res.user });
+  },
+
+  whatsappLogin: async (phone_number, code) => {
+    const res = await authApi.whatsappLogin(phone_number, code);
     await storage.setToken(res.token);
     set({ status: 'authenticated', user: res.user });
   },

@@ -19,4 +19,17 @@ router.get('/me', auth, authCtrl.me);
 // GET /api/auth/csrf (returns a fresh token + cookie; used for self-healing stale CSRF)
 router.get('/csrf', authCtrl.csrfToken);
 
+// ── WhatsApp phone verification ──────────────────────────────────────────
+// POST /api/auth/phone/send   — send a 6-digit OTP via WhatsApp
+// POST /api/auth/phone/verify  — validate an OTP (used for registration & profile verification)
+// POST /api/auth/phone/login   — passwordless login: validate OTP + issue JWT
+
+// Public: no auth required (no auth token yet)
+router.post('/phone/send', authCtrl.sendPhoneVerification);
+router.post('/phone/verify', authCtrl.verifyPhoneOTP);
+router.post('/phone/login', authCtrl.whatsappLogin);
+
+// Protected: verify/update phone for an existing authenticated user
+router.post('/phone/verify-existing', auth, authCtrl.verifyPhoneOTP);
+
 module.exports = router;

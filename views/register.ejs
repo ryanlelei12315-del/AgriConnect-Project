@@ -1,130 +1,164 @@
 <%- include('partials/header') %> <%- include('partials/navbar') %>
 
 <div class="auth-wrapper">
-  <div class="auth-card">
-    <div class="auth-head">
-      <h1 class="auth-title">Create an Account</h1>
-      <p class="auth-sub">Join Kenya's leading direct-trade agricultural network.</p>
+  <div class="auth-container" style="max-width: 1080px;">
+    <div class="auth-card" style="max-width: 540px;">
+      <div class="auth-head">
+        <h1 class="auth-title">Create an Account</h1>
+        <p class="auth-sub">Join Kenya's leading direct-trade agricultural network.</p>
+      </div>
+
+      <!-- Error / success banner -->
+      <div id="auth-banner" class="auth-banner" style="display: none"></div>
+
+      <form id="register-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="form-group">
+          <label class="form-label">I am registering as a:</label>
+          <div class="role-options">
+            <label class="role-label">
+              <input type="radio" name="role" value="farmer" checked />
+              <div class="role-icon"><i data-lucide="tractor"></i></div>
+              <div class="role-text">Farmer / Producer</div>
+            </label>
+            <label class="role-label">
+              <input type="radio" name="role" value="buyer" />
+              <div class="role-icon"><i data-lucide="shopping-cart"></i></div>
+              <div class="role-text">Buyer / Vendor</div>
+            </label>
+            <label class="role-label">
+              <input type="radio" name="role" value="provider" />
+              <div class="role-icon"><i data-lucide="wrench"></i></div>
+              <div class="role-text">Service Provider</div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="full_name">Full Name</label>
+          <input
+            id="full_name"
+            type="text"
+            class="form-input"
+            placeholder="e.g. John Kamau"
+            required
+            autocomplete="name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="county">County</label>
+          <select id="county" class="form-input" required>
+            <option value="">Select your county…</option>
+            <option>Uasin Gishu</option>
+            <option>Nakuru</option>
+            <option>Meru</option>
+            <option>Kajiado</option>
+            <option>Nairobi</option>
+            <option>Kiambu</option>
+            <option>Kisumu</option>
+            <option>Eldoret</option>
+            <option>Embu</option>
+            <option>Naivasha</option>
+            <option>Trans Nzoia</option>
+            <option>Kakamega</option>
+            <option>Kericho</option>
+            <option>Machakos</option>
+            <option>Nyeri</option>
+            <option>Thika</option>
+            <option>Kitale</option>
+            <option>Garissa</option>
+            <option>Wajir</option>
+            <option>Mandera</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone_number">Phone Number</label>
+          <input
+            id="phone_number"
+            type="tel"
+            class="form-input"
+            placeholder="07XX XXX XXX"
+            autocomplete="tel"
+          />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0.5rem">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--color-text-secondary); cursor: pointer;">
+            <input type="checkbox" id="verify_phone" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
+            Verify my phone number via WhatsApp
+          </label>
+          <p class="form-hint" style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 4px;">
+            We'll send a 6-digit code to your phone to verify ownership before creating your account.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address <span style="opacity: 0.6; font-weight: 400;">(Required)</span></label>
+          <input id="email" type="email" class="form-input" placeholder="john@example.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            class="form-input"
+            placeholder="Create a secure password (min 8 chars)"
+            required
+            autocomplete="new-password"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm_password">Confirm Password</label>
+          <input
+            id="confirm_password"
+            type="password"
+            class="form-input"
+            placeholder="Confirm your password"
+            required
+            autocomplete="new-password"
+          />
+        </div>
+
+        <button type="submit" id="reg-btn" class="btn btn-fill btn-full auth-submit-btn">Register Account</button>
+      </form>
+
+      <div class="auth-footer">Already have an account? <a href="/login">Sign in here →</a></div>
     </div>
 
-    <!-- Error / success banner -->
-    <div id="auth-banner" class="auth-banner" style="display: none"></div>
-
-    <form id="register-form">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-      <div class="form-group">
-        <label class="form-label">I am registering as a:</label>
-        <div class="role-options">
-          <label class="role-label">
-            <input type="radio" name="role" value="farmer" checked />
-            <div class="role-icon"><i data-lucide="tractor"></i></div>
-            <div class="role-text">Farmer / Producer</div>
-          </label>
-          <label class="role-label">
-            <input type="radio" name="role" value="buyer" />
-            <div class="role-icon"><i data-lucide="shopping-cart"></i></div>
-            <div class="role-text">Buyer / Vendor</div>
-          </label>
-          <label class="role-label">
-            <input type="radio" name="role" value="provider" />
-            <div class="role-icon"><i data-lucide="wrench"></i></div>
-            <div class="role-text">Service Provider</div>
-          </label>
-        </div>
+    <!-- Right: Visual Fresh Produce Hero Card -->
+    <div class="auth-visual" aria-hidden="true">
+      <div class="auth-visual-inner" style="min-height: 600px;">
+        <img src="/images/harvest-produce.png" alt="Fresh Harvest Organic Produce" class="auth-visual-img" />
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Full Name</label>
-        <input
-          id="full_name"
-          type="text"
-          class="form-input"
-          placeholder="e.g. John Kamau"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">County</label>
-        <select id="county" class="form-input" required>
-          <option value="">Select your county…</option>
-          <option>Uasin Gishu</option>
-          <option>Nakuru</option>
-          <option>Meru</option>
-          <option>Kajiado</option>
-          <option>Nairobi</option>
-          <option>Kiambu</option>
-          <option>Kisumu</option>
-          <option>Eldoret</option>
-          <option>Embu</option>
-          <option>Naivasha</option>
-          <option>Trans Nzoia</option>
-          <option>Kakamega</option>
-          <option>Kericho</option>
-          <option>Machakos</option>
-          <option>Nyeri</option>
-          <option>Thika</option>
-          <option>Kitale</option>
-          <option>Garissa</option>
-          <option>Wajir</option>
-          <option>Mandera</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Phone Number</label>
-        <input
-          id="phone_number"
-          type="tel"
-          class="form-input"
-          placeholder="07XX XXX XXX"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Email Address <span style="opacity: 0.5">(Required)</span></label>
-        <input id="email" type="email" class="form-input" placeholder="john@example.com" required />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input
-          id="password"
-          type="password"
-          class="form-input"
-          placeholder="Create a secure password"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Confirm Password</label>
-        <input
-          id="confirm_password"
-          type="password"
-          class="form-input"
-          placeholder="Confirm your password"
-          required
-        />
-      </div>
-
-      <button type="submit" id="reg-btn" class="btn btn-fill btn-full">Register Account</button>
-    </form>
-
-    <div class="auth-footer">Already have an account? <a href="/login">Sign in here</a></div>
+    </div>
   </div>
 </div>
 
+<%- include('partials/chatbot') %>
 <%- include('partials/scripts') %>
 
 <script>
+  // Pre-fill phone number from URL query (e.g. after WhatsApp verification redirect)
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const phone = params.get('phone');
+    if (phone) {
+      document.getElementById('phone_number').value = phone;
+    }
+  })();
+
   document.getElementById('register-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('reg-btn');
     const banner = document.getElementById('auth-banner');
+    const verifyPhone = document.getElementById('verify_phone').checked;
+    const phone = document.getElementById('phone_number').value.trim();
 
-    // ── Confirm password validation ──────────────────────────────
+    // Confirm password validation
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm_password').value;
     if (password !== confirmPassword) {
@@ -135,7 +169,7 @@
       return;
     }
 
-    // ── Password length validation ──────────────────────────────
+    // Password length validation
     if (password.length < 8) {
       banner.className = 'auth-banner error';
       banner.textContent = 'Password must be at least 8 characters long.';
@@ -143,7 +177,24 @@
       document.getElementById('password').focus();
       return;
     }
-    btn.disabled = false;
+
+    // Phone verification check
+    if (verifyPhone) {
+      if (!phone) {
+        banner.className = 'auth-banner error';
+        banner.textContent = 'Phone number is required to verify via WhatsApp.';
+        banner.style.display = 'block';
+        document.getElementById('phone_number').focus();
+        return;
+      }
+      const verified = sessionStorage.getItem('phone_verified') === phone;
+      if (!verified) {
+        window.location.href = '/phone-verify?mode=register&return=' + encodeURIComponent(window.location.href);
+        return;
+      }
+    }
+
+    btn.disabled = true;
     btn.textContent = 'Creating account…';
     banner.style.display = 'none';
 
@@ -158,8 +209,6 @@
     };
 
     try {
-      // POST once; if rejected because the CSRF token went stale (403),
-      // fetch a fresh token+cookie and retry the exact same request once.
       const doSubmit = async (token, isRetry) => {
         const res = await fetch('/api/auth/register', {
           method: 'POST',
@@ -187,8 +236,6 @@
           return;
         }
 
-        // Auth cookie is set httpOnly by the server — just redirect.
-        // (No localStorage token = no XSS token theft.)
         window.location.href = '/dashboard';
       };
 

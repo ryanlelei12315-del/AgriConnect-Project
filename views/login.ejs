@@ -1,46 +1,73 @@
 <%- include('partials/header') %> <%- include('partials/navbar') %>
 
 <div class="auth-wrapper">
-  <div class="auth-card">
-    <div class="auth-head">
-      <h1 class="auth-title">Welcome Back</h1>
-      <p class="auth-sub">Sign in to your AgriConnect KE account.</p>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-head">
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-sub">Sign in to your AgriConnect KE account.</p>
+      </div>
+
+      <!-- Error / success banner -->
+      <div id="auth-banner" class="auth-banner" style="display: none"></div>
+
+      <form id="login-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="form-group">
+          <label class="form-label" for="identifier">Phone Number or Email</label>
+          <input
+            id="identifier"
+            type="text"
+            class="form-input"
+            placeholder="07XX XXX XXX or email"
+            required
+            autocomplete="username"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            class="form-input"
+            placeholder="Your password"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button type="submit" id="login-btn" class="btn btn-fill btn-full auth-submit-btn">Sign In</button>
+      </form>
+
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span></span>
+        <em>or</em>
+        <span></span>
+      </div>
+
+      <!-- WhatsApp phone login -->
+      <a href="/phone-verify?mode=login" class="btn-whatsapp-alt">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.04 2.01C6.48 2.01 2 6.49 2 12.07c0 2.13.56 4.18 1.61 6.03l-1.03 3.87 3.94-1.07c1.67 1.01 3.66 1.53 5.67 1.53 5.56 0 10.04-4.48 10.04-10.07S17.6 2.01 12.04 2.01z"/>
+        </svg>
+        Sign in with WhatsApp
+      </a>
+
+      <div class="auth-footer">Don't have an account? <a href="/register">Register free →</a></div>
     </div>
 
-    <!-- Error / success banner -->
-    <div id="auth-banner" class="auth-banner" style="display: none"></div>
-
-    <form id="login-form">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-      <div class="form-group">
-        <label class="form-label">Phone Number or Email</label>
-        <input
-          id="identifier"
-          type="text"
-          class="form-input"
-          placeholder="07XX XXX XXX or email"
-          required
-        />
+    <!-- Right: Visual Fresh Produce Hero Card -->
+    <div class="auth-visual" aria-hidden="true">
+      <div class="auth-visual-inner">
+        <img src="/images/harvest-produce.png" alt="Fresh Harvest Organic Produce" class="auth-visual-img" />
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input
-          id="password"
-          type="password"
-          class="form-input"
-          placeholder="Your password"
-          required
-        />
-      </div>
-
-      <button type="submit" id="login-btn" class="btn btn-fill btn-full">Sign In</button>
-    </form>
-
-    <div class="auth-footer">Don't have an account? <a href="/register">Register free →</a></div>
+    </div>
   </div>
 </div>
 
+<%- include('partials/chatbot') %>
 <%- include('partials/scripts') %>
 
 <script>
@@ -89,7 +116,6 @@
         }
 
         // Auth cookie is set httpOnly by the server — just redirect.
-        // (No localStorage token = no XSS token theft.)
         window.location.href = '/dashboard';
       };
 

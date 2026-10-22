@@ -263,7 +263,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 -- 12. Seed default plans (Starter, Pro, Business)
 -- ------------------------------------------------------------
 INSERT IGNORE INTO plans (id, name, slug, description, price, billing_interval, currency, max_listings, is_active, is_public, sort_order) VALUES
-(1, 'Starter',              'starter',    'Basic marketplace participation with limited listings.',              0.00,   'month', 'KES',  3,  TRUE, TRUE, 0),
+(1, 'Starter',              'starter',    'Basic marketplace participation with up to 10 active listings.',      0.00,   'month', 'KES', 10,  TRUE, TRUE, 0),
 (2, 'Pro',                  'pro',        'Serious farmers, sellers and small agricultural operators.',        500.00, 'month', 'KES',  20, TRUE, TRUE, 1),
 (3, 'AgriConnect Business', 'business',  'Premium plan for established agricultural businesses.',            1500.00, 'month', 'KES', 100, TRUE, TRUE, 2);
 
@@ -271,7 +271,7 @@ INSERT IGNORE INTO plans (id, name, slug, description, price, billing_interval, 
 -- 13. Seed plan features — Starter (id=1)
 -- ------------------------------------------------------------
 INSERT IGNORE INTO plan_features (plan_id, feature_key, enabled, limit_value) VALUES
-(1, 'active_listings',           TRUE, 3),
+(1, 'active_listings',           TRUE, 10),
 (1, 'images_per_listing',        TRUE, 5),
 (1, 'priority_search',           FALSE, NULL),
 (1, 'listing_analytics',         FALSE, NULL),

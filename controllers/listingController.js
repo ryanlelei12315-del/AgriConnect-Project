@@ -1,4 +1,5 @@
 /* eslint-env node */
+const { Op } = require('sequelize');
 const { ProduceListing } = require('../models/ProduceListing');
 const { User } = require('../models/User');
 const { ApiError } = require('../utils/ApiError');
@@ -7,30 +8,77 @@ const {
   requiredString,
   enumValue,
   VALID_CATEGORIES,
+  VALID_STATUSES,
   LIMITS,
 } = require('../utils/validation');
 const { sanitize } = require('../utils/sanitize');
+const { sequelize } = require('../config/database');
+const { createPublishedListing } = require('../services/entitlementService');
+const {
+  parseSort,
+  normalizePage,
+  PAGE_SIZE,
+} = require('../services/marketplaceService');
 const path = require('path');
 const fs = require('fs');
+const { LISTING_TRANSITIONS } = require('../utils/transitions');
+
 module.exports = {
-  // GET /api/listings?county=&category=&status=LISTED — public browse (authed)
+  // GET /api/listings?county=&category=&status=LISTED&search=&sort=&page=
+  // Public browse (authenticated) with safe pagination + sort allowlist.
   list: async (req, res, next) => {
     try {
-      const { county, category, status = 'LISTED' } = req.query;
+      const { county, category, status = 'LISTED', search, sort } = req.query;
       const where = {};
 
-      if (status) where.status = status;
-      if (county) where.county = county;
-      if (category && VALID_CATEGORIES.includes(category)) where.category = category;
+      // Validate status against the known enum values — reject anything else.
+      if (VALID_STATUSES.produce.includes(status)) {
+        where.status = status;
+      }
 
-      const listings = await ProduceListing.findAll({
+      if (county && String(county).trim()) {
+        where.county = String(county).trim();
+      }
+
+      if (category && VALID_CATEGORIES.includes(category)) {
+        where.category = category;
+      }
+
+      // Search by produce name (case-insensitive LIKE). Limit length to prevent abuse.
+      if (search && String(search).trim()) {
+        where.name = { [Op.like]: `%${String(search).trim().slice(0, 100)}%` };
+      }
+
+      const page = normalizePage(req.query.page);
+      const order = parseSort(sort);
+
+      const { count, rows: listings } = await ProduceListing.findAndCountAll({
         where,
-        order: [['createdAt', 'DESC']],
+        order,
         include: [{ model: User, as: 'farmer', attributes: ['id', 'fullName', 'county'] }],
+        limit: PAGE_SIZE,
+        offset: (page - 1) * PAGE_SIZE,
       });
 
-      return res.json({ success: true, listings });
+      return res.json({
+        success: true,
+        listings,
+        pagination: {
+          page,
+          perPage: PAGE_SIZE,
+          total: count,
+          totalPages: Math.ceil(count / PAGE_SIZE),
+        },
+      });
     } catch (err) {
+      if (err.code === 'ACTIVE_LISTING_LIMIT_REACHED') {
+        return res.status(403).json({
+          success: false,
+          code: err.code,
+          message: err.message,
+          usage: err.usage,
+        });
+      }
       next(err);
     }
   },
@@ -59,18 +107,22 @@ module.exports = {
       const countyRes = requiredString(county, 'county', { maxLen: LIMITS.county });
       if (!countyRes.ok) return res.status(400).json({ success: false, message: countyRes.error });
 
-      const listing = await ProduceListing.create({
-        farmerId: req.user.id,
+      const { listing, usage } = await createPublishedListing({
+        sequelize,
+        User,
+        ProduceListing,
+        userId: req.user.id,
+        attributes: {
         name: nameRes.value,
         category: catRes.value,
         quantityKg: qtyRes.value,
         pricePerKgKes: priceRes.value,
         county: countyRes.value,
         description: description ? sanitize(String(description).slice(0, LIMITS.description)) : null,
-        status: 'LISTED',
+        },
       });
 
-      return res.status(201).json({ success: true, listing });
+      return res.status(201).json({ success: true, listing, usage });
     } catch (err) {
       next(err);
     }
@@ -82,21 +134,46 @@ module.exports = {
       const { id } = req.params;
       const { status } = req.body;
 
-      if (!['LISTED', 'PENDING', 'SOLD', 'INACTIVE'].includes(status)) {
+      // Validate status is a known enum value
+      if (!VALID_STATUSES.produce.includes(status)) {
         return res.status(400).json({ success: false, message: 'Invalid status.' });
       }
 
-      const listing = await ProduceListing.findByPk(id);
-      if (!listing) return res.status(404).json({ success: false, message: 'Listing not found.' });
-      if (listing.farmerId !== req.user.id) {
-        return res.status(403).json({ success: false, message: 'You can only update your own listings.' });
-      }
+      const result = await sequelize.transaction(async (transaction) => {
+        // Lock the row to prevent concurrent status changes from bypassing
+        // the ownership check between read and write.
+        const listing = await ProduceListing.findByPk(id, {
+          transaction,
+          lock: transaction.LOCK.UPDATE,
+        });
+        if (!listing) {
+          const error = new Error('Listing not found.');
+          error.status = 404;
+          throw error;
+        }
+        if (listing.farmerId !== req.user.id) {
+          const error = new Error('You can only update your own listings.');
+          error.status = 403;
+          throw error;
+        }
 
-      listing.status = status;
-      await listing.save();
+        // Validate the state transition is allowed
+        const allowed = LISTING_TRANSITIONS[listing.status] || [];
+        if (!allowed.includes(status)) {
+          const error = new Error(`Cannot transition from ${listing.status} to ${status}.`);
+          error.status = 400;
+          throw error;
+        }
 
-      return res.json({ success: true, listing });
+        await listing.update({ status }, { transaction });
+        return listing;
+      });
+
+      return res.json({ success: true, listing: result });
     } catch (err) {
+      if (err.status) {
+        return res.status(err.status).json({ success: false, message: err.message });
+      }
       next(err);
     }
   },
