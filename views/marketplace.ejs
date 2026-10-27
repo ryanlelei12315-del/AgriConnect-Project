@@ -8,14 +8,19 @@
       <h1 class="page-title">Fresh Farm Produce</h1>
       <p class="page-subtitle">Buy directly from Kenyan farmers. Transparent prices, fresh quality, no middlemen.</p>
     </div>
+    <% if (typeof user !== 'undefined' && user && user.role === 'farmer') { %>
+      <div class="page-header-actions">
+        <a href="/produce/new" class="btn btn-amber"><i data-lucide="plus"></i> Post Produce</a>
+      </div>
+    <% } %>
   </div>
 
   <form action="/marketplace" method="GET" class="filter-bar">
     <div>
-      <input type="text" name="search" placeholder="Search produce..." value="<%= search %>">
+      <input type="text" name="search" placeholder="Search produce..." value="<%= search %>" class="form-input">
     </div>
     <div>
-      <select name="category">
+      <select name="category" class="form-input">
         <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
         <option value="Cereals" <%= category === 'Cereals' ? 'selected' : '' %>>Cereals</option>
         <option value="Vegetables" <%= category === 'Vegetables' ? 'selected' : '' %>>Vegetables</option>
@@ -27,7 +32,7 @@
       </select>
     </div>
     <div>
-      <select name="county">
+      <select name="county" class="form-input">
         <option value="All" <%= county === 'All' ? 'selected' : '' %>>All Counties</option>
         <option value="Uasin Gishu" <%= county === 'Uasin Gishu' ? 'selected' : '' %>>Uasin Gishu</option>
         <option value="Nakuru" <%= county === 'Nakuru' ? 'selected' : '' %>>Nakuru</option>
@@ -60,7 +65,7 @@
           </div>
           <div class="product-card-body">
             <h3 class="product-card-title"><%= listing.name %></h3>
-            <div class="product-card-meta"><i data-lucide="map-pin"></i> <%= listing.county %></div>
+            <div class="product-card-meta"><i data-lucide="map-pin"></i> <%= listing.county %><%= listing.farmer ? ' · ' + listing.farmer.fullName : '' %></div>
             <div class="product-card-foot">
               <div class="product-card-price">KES <%= Number(listing.pricePerKgKes).toLocaleString() %><small>per kg</small></div>
               <div class="product-card-qty"><%= Number(listing.quantityKg).toLocaleString() %><small>kg available</small></div>
@@ -101,7 +106,7 @@
 </main>
 
 <script>
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 </script>
 
 <%- include('partials/footer') %>

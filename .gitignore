@@ -2,5 +2,9 @@ node_modules/
 .env
 .DS_Store
 *.log
+<<<<<<< HEAD
 nul
 dev-null
+=======
+*.sqlite
+>>>>>>> 5ab1cbbd0986ebe0b331867710137033cbd26b75

@@ -41,9 +41,15 @@
 
   <!-- ── Brand ─────────────────────────────────────────────────── -->
   <div class="sidebar-brand">
+<<<<<<< HEAD
     <a href="/dashboard" class="sidebar-brand-logo" aria-label="AgriConnect KE — go to dashboard">
       <span class="sidebar-brand-mark"><i data-lucide="leaf" aria-hidden="true"></i></span>
       <span class="sidebar-brand-text">Agri<em>Connect</em></span>
+=======
+    <a href="/dashboard" class="sidebar-brand-logo">
+      <i data-lucide="leaf" style="width:22px;height:22px;color:var(--emerald);"></i>
+      Agri<em>Connect</em>
+>>>>>>> 5ab1cbbd0986ebe0b331867710137033cbd26b75
     </a>
   </div>
 
@@ -87,8 +93,17 @@
         <span class="sidebar-link-icon"><i data-lucide="tractor" aria-hidden="true"></i></span>
         <span class="sidebar-link-text">Services</span>
       </a>
+<<<<<<< HEAD
       <a <%- link('market-prices', '/market-prices', 'Market Prices') %>>
         <span class="sidebar-link-icon"><i data-lucide="bar-chart-2" aria-hidden="true"></i></span>
+=======
+      <a href="/demand-board" class="sidebar-link <%= navId === 'demand-board' ? 'active' : '' %>">
+        <span class="sidebar-link-icon"><i data-lucide="target"></i></span>
+        <span class="sidebar-link-text">Buyer Demand</span>
+      </a>
+      <a href="/market-prices" class="sidebar-link <%= navId === 'market-prices' ? 'active' : '' %>">
+        <span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span>
+>>>>>>> 5ab1cbbd0986ebe0b331867710137033cbd26b75
         <span class="sidebar-link-text">Market Prices</span>
       </a>
     </div>
@@ -214,12 +229,56 @@
     var openDrawer  = function(){ sidebar.classList.add('open'); if (overlay) overlay.classList.add('open'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; };
     var closeDrawer = function(){ sidebar.classList.remove('open'); if (overlay) overlay.classList.remove('open'); if (toggleBtn) toggleBtn.setAttribute('aria-expanded','false'); document.body.style.overflow=''; };
 
+<<<<<<< HEAD
     if (toggleBtn) {
       toggleBtn.addEventListener('click', function(){
         if (window.innerWidth <= 900) {
           if (sidebar.classList.contains('open')) { closeDrawer(); } else { openDrawer(); }
         } else {
           apply(!isCollapsed());
+=======
+    // Desktop collapse (persisted across pages)
+    const collapseToggle = document.getElementById('sidebarCollapseToggle');
+    function applyCollapsed(collapsed) {
+      document.body.classList.toggle('sidebar-collapsed', collapsed);
+      sidebar.classList.toggle('collapsed', collapsed);
+      const icon = collapseToggle.querySelector('i');
+      if (icon) icon.setAttribute('data-lucide', collapsed ? 'panel-left-open' : 'panel-left-close');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    if (collapseToggle) {
+      if (localStorage.getItem(COLLAPSE_KEY) === '1') applyCollapsed(true);
+      collapseToggle.addEventListener('click', function () {
+        const next = !document.body.classList.contains('sidebar-collapsed');
+        applyCollapsed(next);
+        localStorage.setItem(COLLAPSE_KEY, next ? '1' : '0');
+      });
+    }
+
+    // User menu
+    const userArea = document.getElementById('sidebarUserArea');
+    const userBtn = document.getElementById('sidebarUserBtn');
+    function closeUserMenu() {
+      userArea.classList.remove('open');
+      userBtn.setAttribute('aria-expanded', 'false');
+    }
+    if (userBtn && userArea) {
+      userBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const open = userArea.classList.toggle('open');
+        userBtn.setAttribute('aria-expanded', String(open));
+      });
+      document.addEventListener('click', function (e) {
+        if (!userArea.contains(e.target)) closeUserMenu();
+      });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (userArea && userArea.classList.contains('open')) {
+        if (e.key === 'Escape') {
+          closeUserMenu();
+          userBtn.focus();
+>>>>>>> 5ab1cbbd0986ebe0b331867710137033cbd26b75
         }
       });
     }
@@ -234,6 +293,7 @@
       }
     });
 
+<<<<<<< HEAD
     var signOut = function(e){
       e.preventDefault();
       var btn = document.getElementById('railSignOut');
@@ -261,5 +321,24 @@
 
     var renderIcons = function(){ try{ if(window.lucide){ lucide.createIcons(); } }catch(_){} };
     if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', renderIcons); } else { renderIcons(); }
+=======
+    const signoutBtn = document.getElementById('sidebarSignoutBtn');
+    if (signoutBtn) {
+      signoutBtn.addEventListener('click', async function () {
+        try {
+          await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+        } catch (e) { /* ignore */ }
+        window.location.href = '/';
+      });
+    }
+
+    const themeBtn = document.getElementById('sidebarThemeToggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function () {
+        const anyThemeBtn = document.querySelector('[data-theme-toggle]');
+        if (anyThemeBtn) anyThemeBtn.click();
+      });
+    }
+>>>>>>> 5ab1cbbd0986ebe0b331867710137033cbd26b75
   })();
 </script>

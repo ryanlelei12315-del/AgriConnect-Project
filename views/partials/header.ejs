@@ -11,15 +11,14 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/foundation.css">
   <script>
     (function () {
       var stored = localStorage.getItem('theme');
-      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      var theme = stored || (prefersDark ? 'dark' : 'light');
+      var theme = stored || 'light';
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
       } else {
@@ -114,8 +113,7 @@
       if (stored) {
         applyTheme(stored);
       } else {
-        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        updateIcons(prefersDark);
+        applyTheme('light');
       }
 
       if (document.readyState === 'loading') {
