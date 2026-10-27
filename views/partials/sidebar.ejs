@@ -12,7 +12,7 @@
   <!-- ── Brand ─────────────────────────────────────────────────── -->
   <div class="sidebar-brand">
     <a href="/dashboard" class="sidebar-brand-logo">
-      <i data-lucide="leaf" style="width:22px;height:22px;"></i>
+      <i data-lucide="leaf" style="width:22px;height:22px;color:var(--emerald);"></i>
       Agri<em>Connect</em>
     </a>
   </div>
@@ -63,6 +63,10 @@
       <a href="/services" class="sidebar-link <%= navId === 'services' ? 'active' : '' %>">
         <span class="sidebar-link-icon"><i data-lucide="tractor"></i></span>
         <span class="sidebar-link-text">Services</span>
+      </a>
+      <a href="/demand-board" class="sidebar-link <%= navId === 'demand-board' ? 'active' : '' %>">
+        <span class="sidebar-link-icon"><i data-lucide="target"></i></span>
+        <span class="sidebar-link-text">Buyer Demand</span>
       </a>
       <a href="/market-prices" class="sidebar-link <%= navId === 'market-prices' ? 'active' : '' %>">
         <span class="sidebar-link-icon"><i data-lucide="bar-chart-2"></i></span>
@@ -208,9 +212,6 @@
       });
     }
 
-    // Escape closes the user menu first, then the mobile drawer (focus restored).
-    // Tab is trapped inside the open mobile drawer so focus cannot reach the
-    // page behind the overlay.
     document.addEventListener('keydown', function (e) {
       if (userArea && userArea.classList.contains('open')) {
         if (e.key === 'Escape') {
@@ -235,7 +236,6 @@
       }
     });
 
-    // Sign out (the global fetch patch injects the CSRF header)
     const signoutBtn = document.getElementById('sidebarSignoutBtn');
     if (signoutBtn) {
       signoutBtn.addEventListener('click', async function () {
@@ -246,7 +246,6 @@
       });
     }
 
-    // Theme toggle (delegates to the shared data-theme-toggle logic in header.ejs)
     const themeBtn = document.getElementById('sidebarThemeToggle');
     if (themeBtn) {
       themeBtn.addEventListener('click', function () {
