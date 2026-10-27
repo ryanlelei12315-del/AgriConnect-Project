@@ -2,17 +2,25 @@
 <%- include('../partials/navbar') %>
 
 <main class="page-container">
-  <div class="text-center mb-2">
-    <h1 style="color:var(--ink); font-size:2rem; margin-bottom:0.5rem;">Agricultural Services</h1>
-    <p style="color:var(--ink-soft); font-size:1rem; max-width:600px; margin:0 auto;">Find reliable tractors, transport, labor, and agronomy services for your farm.</p>
+  <div class="page-header">
+    <div class="page-header-text">
+      <span class="page-eyebrow">Trade & Labor</span>
+      <h1 class="page-title">Agricultural Services</h1>
+      <p class="page-subtitle">Find reliable tractors, transport, labor, and agronomy services for your farm across Kenya.</p>
+    </div>
+    <% if (typeof user !== 'undefined' && user && user.role === 'provider') { %>
+      <div class="page-header-actions">
+        <a href="/services/new" class="btn btn-amber"><i data-lucide="plus"></i> List a Service</a>
+      </div>
+    <% } %>
   </div>
 
   <form action="/services" method="GET" class="filter-bar">
     <div style="flex:1; min-width:200px;">
-      <input type="text" name="search" placeholder="Search services..." value="<%= search %>" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px;">
+      <input type="text" name="search" placeholder="Search services..." value="<%= search %>" class="form-input">
     </div>
-    <div style="min-width:150px;">
-      <select name="category" style="width:100%; padding:0.75rem; border:1px solid var(--stone); border-radius:8px; background:rgb(12, 69, 12);">
+    <div style="min-width:160px;">
+      <select name="category" class="form-input">
         <option value="All" <%= category === 'All' ? 'selected' : '' %>>All Categories</option>
         <option value="Machinery" <%= category === 'Machinery' ? 'selected' : '' %>>Machinery</option>
         <option value="Transport" <%= category === 'Transport' ? 'selected' : '' %>>Transport</option>
@@ -26,7 +34,7 @@
   </form>
 
   <% if (error) { %>
-    <div style="background:#f8d7da; color:#842029; padding:1rem; border-radius:8px; margin-bottom:2rem;">
+    <div class="alert alert-error">
       <%= error %>
     </div>
   <% } %>
@@ -65,15 +73,15 @@
   <% } else { %>
     <div class="empty-state">
       <i data-lucide="wrench"></i>
-      <h3 style="margin-bottom:0.5rem;">No services found</h3>
-      <p style="color:var(--ink-soft);">We couldn't find any services matching your search criteria.</p>
+      <h3>No services found</h3>
+      <p>We couldn't find any services matching your search criteria.</p>
       <a href="/services" class="btn btn-outline mt-2">Clear Filters</a>
     </div>
   <% } %>
 </main>
 
 <script>
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 </script>
 
 <%- include('../partials/footer') %>

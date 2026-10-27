@@ -1,90 +1,149 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
-<main class="page-container" style="padding-top:110px;max-width:1180px;">
+
+<main class="page-container">
   <div class="page-header">
     <div class="page-header-text">
-      <span class="page-eyebrow">Supply meets demand</span>
-      <h1 class="page-title">Buyer demand board</h1>
-      <p class="page-subtitle">See what buyers need, where they need it, and the quantities they want. Agree on final terms directly before delivery.</p>
+      <span class="page-eyebrow">Direct Matching</span>
+      <h1 class="page-title">Buyer Demand Board</h1>
+      <p class="page-subtitle">See what buyers need across Kenya, where they need it, and required quantities. Match supply directly with demand.</p>
     </div>
   </div>
 
-  <% if (user.role === 'buyer') { %>
-    <section class="panel" style="padding:24px;margin:20px 0 28px;border:1px solid var(--color-border);border-radius:16px;background:var(--color-surface);">
-      <h2 style="font-size:1.3rem;margin-bottom:6px;">Post a crop requirement</h2>
-      <p style="color:var(--color-text-secondary);margin-bottom:18px;">Publish what you need so farmers can contact you. A maximum price is optional; all prices remain subject to agreement.</p>
-      <form action="/demand-board" method="POST" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;">
+  <% if (user && user.role === 'buyer') { %>
+    <section class="card card-pad" style="margin-bottom:2rem;">
+      <h2 style="font-size:1.25rem; font-family:'Playfair Display',serif; margin-bottom:0.35rem; color:var(--ink);">Post a Crop Requirement</h2>
+      <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:1.25rem;">Publish what produce you need so farmers can view and contact you directly.</p>
+
+      <form action="/demand-board" method="POST" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label>Crop or produce name
-          <input name="crop_name" maxlength="100" required placeholder="e.g. dry white maize" style="display:block;width:100%;margin-top:6px;">
-        </label>
-        <label>Category
-          <select name="category" required style="display:block;width:100%;margin-top:6px;">
-            <% ['Cereals','Vegetables','Fruits','Root Crops','Legumes','Dairy','Poultry','Other'].forEach(c => { %><option value="<%= c %>"><%= c %></option><% }) %>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Crop / Produce Name</label>
+          <input name="crop_name" class="form-input" maxlength="100" required placeholder="e.g. Dry White Maize">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Category</label>
+          <select name="category" class="form-input" required>
+            <% ['Cereals','Vegetables','Fruits','Root Crops','Legumes','Dairy','Poultry','Other'].forEach(c => { %>
+              <option value="<%= c %>"><%= c %></option>
+            <% }) %>
           </select>
-        </label>
-        <label>Quantity needed (kg)
-          <input name="quantity_kg" type="number" min="0.01" max="100000000" step="0.01" required placeholder="e.g. 500" style="display:block;width:100%;margin-top:6px;">
-        </label>
-        <label>Maximum price (KES/kg, optional)
-          <input name="max_price_per_kg_kes" type="number" min="0.01" max="100000000" step="0.01" placeholder="Leave blank if flexible" style="display:block;width:100%;margin-top:6px;">
-        </label>
-        <label>Delivery county
-          <select name="county" required style="display:block;width:100%;margin-top:6px;"><option value="">Choose county</option><% counties.forEach(c => { %><option value="<%= c %>"><%= c %></option><% }) %></select>
-        </label>
-        <label>Needed by (optional)
-          <input name="required_by" type="date" style="display:block;width:100%;margin-top:6px;">
-        </label>
-        <label style="grid-column:1/-1;">Quality, variety or delivery notes
-          <textarea name="quality_notes" maxlength="1000" rows="3" placeholder="e.g. dry, sorted, suitable for milling" style="display:block;width:100%;margin-top:6px;"></textarea>
-        </label>
-        <div style="grid-column:1/-1;"><button type="submit" class="btn btn-emerald">Publish requirement</button></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Quantity Needed (kg)</label>
+          <input name="quantity_kg" type="number" class="form-input" min="1" max="10000000" step="1" required placeholder="e.g. 500">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Max Budget (KES/kg, optional)</label>
+          <input name="max_price_per_kg_kes" type="number" class="form-input" min="1" max="100000" step="1" placeholder="Leave blank if flexible">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Delivery County</label>
+          <select name="county" class="form-input" required>
+            <option value="">Select County…</option>
+            <% counties.forEach(c => { %>
+              <option value="<%= c %>"><%= c %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Needed By Date (optional)</label>
+          <input name="required_by" type="date" class="form-input">
+        </div>
+        <div class="form-group" style="grid-column:1/-1; margin-bottom:0;">
+          <label class="form-label">Quality, Variety or Delivery Notes</label>
+          <textarea name="quality_notes" class="form-input" maxlength="1000" rows="3" placeholder="e.g. Clean, well-dried, sorted grade A maize..."></textarea>
+        </div>
+        <div style="grid-column:1/-1; margin-top:0.5rem;">
+          <button type="submit" class="btn btn-emerald"><i data-lucide="send"></i> Publish Requirement</button>
+        </div>
       </form>
     </section>
   <% } else { %>
-    <div style="padding:16px 20px;margin:20px 0 24px;background:var(--color-surface-muted);border-radius:12px;">
-      <strong>Have produce to sell?</strong> Browse buyer requirements below, then <a href="/messages">message the buyer</a> to discuss quality, price, and delivery.
+    <div style="padding:1rem 1.25rem; margin-bottom:1.5rem; background:var(--linen); border:1px solid var(--stone); border-radius:12px; font-size:0.9rem; color:var(--ink-mid);">
+      <strong>Have produce to sell?</strong> Browse buyer requirements below, then message the buyer directly to discuss details and price terms.
     </div>
   <% } %>
 
   <form method="GET" action="/demand-board" class="filter-bar">
-    <input type="search" name="search" placeholder="Search crop requirements..." value="<%= search %>" aria-label="Search crop requirements">
-    <select name="county" aria-label="Filter by county"><option value="All">All counties</option><% counties.forEach(c => { %><option value="<%= c %>" <%= selectedCounty === c ? 'selected' : '' %>><%= c %></option><% }) %></select>
-    <button class="btn btn-emerald" type="submit">Filter demand</button>
+    <div style="flex:1; min-width:200px;">
+      <input type="search" name="search" class="form-input" placeholder="Search crop requirements..." value="<%= search %>" aria-label="Search crop requirements">
+    </div>
+    <div style="min-width:160px;">
+      <select name="county" class="form-input" aria-label="Filter by county">
+        <option value="All">All Counties</option>
+        <% counties.forEach(c => { %>
+          <option value="<%= c %>" <%= selectedCounty === c ? 'selected' : '' %>><%= c %></option>
+        <% }) %>
+      </select>
+    </div>
+    <button class="btn btn-emerald" type="submit">Filter Demand</button>
   </form>
 
-  <% if (demands.length) { %>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;margin:20px 0 40px;">
+  <% if (demands && demands.length > 0) { %>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:1.25rem; margin-bottom:2.5rem;">
       <% demands.forEach(d => { %>
-        <article style="padding:22px;border:1px solid var(--color-border);border-radius:16px;background:var(--color-surface);">
-          <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;">
-            <span class="page-eyebrow"><%= d.category %></span>
-            <span style="font-size:.78rem;padding:5px 9px;border-radius:999px;background:<%= d.status === 'OPEN' ? 'var(--color-success-bg)' : 'var(--color-neutral-bg)' %>;"><%= d.status %></span>
+        <div class="card card-pad" style="display:flex; flex-direction:column; justify-space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <span class="badge badge-neutral"><%= d.category %></span>
+              <span class="badge <%= d.status === 'OPEN' ? 'badge-success' : 'badge-neutral' %>"><%= d.status %></span>
+            </div>
+            <h3 style="font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--ink); margin-bottom:0.5rem;"><%= d.cropName %></h3>
+            <p style="color:var(--ink-soft); font-size:0.875rem; margin-bottom:1rem; display:flex; align-items:center; gap:4px;">
+              <i data-lucide="map-pin" style="width:14px; height:14px;"></i> <%= d.county %> · Buyer: <%= d.buyer ? d.buyer.fullName : 'Buyer' %>
+            </p>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; background:var(--linen); padding:0.75rem 1rem; border-radius:10px; margin-bottom:1rem;">
+              <div>
+                <small style="color:var(--ink-soft); font-size:0.72rem; text-transform:uppercase; font-weight:600;">Quantity Needed</small>
+                <div style="font-weight:700; color:var(--ink); font-size:0.95rem;"><%= Number(d.quantityKg).toLocaleString() %> kg</div>
+              </div>
+              <div>
+                <small style="color:var(--ink-soft); font-size:0.72rem; text-transform:uppercase; font-weight:600;">Max Budget</small>
+                <div style="font-weight:700; color:var(--gold); font-size:0.95rem;"><%= d.maxPricePerKgKes ? 'KES ' + Number(d.maxPricePerKgKes).toLocaleString() + '/kg' : 'Open to offers' %></div>
+              </div>
+            </div>
+
+            <% if (d.requiredBy) { %>
+              <p style="font-size:0.82rem; color:var(--ink-soft); margin-bottom:0.5rem;">Needed by: <strong style="color:var(--ink);"><%= d.requiredBy %></strong></p>
+            <% } %>
+            <% if (d.qualityNotes) { %>
+              <p style="font-size:0.85rem; color:var(--ink-mid); margin-bottom:0.75rem; line-height:1.4;"><%= d.qualityNotes %></p>
+            <% } %>
           </div>
-          <h2 style="font-size:1.35rem;margin:8px 0;"><%= d.cropName %></h2>
-          <p style="color:var(--color-text-secondary);"><i data-lucide="map-pin" style="width:15px;height:15px;vertical-align:middle;"></i> <%= d.county %> · Buyer: <%= d.buyer ? d.buyer.fullName : 'Buyer' %></p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;">
-            <div><small style="color:var(--color-text-muted);">Quantity needed</small><div style="font-weight:600;"><%= Number(d.quantityKg).toLocaleString() %> kg</div></div>
-            <div><small style="color:var(--color-text-muted);">Maximum budget</small><div style="font-weight:600;"><%= d.maxPricePerKgKes ? 'KES ' + Number(d.maxPricePerKgKes).toLocaleString() + '/kg' : 'Open to offers' %></div></div>
+
+          <div style="margin-top:auto; padding-top:1rem; border-top:1px solid var(--stone); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <span style="font-size:0.75rem; color:var(--ink-soft);">Posted <%= new Date(d.createdAt).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' }) %></span>
+            <% if (isBuyer && Number(d.buyerId) === Number(user.id)) { %>
+              <form action="/demand-board/<%= d.id %>/status" method="POST" style="display:flex; gap:6px;">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <% if (d.status === 'CLOSED') { %>
+                  <button class="btn btn-outline btn-sm" name="status" value="OPEN">Reopen</button>
+                <% } %>
+                <% if (d.status === 'OPEN') { %>
+                  <button class="btn btn-outline btn-sm" name="status" value="CLOSED">Close</button>
+                  <button class="btn btn-emerald btn-sm" name="status" value="FULFILLED">Fulfilled</button>
+                <% } %>
+              </form>
+            <% } else if (!isBuyer && d.status === 'OPEN') { %>
+              <a href="/messages/<%= d.buyerId %>" class="btn btn-emerald btn-sm"><i data-lucide="message-square"></i> Contact Buyer</a>
+            <% } %>
           </div>
-          <% if (d.requiredBy) { %><p><small style="color:var(--color-text-muted);">Needed by</small> <strong><%= d.requiredBy %></strong></p><% } %>
-          <% if (d.qualityNotes) { %><p style="margin-top:12px;overflow-wrap:anywhere;"><%= d.qualityNotes %></p><% } %>
-          <p style="font-size:.8rem;color:var(--color-text-muted);margin-top:14px;">Posted <%= new Date(d.createdAt).toLocaleDateString() %></p>
-          <% if (isBuyer && Number(d.buyerId) === Number(user.id)) { %>
-            <form action="/demand-board/<%= d.id %>/status" method="POST" style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <% if (d.status === 'CLOSED') { %><button class="btn btn-outline" name="status" value="OPEN">Reopen</button><% } %>
-              <% if (d.status === 'OPEN') { %><button class="btn btn-outline" name="status" value="CLOSED">Close requirement</button><button class="btn btn-emerald" name="status" value="FULFILLED">Mark fulfilled</button><% } %>
-            </form>
-          <% } else if (!isBuyer && d.status === 'OPEN') { %>
-            <a href="/messages/<%= d.buyerId %>" class="btn btn-emerald" style="display:inline-flex;margin-top:16px;">Contact buyer</a>
-          <% } %>
-        </article>
+        </div>
       <% }) %>
     </div>
   <% } else { %>
-    <div class="empty-state" style="margin:24px 0 48px;"><i data-lucide="search-x"></i><h3>No buyer requirements found</h3><p><%= isBuyer ? 'Publish a requirement above to let farmers know what you need.' : 'Try a different county or crop search. New buyer requirements will appear here.' %></p></div>
+    <div class="empty-state">
+      <i data-lucide="search-x"></i>
+      <h3>No crop requirements found</h3>
+      <p><%= isBuyer ? 'Publish a requirement above to let farmers know what you need.' : 'Try a different county or crop search. New buyer requirements will appear here.' %></p>
+    </div>
   <% } %>
 </main>
-<script>if (window.lucide) lucide.createIcons();</script>
+
+<script>
+  if (window.lucide) lucide.createIcons();
+</script>
+
 <%- include('partials/footer') %>

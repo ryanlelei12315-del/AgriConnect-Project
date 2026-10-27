@@ -9,6 +9,7 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const { sequelize } = require('../config/database');
+require('../models/associations');
 const { User } = require('../models/User');
 const { ProduceListing } = require('../models/ProduceListing');
 const { ServiceListing } = require('../models/ServiceListing');
@@ -126,6 +127,7 @@ const DEMO_SERVICES = [
 async function seed() {
   try {
     console.log('🌱 Seeding AgriConnect KE database…');
+    await sequelize.sync();
 
     const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, SALT_ROUNDS);
 

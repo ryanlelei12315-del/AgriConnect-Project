@@ -1,70 +1,77 @@
 <%- include('../partials/header') %>
 <%- include('../partials/navbar') %>
 
-<main class="page-container" style="padding-top:100px; padding-bottom:4rem; max-width:1200px; margin:0 auto; padding-left:2rem; padding-right:2rem;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-    <h1 style="color:var(--emerald); margin:0;">My Orders</h1>
-    <a href="/dashboard" class="btn btn-outline">Back to Dashboard</a>
+<main class="page-container">
+  <div class="page-header">
+    <div class="page-header-text">
+      <span class="page-eyebrow">Transactions</span>
+      <h1 class="page-title">My Orders</h1>
+      <p class="page-subtitle"><%= isFarmer ? 'Orders placed by buyers for your produce listings.' : 'Purchase orders placed for farm produce.' %></p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/dashboard" class="btn btn-outline"><i data-lucide="arrow-left"></i> Back to Dashboard</a>
+    </div>
   </div>
 
-  <div style="background:var(--white); border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--stone); overflow:hidden;">
+  <div class="card card-pad" style="padding:0; overflow:hidden;">
     <% if (orders && orders.length > 0) { %>
-      <table class="data-table" style="width:100%; text-align:left; border-collapse:collapse;">
-        <thead>
-          <tr style="background:var(--cream); border-bottom:1px solid var(--stone);">
-            <th style="padding:1rem;">Order ID</th>
-            <th style="padding:1rem;">Date</th>
-            <th style="padding:1rem;"><%= isFarmer ? 'Buyer' : 'Seller' %></th>
-            <th style="padding:1rem;">Produce</th>
-            <th style="padding:1rem;">Quantity</th>
-            <th style="padding:1rem;">Total</th>
-            <th style="padding:1rem;">Status</th>
-            <th style="padding:1rem;">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% orders.forEach(o => { %>
-            <tr style="border-bottom:1px solid var(--stone);">
-              <td style="padding:1rem; font-weight:500;">#ORD-<%= o.id %></td>
-              <td style="padding:1rem; color:var(--ink-soft);"><%= new Date(o.createdAt).toLocaleDateString() %></td>
-              <td style="padding:1rem;"><%= isFarmer ? (o.buyer ? o.buyer.fullName : 'Unknown') : (o.seller ? o.seller.fullName : 'Unknown') %></td>
-              <td style="padding:1rem;">
-                <% if (o.items && o.items.length > 0 && o.items[0].listing) { %>
-                  <%= o.items[0].listing.name %>
-                <% } else { %>
-                  Unknown
-                <% } %>
-              </td>
-              <td style="padding:1rem;"><%= o.items && o.items.length > 0 ? o.items[0].quantityKg : 0 %> kg</td>
-              <td style="padding:1rem; font-weight:600;">KES <%= Number(o.totalKes).toLocaleString() %></td>
-              <td style="padding:1rem;">
-                <span style="font-size:0.85rem; padding:4px 8px; border-radius:12px; font-weight:500;
-                  background:<%= o.status === 'pending' ? '#fff3cd' : o.status === 'completed' ? '#d1e7dd' : o.status === 'canceled' ? '#f8d7da' : '#e2e3e5' %>; 
-                  color:<%= o.status === 'pending' ? '#856404' : o.status === 'completed' ? '#0f5132' : o.status === 'canceled' ? '#842029' : '#383d41' %>">
-                  <%= o.status.toUpperCase() %>
-                </span>
-              </td>
-              <td style="padding:1rem;">
-                <a href="/orders/<%= o.id %>" style="color:var(--emerald); font-weight:500; text-decoration:none;">View Details</a>
-              </td>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th><%= isFarmer ? 'Buyer' : 'Seller' %></th>
+              <th>Produce</th>
+              <th>Quantity</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Action</th>
             </tr>
-          <% }) %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% orders.forEach(o => { %>
+              <tr>
+                <td class="cell-strong">#ORD-<%= o.id %></td>
+                <td><%= new Date(o.createdAt).toLocaleDateString('en-KE', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
+                <td><%= isFarmer ? (o.buyer ? o.buyer.fullName : 'Buyer') : (o.seller ? o.seller.fullName : 'Seller') %></td>
+                <td class="cell-strong">
+                  <% if (o.items && o.items.length > 0 && o.items[0].listing) { %>
+                    <%= o.items[0].listing.name %>
+                  <% } else { %>
+                    Produce Item
+                  <% } %>
+                </td>
+                <td><%= o.items && o.items.length > 0 ? Number(o.items[0].quantityKg).toLocaleString() : 0 %> kg</td>
+                <td class="cell-amount">KES <%= Number(o.totalKes).toLocaleString() %></td>
+                <td>
+                  <% const st = (o.status || 'pending').toLowerCase(); %>
+                  <span class="badge <%= st === 'completed' ? 'badge-success' : st === 'pending' ? 'badge-warning' : st === 'canceled' ? 'badge-danger' : 'badge-info' %>">
+                    <%= st %>
+                  </span>
+                </td>
+                <td>
+                  <a href="/orders/<%= o.id %>" class="btn btn-ghost btn-sm">View Details</a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
     <% } else { %>
-      <div class="empty-state" style="padding:4rem 2rem; text-align:center;">
-        <i data-lucide="shopping-bag" style="width:64px; height:64px; color:var(--ink-soft); opacity:0.5; margin-bottom:1rem;"></i>
-        <h3 style="margin-bottom:0.5rem;">No orders yet.</h3>
-        <p style="color:var(--ink-soft); margin-bottom:1.5rem;">
-          <%= isFarmer ? 'When buyers place orders for your produce, they will appear here.' : 'When you order produce from farmers, they will appear here.' %>
+      <div class="empty-state">
+        <i data-lucide="shopping-bag"></i>
+        <h3>No orders yet</h3>
+        <p>
+          <%= isFarmer ? 'When buyers place orders for your produce, they will appear here.' : 'When you order produce from farmers, your orders will appear here.' %>
         </p>
-        <a href="/marketplace" class="btn btn-amber">Browse Marketplace</a>
+        <a href="/marketplace" class="btn btn-primary mt-1">Browse Marketplace</a>
       </div>
     <% } %>
   </div>
 </main>
 
 <script>
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 </script>
 <%- include('../partials/footer') %>
