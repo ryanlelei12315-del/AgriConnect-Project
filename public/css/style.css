@@ -119,17 +119,10 @@ nav {
   display: flex;
   align-items: center;
   padding: 0 clamp(1.5rem, 5vw, 4rem);
-<<<<<<< HEAD
   background: rgba(237, 242, 235, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(220, 229, 221, 0.7);
-=======
-  background: rgba(253, 251, 247, 0.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(15, 59, 33, 0.12);
->>>>>>> 5ab1cbbd0986ebe0b331867710137033cbd26b75
   animation: softFade 1s ease forwards;
 }
 .nav-logo {

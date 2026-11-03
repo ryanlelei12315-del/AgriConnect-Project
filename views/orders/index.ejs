@@ -1,7 +1,6 @@
 <%- include('../partials/header') %>
 <%- include('../partials/navbar') %>
 
-<<<<<<< HEAD
 <main class="page-container linked-page orders-page">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
     <h1 style="color:var(--emerald); margin:0;">My Orders</h1>
@@ -9,21 +8,6 @@
   </div>
 
   <div class="linked-page__surface table-responsive">
-=======
-<main class="page-container">
-  <div class="page-header">
-    <div class="page-header-text">
-      <span class="page-eyebrow">Transactions</span>
-      <h1 class="page-title">My Orders</h1>
-      <p class="page-subtitle"><%= isFarmer ? 'Orders placed by buyers for your produce listings.' : 'Purchase orders placed for farm produce.' %></p>
-    </div>
-    <div class="page-header-actions">
-      <a href="/dashboard" class="btn btn-outline"><i data-lucide="arrow-left"></i> Back to Dashboard</a>
-    </div>
-  </div>
-
-  <div class="card card-pad" style="padding:0; overflow:hidden;">
->>>>>>> 5ab1cbbd0986ebe0b331867710137033cbd26b75
     <% if (orders && orders.length > 0) { %>
       <div class="table-responsive">
         <table class="data-table">
